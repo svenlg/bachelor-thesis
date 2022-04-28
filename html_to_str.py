@@ -1,7 +1,13 @@
 from bs4 import BeautifulSoup
 import urllib.request
 
+
+url = 'file:///C:/Users/user/Bachelor/out'
+law = ...
+version = ...
 ocn = ['old', 'change', 'new']
+def html_to_str(url):
+    return
 
 url = 'file:///C:/Users/user/Bachelor/out/AktG/Nr0_2021-08-12/'
 url += ocn[1] + '.html'
