@@ -76,7 +76,7 @@ class MolecularNet(nn.Module):
 def get_loaders(dataset, batch_size=64, shuffle=True, split = 0.8):
     
     assert 0 <= split <= 1
-    fname = 'Data/' + dataset
+    fname = '/scratch/sgutjahr/Data/' + dataset
     features = pd.read_csv(fname + '_features.csv')
     features = features.drop(columns=['Id', 'smiles'])
     features = features.to_numpy()
