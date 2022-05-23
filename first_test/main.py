@@ -28,4 +28,3 @@ reg = torch.load('model_best.pt', map_location=torch.device('cpu')).to(device)
 # Finetune Loop 
 reg_train_loop(reg, dl_train_fine, dl_val_fine, loss_fn, optim, device, show=500, save=1000, epochs=10000)
 
-
