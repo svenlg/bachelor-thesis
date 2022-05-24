@@ -1,4 +1,4 @@
-#Imports
+# Imports
 import numpy as np
 import pandas as pd
 from torch.utils.data import DataLoader, Dataset
@@ -6,7 +6,8 @@ import torch.nn as nn
 import torch
 import time
 
-# Trianset
+
+# Train Set
 class TrainDataset(Dataset):
 
     def __init__(self, data):
@@ -18,7 +19,8 @@ class TrainDataset(Dataset):
     def __getitem__(self, idx):
         feature = torch.from_numpy(self.data[idx]).float()
         return feature
-    
+
+
 # Molecular Net
 class MolecularNet(nn.Module):
 
@@ -72,6 +74,7 @@ class MolecularNet(nn.Module):
         x = self.regressor(x)
         return x
 
+
 # Get the data    
 def get_loaders(dataset, batch_size=64, shuffle=True, split = 0.8):
     
@@ -107,6 +110,7 @@ def get_loaders(dataset, batch_size=64, shuffle=True, split = 0.8):
                             num_workers=0, pin_memory=True)
 
     return train_loader, val_loader
+
 
 # Evaluate function for the edr
 def edr_evaluate(model, loss_fn, val_loader, device):
@@ -149,6 +153,7 @@ def edr_evaluate(model, loss_fn, val_loader, device):
 
         return avg_val_loss, avg_val_reg, avg_val_dec
 
+
 # Evaluate function for the reg
 def reg_evaluate(model, loss_fn, val_loader, device):
     # goes through the test dataset and computes the test accuracy
@@ -179,6 +184,7 @@ def reg_evaluate(model, loss_fn, val_loader, device):
         avg_val_loss = val_loss_cum / num_eval_samples
 
         return avg_val_loss
+
 
 # Trianings Loop for the edr
 def edr_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show=1, save=40, epochs=200):
@@ -276,7 +282,8 @@ def edr_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
             line = False
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
-    
+
+
 # Trainigs Loop for the reg
 def reg_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show=1, save=40, epochs=200):
     line = False

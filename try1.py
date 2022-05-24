@@ -4,6 +4,7 @@ import torch
 from torch.utils.data import Dataset
 from transformers import AutoModel, AutoTokenizer, DistilBertTokenizerFast, DistilBertForSequenceClassification
 from transformers import Trainer, TrainingArguments
+from get_data import get_data
 
 # 1. Prepare dataset
 # 2. Load pretrained Tokenizer, call it with dataset -> encoding
@@ -15,40 +16,29 @@ from transformers import Trainer, TrainingArguments
 # Pretrained model
 model_name = "dbmdz/bert-base-german-cased"
 
-def read_imdb_split(split_dir):
-    ## get data????
-    split_dir = Path(split_dir)
-    texts = []
-    labels = []
-    for label_dir in ["pos","neg"]:
-        for text_file in (split_dir/label_dir).iterdir():
-            texts.append(text_file.read_text())
-            labels.append(0 if label_dir == "neg" else 1)
-    
-    return old, change, new
+# Getting the data
+old, change, new = get_data(0.02)
+# test_texts, test_labels = get_old_change_new(fname)
 
-# Getting the data 
-# Filename
-fname = '../Data_Laws/'
-train_texts, train_labels = read_imdb_split(fname)
-test_texts, test_labels = read_imdb_split(fname)
-
-train_texts, val_texts, train_labels, val_labels = train_test_split(train_texts, train_labels, test_size=.2)
+train_old, val_old, train_change, val_change, train_new, val_new = train_test_split(old, change, new, test_size=.5)
 
 
-class IMDbDataset (Dataset) :
-    def __init__(self, encodings, labels):
-        self.encodings = encodings
-        self.labels = labels
+class LawDataset(Dataset):
+    def __init__(self, enc_old, enc_cha, enc_new):
+        self.enc_old = enc_old
+        self.enc_cha = enc_cha
+        self.enc_new = enc_new
+
+    def __len__(self):
+        return len(self.enc_old.shape[0])
 
     def __getitem__(self, idx):
-        item = {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
-        item['labels'] = torch.tensor(self.labels[idx])
-        return item
-    
-    def __len__(self):
-        return len(self.Labels)
-    
+        old_ = torch.from_numpy(self.enc_old[idx]).float()
+        cha_ = torch.from_numpy(self.enc_cha[idx]).float()
+        new_ = torch.from_numpy(self.enc_new[idx]).float()
+        law = torch.hstack((old_, cha_, new_))
+        return law
+
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 

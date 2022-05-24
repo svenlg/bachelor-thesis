@@ -14,7 +14,9 @@ from transformers import Trainer, TrainingArguments
 
 model_name = "distilbert-base-uncased"
 
+
 def read_imdb_split(split_dir):
+    # get_old_change_new
     split_dir = Path(split_dir)
     texts = []
     labels = []
@@ -29,6 +31,7 @@ def read_imdb_split(split_dir):
 # http://lai.stanford.edu/~amaas/data/sentiment/
 train_texts, train_labels = read_imdb_split('aclImdb/test')
 test_texts, test_labels = read_imdb_split('aclImdb/test')
+
 
 train_texts, val_texts, train_labels, val_labels = train_test_split(train_texts, train_labels, test_size=.2)
 
