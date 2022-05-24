@@ -20,6 +20,23 @@ import time
 ###
 
 
+class LawDataset(Dataset):
+    def __init__(self, enc_old, enc_cha, enc_new):
+        self.enc_old = enc_old
+        self.enc_cha = enc_cha
+        self.enc_new = enc_new
+
+    def __len__(self):
+        return len(self.enc_old.shape[0])
+
+    def __getitem__(self, idx):
+        old_ = torch.from_numpy(self.enc_old[idx]).float()
+        cha_ = torch.from_numpy(self.enc_cha[idx]).float()
+        new_ = torch.from_numpy(self.enc_new[idx]).float()
+        law = torch.hstack((old_, cha_, new_))
+        return law
+
+
 def html_to_str(url):
     html = urllib.request.urlopen(url).read()
     soup = BeautifulSoup(html,features="html.parser")

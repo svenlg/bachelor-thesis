@@ -2,9 +2,9 @@ from pathlib import Path
 from sklearn.model_selection import train_test_split
 import torch
 from torch.utils.data import Dataset
-from transformers import AutoModel, AutoTokenizer, DistilBertTokenizerFast, DistilBertForSequenceClassification
+from transformers import AutoModel, AutoTokenizer
 from transformers import Trainer, TrainingArguments
-from get_data import get_data
+from prep_data import get_data, LawDataset
 
 # 1. Prepare dataset
 # 2. Load pretrained Tokenizer, call it with dataset -> encoding
@@ -23,34 +23,21 @@ old, change, new = get_data(0.02)
 train_old, val_old, train_change, val_change, train_new, val_new = train_test_split(old, change, new, test_size=.5)
 
 
-class LawDataset(Dataset):
-    def __init__(self, enc_old, enc_cha, enc_new):
-        self.enc_old = enc_old
-        self.enc_cha = enc_cha
-        self.enc_new = enc_new
-
-    def __len__(self):
-        return len(self.enc_old.shape[0])
-
-    def __getitem__(self, idx):
-        old_ = torch.from_numpy(self.enc_old[idx]).float()
-        cha_ = torch.from_numpy(self.enc_cha[idx]).float()
-        new_ = torch.from_numpy(self.enc_new[idx]).float()
-        law = torch.hstack((old_, cha_, new_))
-        return law
-
-
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 # ensure that all of our sequences are padded to the same length and are truncated to be no longer than model's
 # maximum input length. This will allow us to feed batches of sequences into the model at the same time.
-train_encodings = tokenizer(train_texts, truncation=True, padding=True)
-val_encodings = tokenizer(val_texts, truncation=True, padding=True)
-test_encodings = tokenizer(test_texts, truncation=True, padding=True)
+tr_enc_old = tokenizer(train_old, truncation=True, padding=True)
+tr_enc_change = tokenizer(train_change, truncation=True, padding=True)
+tr_enc_new = tokenizer(train_new, truncation=True, padding=True)
+val_enc_old = tokenizer(val_old, truncation=True, padding=True)
+val_enc_change = tokenizer(val_change, truncation=True, padding=True)
+val_enc_new = tokenizer(val_new, truncation=True, padding=True)
+# test_encodings = tokenizer(test_texts, truncation=True, padding=True)
 
-train_dataset = IMDbDataset(train_encodings, train_labels)
-val_dataset = IMDbDataset (val_encodings, val_labels)
-test_dataset = IMDbDataset(test_encodings, test_labels)
+train_dataset = LawDataset(tr_enc_old, tr_enc_change, tr_enc_new)
+val_dataset = LawDataset(val_enc_old, val_enc_change, val_enc_new)
+# test_dataset = LawDataset(test_encodings, test_labels)
 
 training_args = TrainingArguments(
     output_dir='./results',          # output directory
