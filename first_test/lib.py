@@ -84,7 +84,7 @@ def get_loaders(dataset, batch_size=64, shuffle=True, split = 0.8):
     features = features.drop(columns=['Id', 'smiles'])
     features = features.to_numpy()
 
-    labels = pd.read_csv(fname + "_labels.csv")
+    labels = pd.read_csv(fname + '_labels.csv')
     labels = labels.drop(columns=['Id'])
     labels = labels.to_numpy()
 
