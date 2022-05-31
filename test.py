@@ -18,7 +18,7 @@ model_name = "dbmdz/bert-base-german-cased"
 
 # Getting the data
 old, change, new = get_data(0.02)
-# test_texts, test_labels = get_old_change_new(fname)
+# test_texts, test_labels = get_data(0.02)
 
 train_old, val_old, train_change, val_change, train_new, val_new = train_test_split(old, change, new, test_size=.5)
 
@@ -29,21 +29,20 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 # ensure that all of our sequences are padded to the same length and are truncated to be no longer than model's
 # maximum input length. This will allow us to feed batches of sequences into the model at the same time.
 
-print(len(train_old[0][0]))
-tr_enc_old = tokenizer(train_old[0][0], truncation=True, padding=True, add_special_tokens = True)
+print(len(train_old[0]))
+tr_enc_old = tokenizer(train_old[0], truncation=True, padding=True, add_special_tokens=True)
 print(len(tr_enc_old.input_ids))
 
-# print(len(train_old[0]))
-# tr_enc_old = tokenizer(train_old[0], truncation=True, padding=True, add_special_tokens = True)
-# print(tr_enc_old)
-# tr_enc_change = tokenizer(train_change, truncation=True, padding=True)
-# tr_enc_new = tokenizer(train_new, truncation=True, padding=True)
+tr_enc_change = tokenizer(train_change[0], truncation=True, padding=True)
+print(type(tr_enc_change))
+tr_enc_new = tokenizer(train_new[0], truncation=True, padding=True)
+print(tr_enc_change.keys())
 # val_enc_old = tokenizer(val_old, truncation=True, padding=True)
 # val_enc_change = tokenizer(val_change, truncation=True, padding=True)
 # val_enc_new = tokenizer(val_new, truncation=True, padding=True)
 # test_encodings = tokenizer(test_texts, truncation=True, padding=True)
 
-#   train_dataset = LawDataset(tr_enc_old, tr_enc_change, tr_enc_new)
+train_dataset = LawDataset(tr_enc_old, tr_enc_change, tr_enc_new)
 # val_dataset = LawDataset(val_enc_old, val_enc_change, val_enc_new)
 # test_dataset = LawDataset(test_encodings, test_labels)
 
