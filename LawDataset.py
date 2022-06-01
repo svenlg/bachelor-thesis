@@ -26,19 +26,26 @@ from torch.utils.data import Dataset
 # data[0][0][0]['attention_mask'] #pt_tensor int: only 1 (attention) or 0 (no attention)
 
 
-class LawDataset(Dataset):
+class LawDatasetForMasking(Dataset):
     
     def __init__(self, data):
+        data = self.masking_task(data)
         self.data = data
         
     def __len__(self):
         return len(self.data)
 
+    def masking_task(self, data):
+        out = []
+        for law in data:
+            for change in law:
+                old, change, new = change
+                out.append(old)
+                out.append(change)
+                out.append(new)
+        return out
+    
     def __getitem__(self, idx):
-        law = self.data[idx]
-        old = torch.from_numpy(law[0]).float()
-        cha = torch.from_numpy(law[1]).float()
-        new = torch.from_numpy(law[2]).float()
-        print(type(old))
-        law = torch.hstack((old, cha, new))
-        return law
+        return self.data[idx]
+    
+    
