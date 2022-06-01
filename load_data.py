@@ -1,7 +1,6 @@
 # Import
 import torch
 import numpy as np
-from torch.utils.data import Dataset
 
 # [PAD]  Padding token 512 tokens per seqences                          0
 # [UNK]  Used when a word is unknown to Bert                          100
