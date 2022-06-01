@@ -14,9 +14,9 @@ import urllib.request
 # do not run this
 ###
 
-model_name = "dbmdz/bert-base-german-cased"
+checkpoint = "dbmdz/bert-base-german-cased"
 
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 
 def html_to_str_to_tensor(url, save):
     html = urllib.request.urlopen(url).read()

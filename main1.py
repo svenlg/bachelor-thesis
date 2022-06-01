@@ -16,8 +16,8 @@ from transformers import AdamW
 #    b) or use native Pytorch training pipeline
 
 # Pretrained model
-model_name = 'dbmdz/bert-base-german-cased'
-model = AutoModel.from_pretrained(model_name)
+checkpoint = 'dbmdz/bert-base-german-cased'
+model = AutoModel.from_pretrained(checkpoint)
 
 # Getting the data train and test and split the trainings data into train and val sets
 # see format of laws in LawDataset.py
