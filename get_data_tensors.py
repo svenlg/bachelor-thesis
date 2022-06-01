@@ -1,6 +1,7 @@
 # Import
 import torch
 import numpy as np
+from torch.utils.data import Dataset
 
 # [PAD]  Padding token 512 tokens per seqences                          0
 # [UNK]  Used when a word is unknown to Bert                          100
@@ -103,5 +104,67 @@ def get_laws(split):
     
     return ten
 
-#get_laws()
-print('Done!')
+# get_laws()
+# print('Done!')
+
+class LawDatasetForMasking(Dataset):
+    
+    def __init__(self, data):
+        data = self.masking_task(data)
+        self.data = data
+        
+    def __len__(self):
+        return len(self.data)
+
+    def masking_task(self, data):
+        out = []
+        for law in data:
+            for change in law:
+                old, change, new = change
+                out.append(old)
+                out.append(change)
+                out.append(new)
+        return out
+    
+    def __getitem__(self, idx):
+        return self.data[idx]
+
+# class LawDataset(Dataset):
+    
+#     def __init__(self, data):
+#         self.data = data
+        
+#     def __len__(self):
+#         return len(self.data)
+
+#     def getlaw(self, change):
+#         tuple_old = change[0]
+#         tuple_cha = change[1]
+#         tuple_new = change[2]
+#         return tuple_old, tuple_cha, tuple_new
+    
+#     def __getitem__(self, idx):
+#         law = self.data[idx]
+#         old, cha, new = [], [], [] 
+#         for i in range(len(law)):
+#             o, c, n = self.getlaw(law[i])
+#             old.append(o)
+#             cha.append(c)
+#             new.append(n)
+            
+#         return (old, cha, new)
+    
+# print(type(data)) # list: Gesetzten die genutzt werden
+# print(len(data))  # int(split*len(laws))
+
+# print(type(data[0])) # list: Changes die es gab pro Gesetz
+# print(len(data[0]))  # Num an Changes
+      
+# print(type(data[0][0])) # tuple: old, change, new
+# print(len(data[0][0]))  # 3
+
+# print(type(data[0][0][0])) # dict: key: ('input_ids', 'attention_mask') values: there pt_tensor representation
+
+# print(data[0][0][0]['input_ids'].shape) #shape = (__,512)
+# print(data[0][0][0]['input_ids']) #pt_tensor long: attual data
+# print(data[0][0][0]['attention_mask']) #pt_tensor int: only 1 (attention) or 0 (no attention)

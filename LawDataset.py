@@ -29,16 +29,16 @@ from torch.utils.data import Dataset
 class LawDataset(Dataset):
     
     def __init__(self, data):
-        self.enc_old = enc_old
-        self.enc_cha = enc_cha
-        self.enc_new = enc_new
-
+        self.data = data
+        
     def __len__(self):
-        return len(self.enc_old.shape[0])
+        return len(self.data)
 
     def __getitem__(self, idx):
-        old_ = torch.from_numpy(self.enc_old[idx]).float()
-        cha_ = torch.from_numpy(self.enc_cha[idx]).float()
-        new_ = torch.from_numpy(self.enc_new[idx]).float()
-        law = torch.hstack((old_, cha_, new_))
+        law = self.data[idx]
+        old = torch.from_numpy(law[0]).float()
+        cha = torch.from_numpy(law[1]).float()
+        new = torch.from_numpy(law[2]).float()
+        print(type(old))
+        law = torch.hstack((old, cha, new))
         return law

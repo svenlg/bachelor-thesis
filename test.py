@@ -1,10 +1,10 @@
-from pathlib import Path
+# Imports 
 from sklearn.model_selection import train_test_split
 import torch
-from torch.utils.data import Dataset
-from transformers import AutoModel, AutoTokenizer
-from transformers import Trainer, TrainingArguments
-from prep_data import get_data, LawDataset
+from transformers import AutoModel
+from get_data_tensors import get_laws, LawDataset
+from torch.utils.data import DataLoader
+from torch.optim import Adam
 
 # 1. Prepare dataset
 # 2. Load pretrained Tokenizer, call it with dataset -> encoding
@@ -14,36 +14,45 @@ from prep_data import get_data, LawDataset
 #    b) or use native Pytorch training pipeline
 
 # Pretrained model
-model_name = "dbmdz/bert-base-german-cased"
+checkpoint = 'dbmdz/bert-base-german-cased'
+model = AutoModel.from_pretrained(checkpoint)
 
-# Getting the data
-old, change, new = get_data(0.02)
-# test_texts, test_labels = get_data(0.02)
+# Getting the data train and test and split the trainings data into train and val sets
+# see format of laws in LawDataset.py
+laws = get_laws(0.02)
+train_laws, val_laws = train_test_split(laws, test_size=.5)
+#test_laws = get_laws()
 
-train_old, val_old, train_change, val_change, train_new, val_new = train_test_split(old, change, new, test_size=.5)
+train_dataset = LawDataset(train_laws)
+val_dataset = LawDataset(val_laws)
+# test_dataset = LawDataset(test_laws)
 
+# or native Pytorch
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+model.to(device)
+model.train()
 
+train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True)
 
-# ensure that all of our sequences are padded to the same length and are truncated to be no longer than model's
-# maximum input length. This will allow us to feed batches of sequences into the model at the same time.
+optim = Adam(model.parameters(), lr=5e-5)
 
-print(len(train_old[0]))
-tr_enc_old = tokenizer(train_old[0], truncation=True, padding=True, add_special_tokens=True)
-print(len(tr_enc_old.input_ids))
+num_train_epochs = 2
 
-tr_enc_change = tokenizer(train_change[0], truncation=True, padding=True)
-print(type(tr_enc_change))
-tr_enc_new = tokenizer(train_new[0], truncation=True, padding=True)
-print(tr_enc_change.keys())
-# val_enc_old = tokenizer(val_old, truncation=True, padding=True)
-# val_enc_change = tokenizer(val_change, truncation=True, padding=True)
-# val_enc_new = tokenizer(val_new, truncation=True, padding=True)
-# test_encodings = tokenizer(test_texts, truncation=True, padding=True)
+print('training kann beginnen')
 
-train_dataset = LawDataset(tr_enc_old, tr_enc_change, tr_enc_new)
-# val_dataset = LawDataset(val_enc_old, val_enc_change, val_enc_new)
-# test_dataset = LawDataset(test_encodings, test_labels)
+for epoch in range(num_train_epochs):
+    for batch in train_loader:
+        optim.zero_grad()
+        input_ids = batch['input_ids'].to(device)
+        attention_mask = batch['attention_mask'].to(device)
+        labels = batch['labels'].to(device)
+        
+        outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
+        
+        loss = outputs[0]
+        loss.backward()
+        optim.step()
+        
+model.eval()
 
-print('So weit geht es!')
