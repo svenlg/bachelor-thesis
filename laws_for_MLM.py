@@ -98,7 +98,8 @@ def get_tensors(ocn):
 def get_old_change_new(law):
 
     law = str(law)
-    fname = '../Data_Tokoenzied/' + law + '/'
+    fname = '/scratch/sgutjahr/Data_Tokoenzied/'
+    #fname = '../Data_Tokoenzied/' + law + '/'
     changes = np.loadtxt(fname + 'changes.txt', dtype=str, encoding='utf-8')
     
     ten_law = []
@@ -130,8 +131,9 @@ def get_old_change_new(law):
 def get_laws(split=0.05):
     
     assert 0 <= split <= 1
-
-    fname = '../Data_Tokoenzied/'
+    
+    fname = '/scratch/sgutjahr/Data_Tokoenzied/'
+    #fname = '../Data_Tokoenzied/'
     laws = np.loadtxt(fname + 'done_with.txt', dtype=str)
     ten = []
     np.random.shuffle(laws)
@@ -180,7 +182,8 @@ def get_laws(split=0.05):
     
     assert 0 <= split <= 1
 
-    fname = '../Data_Tokoenzied/'
+    fname = '/scratch/sgutjahr/Data_Tokoenzied/'
+    #fname = '../Data_Tokoenzied/'
     laws = np.loadtxt(fname + 'done_with.txt', dtype=str)
     ten = []
     np.random.shuffle(laws)
