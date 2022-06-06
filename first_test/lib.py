@@ -189,8 +189,8 @@ def reg_evaluate(model, loss_fn, val_loader, device):
 
 # Trianings Loop for the edr
 def edr_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show=1, save=40, epochs=200):
-    loss_change_pretrain = []
-    loss_change_preval = []
+    loss_change_pretrain = np.empty((epochs,3))
+    loss_change_preval = np.empty((epochs,3))
     line = False
     print(f'Start training model')
     best_round = 0
@@ -253,13 +253,13 @@ def edr_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
         avg_train_dec = torch.sqrt(avg_train_dec)
         avg_train_loss = train_loss_cum / num_samples_epoch
         avg_train_loss = torch.sqrt(avg_train_loss)       
-        loss_change_pretrain.append((avg_train_reg,avg_train_dec,avg_train_loss))
+        loss_change_pretrain[epoch] = np.array([avg_train_reg[0],avg_train_dec[0],avg_train_loss[0]])
 
         val_loss, val_reg, val_dec = edr_evaluate(model, loss_fn, val_loader, device)
         val_loss = torch.sqrt(val_loss)
         val_reg = torch.sqrt(val_reg)
         val_dec = torch.sqrt(val_dec)
-        loss_change_preval.append((val_reg,val_dec,val_loss))
+        loss_change_preval[epoch] = np.array([val_reg[0],val_dec[0],val_loss[0]])
 
         epoch_duration = time.time() - t
 
@@ -288,21 +288,15 @@ def edr_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
             line = False
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
-
-    with open('log/loss_change_pretrain.txt', 'w') as f:
-        for s in loss_change_pretrain:
-            f.write(str(s) + '\n')
-    with open('log/loss_change_preval.txt', 'w') as f:
-        for s in loss_change_preval:
-            f.write(str(s) + '\n')  
-            
+    np.save('log/model_loss_tain.npy', loss_change_pretrain)
+    np.save('log/model_loss_val.npy', loss_change_preval) 
     print('')
 
 
 # Trainigs Loop for the reg
 def reg_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show=1, save=40, epochs=200):
-    loss_change_train = []
-    loss_change_val = []
+    loss_change_train = np.empty((epoch,))
+    loss_change_val = np.empty((epoch,))
     line = False
     print(f'Start finetuning model')
     best_round = 0
@@ -353,11 +347,11 @@ def reg_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
         # average the accumulated statistics
         avg_train_loss = train_loss_cum / num_samples_epoch
         avg_train_loss = torch.sqrt(avg_train_loss)
-        loss_change_train.append(avg_train_loss)
+        loss_change_train[epoch] = avg_train_loss[0].detach()
 
         val_loss = reg_evaluate(model, loss_fn, val_loader, device)
         val_loss = torch.sqrt(val_loss)
-        loss_change_val.append(val_loss)
+        loss_change_val[epoch] = val_loss[0].detach()
 
         epoch_duration = time.time() - t
 
@@ -386,10 +380,6 @@ def reg_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
             line = False
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
-    with open('log/loss_change_train.txt', 'w') as f:
-        for s in loss_change_train:
-            f.write(str(s) + '\n')
-    with open('log/loss_change_val.txt', 'w') as f:
-        for s in loss_change_val:
-            f.write(str(s) + '\n')
+    np.save('log/full_model_loss_tain.npy', loss_change_train)
+    np.save('log/full_model_loss_val.npy', loss_change_val)
 
