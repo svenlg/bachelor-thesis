@@ -79,7 +79,7 @@ class MolecularNet(nn.Module):
 def get_loaders(dataset, batch_size=64, shuffle=True, split = 0.8):
     
     assert 0 <= split <= 1
-    
+
     fname = 'C:/Users/user/Bachelor/Data_P1/' + dataset
     #fname = '/scratch/sgutjahr/Data_P1/' + dataset
     features = pd.read_csv(fname + '_features.csv')
@@ -252,7 +252,6 @@ def edr_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
         avg_train_loss = train_loss_cum / num_samples_epoch
         avg_train_loss = torch.sqrt(avg_train_loss)
         loss_change_pretrain[epoch-1] = np.array([avg_train_reg.item(),avg_train_dec.item(),avg_train_loss.item()])
-        
         val_loss, val_reg, val_dec = edr_evaluate(model, loss_fn, val_loader, device)
         val_loss = torch.sqrt(val_loss)
         val_reg = torch.sqrt(val_reg)
