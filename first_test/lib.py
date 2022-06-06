@@ -252,16 +252,15 @@ def edr_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
         avg_train_dec = train_loss_dec / num_samples_epoch
         avg_train_dec = torch.sqrt(avg_train_dec)
         avg_train_loss = train_loss_cum / num_samples_epoch
-        avg_train_loss = torch.sqrt(avg_train_loss)
-        
+        avg_train_loss = torch.sqrt(avg_train_loss)       
         loss_change_pretrain.append((avg_train_reg,avg_train_dec,avg_train_loss))
 
         val_loss, val_reg, val_dec = edr_evaluate(model, loss_fn, val_loader, device)
         val_loss = torch.sqrt(val_loss)
         val_reg = torch.sqrt(val_reg)
         val_dec = torch.sqrt(val_dec)
-        
         loss_change_preval.append((val_reg,val_dec,val_loss))
+
         epoch_duration = time.time() - t
 
         # print some infos
@@ -289,14 +288,14 @@ def edr_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
             line = False
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
-    
+
     with open('log/loss_change_pretrain.txt', 'w') as f:
         for s in loss_change_pretrain:
             f.write(str(s) + '\n')
     with open('log/loss_change_preval.txt', 'w') as f:
         for s in loss_change_preval:
             f.write(str(s) + '\n')  
-                  
+            
     print('')
 
 
@@ -354,14 +353,12 @@ def reg_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
         # average the accumulated statistics
         avg_train_loss = train_loss_cum / num_samples_epoch
         avg_train_loss = torch.sqrt(avg_train_loss)
-        
         loss_change_train.append(avg_train_loss)
 
         val_loss = reg_evaluate(model, loss_fn, val_loader, device)
         val_loss = torch.sqrt(val_loss)
-        
         loss_change_val.append(val_loss)
-        
+
         epoch_duration = time.time() - t
 
         # print some infos
@@ -394,5 +391,5 @@ def reg_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
             f.write(str(s) + '\n')
     with open('log/loss_change_val.txt', 'w') as f:
         for s in loss_change_val:
-            f.write(str(s) + '\n')  
+            f.write(str(s) + '\n')
 
