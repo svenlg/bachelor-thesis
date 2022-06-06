@@ -292,8 +292,8 @@ def edr_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
 
 # Trainigs Loop for the reg
 def reg_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show=1, save=40, epochs=200):
-    loss_change_train = np.empty((epoch,))
-    loss_change_val = np.empty((epoch,))
+    loss_change_train = np.empty((epochs,))
+    loss_change_val = np.empty((epochs,))
     line = False
     print(f'Start finetuning model')
     best_round = 0
