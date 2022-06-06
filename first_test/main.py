@@ -23,7 +23,7 @@ optim = torch.optim.Adam(moc.parameters(), lr=1e-3)
 edr_train_loop(moc, dl_train_train, dl_val_trian, loss_fn, optim, device, show=2, save=10, epochs=100)
 
 # Get best model
-reg = torch.load('model_best.pt', map_location=torch.device('cpu')).to(device)
+reg = torch.load('log/model_best.pt', map_location=torch.device('cpu')).to(device)
 
 # Finetune Loop 
 reg_train_loop(reg, dl_train_fine, dl_val_fine, loss_fn, optim, device, show=500, save=1000, epochs=10000)
