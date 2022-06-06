@@ -78,8 +78,9 @@ class MolecularNet(nn.Module):
 # Get the data    
 def get_loaders(dataset, batch_size=64, shuffle=True, split = 0.8):
     
+    
     assert 0 <= split <= 1
-    fname = '/scratch/sgutjahr/Data/' + dataset
+    fname = '/scratch/sgutjahr/Data_P1/' + dataset
     features = pd.read_csv(fname + '_features.csv')
     features = features.drop(columns=['Id', 'smiles'])
     features = features.to_numpy()
@@ -188,6 +189,8 @@ def reg_evaluate(model, loss_fn, val_loader, device):
 
 # Trianings Loop for the edr
 def edr_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show=1, save=40, epochs=200):
+    loss_change_pretrain = []
+    loss_change_preval = []
     line = False
     print(f'Start training model')
     best_round = 0
@@ -250,11 +253,15 @@ def edr_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
         avg_train_dec = torch.sqrt(avg_train_dec)
         avg_train_loss = train_loss_cum / num_samples_epoch
         avg_train_loss = torch.sqrt(avg_train_loss)
+        
+        loss_change_pretrain.append((avg_train_reg,avg_train_dec,avg_train_loss))
 
         val_loss, val_reg, val_dec = edr_evaluate(model, loss_fn, val_loader, device)
         val_loss = torch.sqrt(val_loss)
         val_reg = torch.sqrt(val_reg)
         val_dec = torch.sqrt(val_dec)
+        
+        loss_change_preval.append((val_reg,val_dec,val_loss))
         epoch_duration = time.time() - t
 
         # print some infos
@@ -267,14 +274,14 @@ def edr_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
         # save checkpoint of model
         if epoch % save == 0  and epoch > 2:
             line = True
-            save_path = f'model_epoch_{epoch}.pt'
+            save_path = f'log/model_epoch_{epoch}.pt'
             torch.save(model, save_path)
             print(f'Saved model checkpoint to {save_path}')
 
         if cur_low_val_eval > val_loss and epoch > 2:
             cur_low_val_eval = val_loss
             best_round = epoch
-            save_path = f'model_best.pt'
+            save_path = f'log/model_best.pt'
             torch.save(model, save_path)
 
         if line:
@@ -282,10 +289,21 @@ def edr_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
             line = False
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
+    
+    with open('log/loss_change_pretrain.txt', 'w') as f:
+        for s in loss_change_pretrain:
+            f.write(str(s) + '\n')
+    with open('log/loss_change_preval.txt', 'w') as f:
+        for s in loss_change_preval:
+            f.write(str(s) + '\n')  
+                  
+    print('')
 
 
 # Trainigs Loop for the reg
 def reg_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show=1, save=40, epochs=200):
+    loss_change_train = []
+    loss_change_val = []
     line = False
     print(f'Start finetuning model')
     best_round = 0
@@ -336,9 +354,14 @@ def reg_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
         # average the accumulated statistics
         avg_train_loss = train_loss_cum / num_samples_epoch
         avg_train_loss = torch.sqrt(avg_train_loss)
+        
+        loss_change_train.append(avg_train_loss)
 
         val_loss = reg_evaluate(model, loss_fn, val_loader, device)
         val_loss = torch.sqrt(val_loss)
+        
+        loss_change_val.append(val_loss)
+        
         epoch_duration = time.time() - t
 
         # print some infos
@@ -351,14 +374,14 @@ def reg_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
         # save checkpoint of model
         if epoch % save == 0  and epoch > 2:
             line = True
-            save_path = f'full_model_epoch_{epoch}.pt'
+            save_path = f'log/full_model_epoch_{epoch}.pt'
             torch.save(model, save_path)
             print(f'Saved model checkpoint to {save_path}')
 
         if cur_low_val_eval > val_loss and epoch > 2:
             cur_low_val_eval = val_loss
             best_round = epoch
-            save_path = f'full_model_best.pt'
+            save_path = f'log/full_model_best.pt'
             torch.save(model, save_path)
 
         if line:
@@ -366,4 +389,10 @@ def reg_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
             line = False
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
+    with open('log/loss_change_train.txt', 'w') as f:
+        for s in loss_change_train:
+            f.write(str(s) + '\n')
+    with open('log/loss_change_val.txt', 'w') as f:
+        for s in loss_change_val:
+            f.write(str(s) + '\n')  
 
