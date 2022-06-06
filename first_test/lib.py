@@ -78,9 +78,10 @@ class MolecularNet(nn.Module):
 # Get the data    
 def get_loaders(dataset, batch_size=64, shuffle=True, split = 0.8):
     
-    
     assert 0 <= split <= 1
-    fname = '/scratch/sgutjahr/Data_P1/' + dataset
+    
+    fname = 'C:/Users/user/Bachelor/Data_P1/' + dataset
+    #fname = '/scratch/sgutjahr/Data_P1/' + dataset
     features = pd.read_csv(fname + '_features.csv')
     features = features.drop(columns=['Id', 'smiles'])
     features = features.to_numpy()
@@ -98,9 +99,6 @@ def get_loaders(dataset, batch_size=64, shuffle=True, split = 0.8):
 
     train = combined[:split]
     val = combined[split:]
-
-    print(train.shape[0])
-    print(val.shape[0])
 
     train_dataset = TrainDataset(train)
     validation_dataset = TrainDataset(val)
@@ -252,14 +250,14 @@ def edr_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
         avg_train_dec = train_loss_dec / num_samples_epoch
         avg_train_dec = torch.sqrt(avg_train_dec)
         avg_train_loss = train_loss_cum / num_samples_epoch
-        avg_train_loss = torch.sqrt(avg_train_loss)       
-        loss_change_pretrain[epoch] = np.array([avg_train_reg[0],avg_train_dec[0],avg_train_loss[0]])
-
+        avg_train_loss = torch.sqrt(avg_train_loss)
+        loss_change_pretrain[epoch-1] = np.array([avg_train_reg.item(),avg_train_dec.item(),avg_train_loss.item()])
+        
         val_loss, val_reg, val_dec = edr_evaluate(model, loss_fn, val_loader, device)
         val_loss = torch.sqrt(val_loss)
         val_reg = torch.sqrt(val_reg)
         val_dec = torch.sqrt(val_dec)
-        loss_change_preval[epoch] = np.array([val_reg[0],val_dec[0],val_loss[0]])
+        loss_change_preval[epoch-1] = np.array([val_reg.item(),val_dec.item(),val_loss.item()])
 
         epoch_duration = time.time() - t
 
@@ -347,11 +345,11 @@ def reg_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
         # average the accumulated statistics
         avg_train_loss = train_loss_cum / num_samples_epoch
         avg_train_loss = torch.sqrt(avg_train_loss)
-        loss_change_train[epoch] = avg_train_loss[0].detach()
+        loss_change_train[epoch-1] = avg_train_loss.item()
 
         val_loss = reg_evaluate(model, loss_fn, val_loader, device)
         val_loss = torch.sqrt(val_loss)
-        loss_change_val[epoch] = val_loss[0].detach()
+        loss_change_val[epoch-1] = val_loss.item()
 
         epoch_duration = time.time() - t
 
