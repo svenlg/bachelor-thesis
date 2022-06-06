@@ -6,7 +6,7 @@ from lib import get_loaders, MolecularNet, edr_train_loop, reg_train_loop
 use_cuda = torch.cuda.is_available()
 device = torch.device('cuda:0' if use_cuda else 'cpu')
 torch.backends.cudnn.benchmark = True
-print(f'The model ist trained on a {device}')
+print(device)
 
 # Get data for trainings and finetune stages 
 train = 'pretrain'
