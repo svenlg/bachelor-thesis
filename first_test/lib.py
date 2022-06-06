@@ -80,8 +80,8 @@ def get_loaders(dataset, batch_size=64, shuffle=True, split = 0.8):
     
     assert 0 <= split <= 1
 
-    fname = 'C:/Users/user/Bachelor/Data_P1/' + dataset
-    #fname = '/scratch/sgutjahr/Data_P1/' + dataset
+    #fname = 'C:/Users/user/Bachelor/Data_P1/' + dataset
+    fname = '/scratch/sgutjahr/Data_P1/' + dataset
     features = pd.read_csv(fname + '_features.csv')
     features = features.drop(columns=['Id', 'smiles'])
     features = features.to_numpy()
