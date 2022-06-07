@@ -285,7 +285,7 @@ def edr_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
             line = False
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
-    np.save('log/model_loss_tain.npy', loss_change_pretrain)
+    np.save('log/model_loss_train.npy', loss_change_pretrain)
     np.save('log/model_loss_val.npy', loss_change_preval) 
     print('')
 
@@ -377,6 +377,6 @@ def reg_train_loop(model, train_loader, val_loader, loss_fn, optim, device, show
             line = False
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
-    np.save('log/full_model_loss_tain.npy', loss_change_train)
+    np.save('log/full_model_loss_train.npy', loss_change_train)
     np.save('log/full_model_loss_val.npy', loss_change_val)
 
