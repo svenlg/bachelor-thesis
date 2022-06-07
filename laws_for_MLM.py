@@ -23,6 +23,29 @@ from torch.utils.data import Dataset
 # [SEP]  Indicates a seperator - between and end of sequences token   102
 # [MASK] Used when masking tokens, masked language modelling (MLM)    103
 
+# Data set for the given laws
+class LawDatasetForMasking(Dataset):
+    
+    def __init__(self, data):
+        data = self.flatten(data)
+        self.data = data
+        
+    def __len__(self):
+        return len(self.data)
+    
+    def flatten(self, data):
+        out = []
+        for law in data:
+            for change in law:
+                old, change, new = change
+                out.append(old)
+                out.append(change)
+                out.append(new)
+        return out
+    
+    def __getitem__(self, idx):
+        return self.data[idx]
+
 
 # Returns a dict with masked input_ids an labels
 def get_tensors(ocn):
@@ -95,61 +118,11 @@ def get_tensors(ocn):
     return input_dict
 
 
-def get_old_change_new(law):
+# Get the old change new Law as list of tripples
+def get_old_change_new(fname, law):
 
     law = str(law)
-    fname = '/scratch/sgutjahr/Data_Tokoenzied/'
-    #fname = '../Data_Tokoenzied/' + law + '/'
-    changes = np.loadtxt(fname + 'changes.txt', dtype=str, encoding='utf-8')
-    
-    ten_law = []
-    
-    if changes.shape == ():
-        change = str(changes)
-        old = get_tensors(fname + change + '/old.npy')
-        cha = get_tensors(fname + change + '/change.npy')
-        new = get_tensors(fname + change + '/new.npy')
-        ocn = (old,cha,new)
-        ten_law.append(ocn)
-        return ten_law
-    
-    for change in changes:
-        change = str(change)
-        
-        if law == 'KWG' and change == 'Nr7_2020-12-29':
-            continue
-            
-        old = get_tensors(fname + change + '/old.npy')
-        cha = get_tensors(fname + change + '/change.npy')
-        new = get_tensors(fname + change + '/new.npy')
-        ocn = (old,cha,new)
-        ten_law.append(ocn)
-        
-    return ten_law
-
-
-def get_laws(split=0.05):
-    
-    assert 0 <= split <= 1
-    
-    fname = '/scratch/sgutjahr/Data_Tokoenzied/'
-    #fname = '../Data_Tokoenzied/'
-    laws = np.loadtxt(fname + 'done_with.txt', dtype=str)
-    ten = []
-    np.random.shuffle(laws)
-    num_data = int(split*len(laws))
-    
-    for i in range(num_data):
-        print(laws[i])
-        ten.append(get_old_change_new(laws[i]))
-    
-    return ten
-
-
-def get_old_change_new(law):
-
-    law = str(law)
-    fname = '../Data_Tokoenzied/' + law + '/'
+    fname = fname + law + '/'
     changes = np.loadtxt(fname + 'changes.txt', dtype=str, encoding='utf-8')
     
     ten_law = []
@@ -182,8 +155,9 @@ def get_laws(split=0.05):
     
     assert 0 <= split <= 1
 
-    fname = '/scratch/sgutjahr/Data_Tokoenzied/'
-    #fname = '../Data_Tokoenzied/'
+    #fname = '/scratch/sgutjahr/Data_Tokoenzied/'
+    fname = '../Data_Tokoenzied/'
+    
     laws = np.loadtxt(fname + 'done_with.txt', dtype=str)
     ten = []
     np.random.shuffle(laws)
@@ -191,30 +165,7 @@ def get_laws(split=0.05):
     
     for i in range(num_data):
         print(laws[i])
-        ten.append(get_old_change_new(laws[i]))
+        ten.append(get_old_change_new(fname, laws[i]))
     
     return ten
 
-
-class LawDatasetForMasking(Dataset):
-    
-    def __init__(self, data):
-        data = self.flatten(data)
-        self.data = data
-        
-    def __len__(self):
-        return len(self.data)
-    
-    def flatten(self, data):
-        out = []
-        for law in data:
-            for change in law:
-                old, change, new = change
-                out.append(old)
-                out.append(change)
-                out.append(new)
-        return out
-    
-    def __getitem__(self, idx):
-        return self.data[idx]
-    
