@@ -175,8 +175,8 @@ def get_laws_train(split):
     
     assert 0 <= split <= 1
 
-    #fname = '/scratch/sgutjahr/Data_Tokoenzied/'
-    fname = '../Data_Tokoenzied/'
+    fname = '/scratch/sgutjahr/Data_Tokoenzied/'
+    #fname = '../Data_Tokoenzied/'
     
     laws = np.loadtxt(fname + 'done_with.txt', dtype=str)
     train = []
