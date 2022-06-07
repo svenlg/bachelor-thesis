@@ -1,2 +1,4 @@
 *.ipynb
 first_test/log
+__pycache__
+.ipynb_checkpoints
