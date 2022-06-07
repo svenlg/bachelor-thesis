@@ -170,8 +170,8 @@ def get_old_change_new(fname, law):
     return ten_law
 
 
-# full traing
-def get_laws(split=0.05):
+# full traing returns training and test laws
+def get_laws_train(split):
     
     assert 0 <= split <= 1
 
@@ -191,14 +191,14 @@ def get_laws(split=0.05):
         test.append(get_old_change_new(fname, laws[i]))
     
     assert len(train) == num_data and len(test) == len(laws)-num_data 
-    print(f'There will be {num_data} out of {len(laws)} used for training')
-    print(f'There will be {len(laws) - num_data} out of {len(laws)} used for testing')
+    print(f'{num_data} out of {len(laws)} will be used for training')
+    print(f'{len(laws) - num_data} out of {len(laws)} will be used for testing')
     
     return train, test
 
 
 # test tries
-def get_laws(split=0.05):
+def get_laws_test(split=0.05):
     
     assert 0 <= split <= 1
 
@@ -213,8 +213,8 @@ def get_laws(split=0.05):
     for i in range(num_data):
         train.append(get_old_change_new(fname, laws[i]))
         
-    print(f'There will be {num_data} out of {len(laws)} used for training')
-    print(f'There will be {len(laws) - num_data} out of {len(laws)} used for testing')
+    print(f'{num_data} out of {len(laws)} will be used for training')
+    print(f'Just testing')
     
     return train
 
