@@ -28,13 +28,20 @@ class LawDatasetForMLM(Dataset):
 
     def __init__(self, data):
         self.data = data
+        self.len = 2000
+        self.mod = len(self.data)
+        self.epoch = -3 #start @-3 bec the __len__()-fuc is called 3 times before training
 
     def __len__(self):
-        return len(self.data)
+        self.epoch += 1
+        return self.len
 
     def __getitem__(self, idx):
+        # 155.842 Batch overall
+        # 250 batch pro epoch batchsize=8 --> 2000 -- len == 2000
+        idx = (idx + self.len*self.epoch) % self.mod
         return self.data[idx]
-
+    
 
 # Returns a dict with masked input_ids an labels
 def get_tensors(ocn):
@@ -172,8 +179,8 @@ def get_laws_test(split=0.05):
 
     assert 0 <= split <= 1
 
-    fname = '/scratch/sgutjahr/Data_Tokoenzied/'
-    #fname = '../Data_Tokoenzied/'
+    #fname = '/scratch/sgutjahr/Data_Tokoenzied/'
+    fname = '../Data_Tokoenzied/'
 
     laws = np.loadtxt(fname + 'done_with.txt', dtype=str)
     big = []
@@ -202,11 +209,9 @@ def get_laws_test(split=0.05):
             )
             ret.append(new)
 
-    print(len(flat))
-    print(len(ret))
-
     print(f'{num_data} out of {len(laws)} will be used for training')
-    print(f'Just testing')
+    print(f'There are {len(flat)} ocn and {len(ret)} batch lines')
+    print(f'Just testing\n')
 
     return ret
 
