@@ -26,9 +26,9 @@ from torch.utils.data import Dataset
 # Data set for the MLM Task
 class LawDatasetForMLM(Dataset):
 
-    def __init__(self, data):
+    def __init__(self, data, size):
         self.data = data
-        self.len = 2000
+        self.len = size
         self.mod = len(self.data)
         self.epoch = -3 #start @-3 bec the __len__()-fuc is called 3 times before training
 

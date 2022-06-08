@@ -29,8 +29,8 @@ def main():
 
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
-    train_dataset = LawDatasetForMLM(train_laws)
-    val_dataset = LawDatasetForMLM(val_laws)
+    train_dataset = LawDatasetForMLM(train_laws, 2000)
+    val_dataset = LawDatasetForMLM(val_laws1, 1000)
 
     print(f'The train dataset is {asizeof.asizeof(train_dataset)/8_000_000} MB.')
     print(f'The val dataset is {asizeof.asizeof(val_dataset)/8_000_000} MB.')
