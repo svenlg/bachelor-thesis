@@ -1,4 +1,4 @@
-# Imports 
+# Imports
 from sklearn.model_selection import train_test_split
 import torch
 from transformers import BertForMaskedLM
@@ -43,7 +43,7 @@ val_loader = DataLoader(val_dataset, batch_size=20, shuffle=True)
 # Optimizer
 optim = torch.optim.Adam(model.parameters(), lr=5e-5)
 
-# num_train_epochs 
+# num_train_epochs
 num_train_epochs = 2
 
 train_loop(model, train_loader, val_loader, optim, device, show=1, save=300, epochs=num_train_epochs)
