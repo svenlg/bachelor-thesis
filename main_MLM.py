@@ -6,6 +6,7 @@ from laws_for_MLM import get_laws_test, get_laws_train, LawDatasetForMLM
 from torch.utils.data import DataLoader
 from train_eval_loop import train_loop, evaluate
 import time
+from pympler import asizeof
 
 took = time.time()
 
@@ -23,13 +24,16 @@ model = BertForMaskedLM.from_pretrained(checkpoint)
 # see format of laws in LawDataset.py
 #laws, test_laws = get_laws_train(0.85)
 laws = get_laws_test(0.06)
-train_laws, val_laws = train_test_split(laws, test_size=.2)
+print(f'The laws are {asizeof.asizeof(laws)/8_000} MB')
 
+train_laws, val_laws = train_test_split(laws, test_size=.2)
 
 train_dataset = LawDatasetForMLM(train_laws)
 val_dataset = LawDatasetForMLM(val_laws)
-#test_dataset = LawDatasetForMLM(test_laws)
+print(f'The train dataset is {asizeof.asizeof(train_dataset)/8_000_000} MB')
+print(f'The val dataset is {asizeof.asizeof(val_dataset)/8_000_000} MB')
 
+#test_dataset = LawDatasetForMLM(test_laws)
 
 # Push model to the device and set into train mode
 model.to(device)
