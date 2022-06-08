@@ -24,43 +24,14 @@ from torch.utils.data import Dataset
 # [MASK] Used when masking tokens, masked language modelling (MLM)    103
 
 # Data set for the MLM Task
+# Data set for the MLM Task
 class LawDatasetForMLM(Dataset):
 
     def __init__(self, data):
-        data = self.flatten(data)
         self.data = data
 
     def __len__(self):
         return len(self.data)
-
-    def flatten(self, data):
-        out = []
-        for law in data:
-            for change in law:
-                old, change, new = change
-                out.append(old)
-                out.append(change)
-                out.append(new)
-
-        ret = self.batch_maker(out)
-        return ret
-
-    def batch_maker(self, out):
-        ret = []
-        for part in out:
-            input_ids = part['input_ids']
-            attention_mask = part['attention_mask']
-            labels = part['labels']
-
-            for i in range(input_ids.shape[0]):
-                new = {
-                    'input_ids':input_ids[i],
-                    'attention_mask': attention_mask[i],
-                    'labels':labels[i]
-                }
-                ret.append(new)
-
-        return ret
 
     def __getitem__(self, idx):
         return self.data[idx]
@@ -204,16 +175,41 @@ def get_laws_test(split=0.05):
     #fname = '/scratch/sgutjahr/Data_Tokoenzied/'
     fname = '../Data_Tokoenzied/'
 
-    laws = np.loadtxt(fname + 'done_with.txt', dtype=str, encoding='utf-8')
-    train = []
+    laws = np.loadtxt(fname + 'done_with.txt', dtype=str)
+    big = []
     np.random.shuffle(laws)
     num_data = int(split*len(laws))
 
     for i in range(num_data):
-        train.append(get_old_change_new(fname, laws[i]))
+        #print(laws[i])
+        big.append(get_old_change_new(fname, laws[i]))
+    
+    
+    flat = []
+    for li in big:
+        for di in li:
+            flat.append(di)
+        
 
+    ret = []
+    for part in flat:
+        input_ids = part['input_ids']
+        attention_mask = part['attention_mask']
+        labels = part['labels']
+
+        for i in range(input_ids.shape[0]):
+            new = {
+                'input_ids':input_ids[i],
+                'attention_mask': attention_mask[i],
+                'labels':labels[i]
+            }
+            ret.append(new)
+    
+    print(len(flat))
+    print(len(ret))
+    
     print(f'{num_data} out of {len(laws)} will be used for training')
     print(f'Just testing')
 
-    return train
+    return ret
 
