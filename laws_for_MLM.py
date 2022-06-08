@@ -103,8 +103,6 @@ def get_tensors(ocn):
         'attention_mask': attentions_mask.int(),
         'labels': labels.long()
     }
-    print(f'The input_dict in line 101 is a {type(input_dict)}')
-
     return input_dict
 
 
@@ -120,10 +118,11 @@ def get_old_change_new(fname, law):
     if changes.shape == ():
         change = str(changes)
         old = get_tensors(fname + change + '/old.npy')
+        ten_law.append(old)
         cha = get_tensors(fname + change + '/change.npy')
+        ten_law.append(cha)
         new = get_tensors(fname + change + '/new.npy')
-        ocn = (old,cha,new)
-        ten_law.append(ocn)
+        ten_law.append(new)
         return ten_law
 
     for change in changes:
@@ -133,11 +132,12 @@ def get_old_change_new(fname, law):
             continue
 
         old = get_tensors(fname + change + '/old.npy')
+        ten_law.append(old)
         cha = get_tensors(fname + change + '/change.npy')
+        ten_law.append(cha)
         new = get_tensors(fname + change + '/new.npy')
-        ocn = (old,cha,new)
-        ten_law.append(ocn)
-
+        ten_law.append(new)
+   
     return ten_law
 
 
