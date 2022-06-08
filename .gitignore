@@ -3,3 +3,4 @@ first_test/log
 __pycache__*
 *.ipynb_checkpoints
 *cpython-38.pyc
+__pycache__/laws_for_MLM.cpython-38.pyc
