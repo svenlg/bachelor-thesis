@@ -99,11 +99,11 @@ def get_tensors(ocn):
     labels = torch.stack(labels)
 
     # input_dict so the model can prosses the data
-    input_dict = {
+    input_dict = dict(
         'input_ids': input_ids.long(),
         'attention_mask': attentions_mask.int(),
         'labels': labels.long()
-    }
+    )
 
     return input_dict
 
@@ -200,11 +200,11 @@ def get_laws_test(split=0.05):
         labels = part['labels']
 
         for i in range(input_ids.shape[0]):
-            new = {
+            new = dict(
                 'input_ids':input_ids[i],
                 'attention_mask': attention_mask[i],
                 'labels':labels[i]
-            }
+            )
             ret.append(new)
     exit()
     print(len(flat))
