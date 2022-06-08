@@ -99,9 +99,9 @@ def get_tensors(ocn):
 
     # input_dict so the model can prosses the data
     input_dict = dict(
-        'input_ids': input_ids.long(),
-        'attention_mask': attentions_mask.int(),
-        'labels': labels.long()
+        input_ids = input_ids.long(),
+        attention_mask = attentions_mask.int(),
+        labels=  labels.long()
     )
 
     return input_dict
@@ -191,19 +191,18 @@ def get_laws_test(split=0.05):
     ret = []
     for part in flat:
         print(type(part))
-        break
         input_ids = part['input_ids']
         attention_mask = part['attention_mask']
         labels = part['labels']
 
         for i in range(input_ids.shape[0]):
             new = dict(
-                'input_ids':input_ids[i],
-                'attention_mask': attention_mask[i],
-                'labels':labels[i]
+                input_ids = input_ids[i],
+                attention_mask = attention_mask[i],
+                labels = labels[i]
             )
             ret.append(new)
-    exit()
+
     print(len(flat))
     print(len(ret))
 
