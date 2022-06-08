@@ -30,9 +30,10 @@ train_laws, val_laws = train_test_split(laws, test_size=.2)
 
 train_dataset = LawDatasetForMLM(train_laws)
 val_dataset = LawDatasetForMLM(val_laws)
+
 print(f'The train dataset is {asizeof.asizeof(train_dataset)/8_000_000} MB')
 print(f'The val dataset is {asizeof.asizeof(val_dataset)/8_000_000} MB')
-
+print(f'Modelsize: {asizeof.asizeof(model)/8_000_000} MB')
 #test_dataset = LawDatasetForMLM(test_laws)
 
 # Push model to the device and set into train mode
