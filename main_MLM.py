@@ -14,7 +14,7 @@ took = time.time()
 use_cuda = torch.cuda.is_available()
 device = torch.device('cuda:0' if use_cuda else 'cpu')
 torch.backends.cudnn.benchmark = True
-print(f'The model is trained on a {device}.')
+print(f'The model is trained on a {device}.\n')
 
 # Pretrained model
 checkpoint = 'dbmdz/bert-base-german-cased'
@@ -23,17 +23,17 @@ model = BertForMaskedLM.from_pretrained(checkpoint)
 # Getting the data train and test and split the trainings data into train and val sets
 # see format of laws in LawDataset.py
 #laws, test_laws = get_laws_train(0.85)
-laws = get_laws_test(0.06)
-print(f'The laws are {asizeof.asizeof(laws)/8_000} MB')
+laws = get_laws_test(0.3)
+print(f'The laws are {asizeof.asizeof(laws)/8_000} MB.\n')
 
 train_laws, val_laws = train_test_split(laws, test_size=.2)
 
 train_dataset = LawDatasetForMLM(train_laws)
 val_dataset = LawDatasetForMLM(val_laws)
 
-print(f'The train dataset is {asizeof.asizeof(train_dataset)/8_000_000} MB')
-print(f'The val dataset is {asizeof.asizeof(val_dataset)/8_000_000} MB')
-print(f'Modelsize: {asizeof.asizeof(model)/8_000_000} MB')
+print(f'The train dataset is {asizeof.asizeof(train_dataset)/8_000_000} MB.')
+print(f'The val dataset is {asizeof.asizeof(val_dataset)/8_000_000} MB.')
+print(f'Modelsize: {asizeof.asizeof(model)/8_000_000} MB \n')
 #test_dataset = LawDatasetForMLM(test_laws)
 
 # Push model to the device and set into train mode
@@ -43,7 +43,7 @@ model.train()
 # Creat a DataLoader
 train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=8, shuffle=True)
-#test_loader = DataLoader(test_laws ,batch_size=20, shuffle=True)
+#test_loader = DataLoader(test_laws ,batch_size=8, shuffle=True)
 
 # Optimizer
 optim = torch.optim.Adam(model.parameters(), lr=5e-5)
