@@ -53,7 +53,6 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
         # Go once through the training dataset (-> epoch)
         
         for batch in train_loader:
-            print(f'A batch is {asizeof.asizeof(batch)/8_000} KB')
             # get batches 
             input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
