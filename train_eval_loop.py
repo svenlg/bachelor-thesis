@@ -98,14 +98,14 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
         if epoch % save == 0:
             line = True
             save_path = f'log/BERT_MLM_epoch_{epoch}.pt'
-            model.save_pretraind(save_path)
+            model.save(save_path)
             print(f'Saved model checkpoint to {save_path}')
 
         if cur_low_val_eval > val_loss and epoch > 2:
             cur_low_val_eval = val_loss
             best_round = epoch
             save_path = f'log/BERT_MLM_best.pt'
-            model.save_pretraind(save_path)
+            model.save(save_path)
 
         if line:
             print()

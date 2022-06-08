@@ -149,12 +149,14 @@ def get_old_change_new(fname, law):
 
 
 # full traing returns training and test laws
-def get_laws_train(split):
+def get_laws_train(split,use_set=True):
 
     assert 0 <= split <= 1
 
-    fname = '/scratch/sgutjahr/Data_Tokoenzied/'
-    #fname = '../Data_Tokoenzied/'
+    if use_set:
+        fname = '/scratch/sgutjahr/Data_Tokoenzied/'
+    else:
+        fname = '../Data_Tokoenzied/'
 
     laws = np.loadtxt(fname + 'done_with.txt', dtype=str,  encoding='utf-8')
     train = []
@@ -175,12 +177,14 @@ def get_laws_train(split):
 
 
 # test tries
-def get_laws_test(split=0.05):
+def get_laws_test(split=0.05, use_set=True):
 
     assert 0 <= split <= 1
 
-    fname = '/scratch/sgutjahr/Data_Tokoenzied/'
-    #fname = '../Data_Tokoenzied/'
+    if use_set:
+        fname = '/scratch/sgutjahr/Data_Tokoenzied/'
+    else:
+        fname = '../Data_Tokoenzied/'
 
     laws = np.loadtxt(fname + 'done_with.txt', dtype=str)
     big = []
