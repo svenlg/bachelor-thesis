@@ -13,7 +13,7 @@ from torch.utils.data import Dataset
 
 # type(data[0][0]) -> tuple: old, change, new
 
-# type(data[0][0][0]) -> dict: key: ('input_ids', 'attention_mask', 'lables') 
+# type(data[0][0][0]) -> dict: key: ('input_ids', 'attention_mask', 'lables')
 #                     -> values: there pt_tensor representation
 # data[0][0][0]['input_ids'].shape --> shape = (__,512)
 
@@ -190,7 +190,6 @@ def get_laws_train(split):
     for i in range(num_data, len(laws)):
         test.append(get_old_change_new(fname, laws[i]))
 
-    assert len(train) == num_data and len(test) == len(laws)-num_data 
     print(f'{num_data} out of {len(laws)} will be used for training')
     print(f'{len(laws) - num_data} out of {len(laws)} will be used for testing')
 
