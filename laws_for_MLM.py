@@ -98,11 +98,11 @@ def get_tensors(ocn):
     labels = torch.stack(labels)
 
     # input_dict so the model can prosses the data
-    input_dict = dict(
-        input_ids = input_ids.long(),
-        attention_mask = attentions_mask.int(),
-        labels=  labels.long()
-    )
+    input_dict = {
+        'input_ids': input_ids.long(),
+        'attention_mask': attentions_mask.int(),
+        'labels': labels.long()
+    }
     print(f'The input_dict in line 101 is a {type(input_dict)}')
 
     return input_dict
