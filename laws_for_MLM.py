@@ -190,7 +190,6 @@ def get_laws_test(split=0.05):
 
     ret = []
     for part in flat:
-        print(type(part))
         input_ids = part['input_ids']
         attention_mask = part['attention_mask']
         labels = part['labels']
