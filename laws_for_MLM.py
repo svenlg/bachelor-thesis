@@ -103,6 +103,7 @@ def get_tensors(ocn):
         attention_mask = attentions_mask.int(),
         labels=  labels.long()
     )
+    print(f'The input_dict in line 101 is a {type(input_dict)}')
 
     return input_dict
 
@@ -180,7 +181,6 @@ def get_laws_test(split=0.05):
     num_data = int(split*len(laws))
 
     for i in range(num_data):
-        #print(laws[i])
         big.append(get_old_change_new(fname, laws[i]))
 
     flat = []
