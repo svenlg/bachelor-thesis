@@ -172,8 +172,8 @@ def get_laws_test(split=0.05):
 
     assert 0 <= split <= 1
 
-    fname = '/scratch/sgutjahr/Data_Tokoenzied/'
-    #fname = '../Data_Tokoenzied/'
+    #fname = '/scratch/sgutjahr/Data_Tokoenzied/'
+    fname = '../Data_Tokoenzied/'
 
     laws = np.loadtxt(fname + 'done_with.txt', dtype=str)
     big = []
