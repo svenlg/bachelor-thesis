@@ -24,7 +24,6 @@ from torch.utils.data import Dataset
 # [MASK] Used when masking tokens, masked language modelling (MLM)    103
 
 # Data set for the MLM Task
-# Data set for the MLM Task
 class LawDatasetForMLM(Dataset):
 
     def __init__(self, data):
@@ -183,13 +182,11 @@ def get_laws_test(split=0.05):
     for i in range(num_data):
         #print(laws[i])
         big.append(get_old_change_new(fname, laws[i]))
-    
-    
+
     flat = []
     for li in big:
         for di in li:
             flat.append(di)
-        
 
     ret = []
     for part in flat:
@@ -209,7 +206,7 @@ def get_laws_test(split=0.05):
     exit()
     print(len(flat))
     print(len(ret))
-    
+
     print(f'{num_data} out of {len(laws)} will be used for training')
     print(f'Just testing')
 
