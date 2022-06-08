@@ -178,7 +178,7 @@ def get_laws_train(split):
     fname = '/scratch/sgutjahr/Data_Tokoenzied/'
     #fname = '../Data_Tokoenzied/'
     
-    laws = np.loadtxt(fname + 'done_with.txt', dtype=str)
+    laws = np.loadtxt(fname + 'done_with.txt', dtype=str,  encoding='utf-8')
     train = []
     test = []
     np.random.shuffle(laws)
@@ -205,7 +205,7 @@ def get_laws_test(split=0.05):
     #fname = '/scratch/sgutjahr/Data_Tokoenzied/'
     fname = '../Data_Tokoenzied/'
     
-    laws = np.loadtxt(fname + 'done_with.txt', dtype=str)
+    laws = np.loadtxt(fname + 'done_with.txt', dtype=str, encoding='utf-8')
     train = []
     np.random.shuffle(laws)
     num_data = int(split*len(laws))
