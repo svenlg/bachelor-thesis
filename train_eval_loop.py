@@ -98,14 +98,14 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
         if epoch % save == 0:
             line = True
             save_path = f'log/BERT_MLM_epoch_{epoch}.pt'
-            model.save(save_path)
+            torch.save(model, save_path)
             print(f'Saved model checkpoint to {save_path}')
 
         if cur_low_val_eval > val_loss and epoch > 2:
             cur_low_val_eval = val_loss
             best_round = epoch
             save_path = f'log/BERT_MLM_best.pt'
-            model.save(save_path)
+            torch.save(model, save_path)
 
         if line:
             print()
@@ -115,3 +115,4 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
     np.save('log/loss_train.npy', loss_train)
     np.save('log/loss_val.npy', loss_val)
     print('')
+
