@@ -1,4 +1,5 @@
 *.ipynb
 first_test/log
 __pycache__
-.ipynb_checkpoints
+*.ipynb_checkpoints
+*cpython-38.pyc
