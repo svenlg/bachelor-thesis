@@ -13,10 +13,10 @@ def main():
 
     # Getting the trainings device
     use_cuda = torch.cuda.is_available()
-    device = torch.device('cuda:1' if use_cuda else 'cpu')
+    device = torch.device('cuda' if use_cuda else 'cpu')
     torch.backends.cudnn.benchmark = True
     print(f'The model is trained on a {device}.\n')
-
+    exit()
     # Pretrained model
     checkpoint = 'dbmdz/bert-base-german-cased'
     model = LawNet(checkpoint)
