@@ -97,9 +97,11 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
         # save checkpoint of model
         if epoch % save == 0:
             line = True
-            save_path = f'log/BERT_MLM_epoch_{epoch}.pt'
+            save_path = f'/scratch/sgutjahr/log/BERT_MLM_epoch_{epoch}.pt'
             torch.save(model, save_path)
-            print(f'Saved model checkpoint to {save_path}')
+            np.save('/scratch/sgutjahr/log/loss_train.npy', loss_train)
+            np.save('/scratch/sgutjahr/log/loss_val.npy', loss_val)
+            print(f'Saved model and loss stats checkpoint to {save_path}')
 
         if cur_low_val_eval > val_loss and epoch > 2:
             cur_low_val_eval = val_loss
