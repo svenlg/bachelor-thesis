@@ -1,58 +1,64 @@
 # Imports 
-from sklearn.model_selection import train_test_split
+#from sklearn.model_selection import train_test_split
 import torch
-from transformers import AutoModel
-from get_data_tensors import get_laws, LawDataset
-from torch.utils.data import DataLoader
-from torch.optim import Adam
+import torch.nn as nn
+#from transformers import AutoModel
+#from get_data_tensors import get_laws, LawDataset
+from torch.utils.data import Dataset, DataLoader
+#from torch.optim import Adam
 
-# 1. Prepare dataset
-# 2. Load pretrained Tokenizer, call it with dataset -> encoding
-# 3. Build PyTorch Dataset with encodings
-# 4. Load retrained Model
-# 5. a) Load Trainer and train it
-#    b) or use native Pytorch training pipeline
 
-# Pretrained model
-checkpoint = 'dbmdz/bert-base-german-cased'
-model = AutoModel.from_pretrained(checkpoint)
+# Parameters and DataLoaders
+input_size = 5
+output_size = 2
 
-# Getting the data train and test and split the trainings data into train and val sets
-# see format of laws in LawDataset.py
-laws = get_laws(0.02)
-train_laws, val_laws = train_test_split(laws, test_size=.5)
-#test_laws = get_laws()
+batch_size = 30
+data_size = 100
 
-train_dataset = LawDataset(train_laws)
-val_dataset = LawDataset(val_laws)
-# test_dataset = LawDataset(test_laws)
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-# or native Pytorch
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+class RandomDataset(Dataset):
+
+    def __init__(self, size, length):
+        self.len = length
+        self.data = torch.randn(length, size)
+
+    def __getitem__(self, index):
+        return self.data[index]
+
+    def __len__(self):
+        return self.len
+
+
+rand_loader = DataLoader(dataset=RandomDataset(input_size, data_size),
+                         batch_size=batch_size, shuffle=True)
+
+
+class Model(nn.Module):
+    # Our model
+
+    def __init__(self, input_size, output_size):
+        super(Model, self).__init__()
+        self.fc = nn.Linear(input_size, output_size)
+
+    def forward(self, input):
+        output = self.fc(input)
+        print("\tIn Model: input size", input.size(),
+              "output size", output.size())
+
+        return output
+    
+model = Model(input_size, output_size)
+if torch.cuda.device_count() > 1:
+    print("Let's use", torch.cuda.device_count(), "GPUs!")
+    # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
+    model = nn.DataParallel(model)
 
 model.to(device)
-model.train()
 
-train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True)
 
-optim = Adam(model.parameters(), lr=5e-5)
-
-num_train_epochs = 2
-
-print('training kann beginnen')
-
-for epoch in range(num_train_epochs):
-    for batch in train_loader:
-        optim.zero_grad()
-        input_ids = batch['input_ids'].to(device)
-        attention_mask = batch['attention_mask'].to(device)
-        labels = batch['labels'].to(device)
-        
-        outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
-        
-        loss = outputs[0]
-        loss.backward()
-        optim.step()
-        
-model.eval()
-
+for data in rand_loader:
+    input = data.to(device)
+    output = model(input)
+    print("Outside: input size", input.size(),
+          "output_size", output.size())
