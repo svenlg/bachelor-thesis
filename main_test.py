@@ -53,7 +53,7 @@ def main(ba_size,tr_epochs):
     else:
         num_train_epochs = 1
 
-    train_loop(model, train_loader, val_loader, optim, device, show=1, save=2, epochs=num_train_epochs)
+    train_loop(model, train_loader, val_loader, optim, device, show=1, save=10e9, epochs=num_train_epochs)
 
     print(f'Done')
     duration = time.time() - took

@@ -83,7 +83,7 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
 
         # average the accumulated statistics
         avg_train_loss = train_loss_cum / num_samples_epoch
-        split = split / num_samples_epoch
+        #split = split / num_samples_epoch
         loss_train[epoch-1] = avg_train_loss.item()
         #loss_split[epoch-1] = torch.to_numpy(split)
 
