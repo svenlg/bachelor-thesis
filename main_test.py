@@ -64,5 +64,5 @@ if __name__ == '__main__':
     ba_size = int(input('Batch Size?'))
     tr_epochs = int(input('Trainings Epochs'))
     tr_data_split = int(input('Split'))/10
-    main(ba_size, tr_epochs)
+    main(ba_size, tr_epochs, tr_data_split)
     
