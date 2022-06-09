@@ -47,7 +47,8 @@ class Model(nn.Module):
               "output size", output.size())
 
         return output
-    
+
+
 model = Model(input_size, output_size)
 if torch.cuda.device_count() > 1:
     print("Let's use", torch.cuda.device_count(), "GPUs!")
