@@ -1,6 +1,7 @@
 # Imports
 from sklearn.model_selection import train_test_split
 import torch
+import torch.nn as nn
 from MLMmodel import LawNet
 from laws_for_MLM import get_laws_test, get_laws_train, LawDatasetForMLM
 from torch.utils.data import DataLoader
@@ -13,13 +14,17 @@ def main():
 
     # Getting the trainings device
     use_cuda = torch.cuda.is_available()
-    device = torch.device('cuda' if use_cuda else 'cpu')
+    device = torch.device('cuda:0' if use_cuda else 'cpu')
     torch.backends.cudnn.benchmark = True
     print(f'The model is trained on a {device}.\n')
 
     # Pretrained model
     checkpoint = 'dbmdz/bert-base-german-cased'
     model = LawNet(checkpoint)
+    if torch.cuda.device_count() > 1:
+        print(f'In use are  {torch.cuda.device_count()}, GPUs!')
+        model = nn.DataParallel(model)
+
 
     # Getting the data train and test and split the trainings data into train and val sets
     # see format of laws in LawDataset.py
@@ -42,8 +47,8 @@ def main():
     model.train()
 
     # Creat a DataLoader
-    train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=8, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=True)
     #test_loader = DataLoader(test_laws ,batch_size=8, shuffle=True)
 
     # Optimizer
