@@ -9,7 +9,7 @@ from train_eval_loop import train_loop
 import time
 from pympler import asizeof
 
-def main(ba_size,tr_epochs,tr_data_split):
+def main(ba_size,tr_epochs):
     took = time.time()
 
     # Getting the trainings device
@@ -25,7 +25,7 @@ def main(ba_size,tr_epochs,tr_data_split):
         model = nn.DataParallel(model)
 
     # Getting the data train and test and split the trainings data into train and val sets
-    laws = get_laws_test(tr_data_split, use_cuda)
+    laws = get_laws_test(0.2, use_cuda)
     print(f'The laws are {asizeof.asizeof(laws)/8_000_000} MB.\n')
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
@@ -63,6 +63,5 @@ def main(ba_size,tr_epochs,tr_data_split):
 if __name__ == '__main__':
     ba_size = int(input('Batch Size?'))
     tr_epochs = int(input('Trainings Epochs'))
-    tr_data_split = int(input('Split'))/10
-    main(ba_size, tr_epochs, tr_data_split)
+    main(ba_size, tr_epochs)
     
