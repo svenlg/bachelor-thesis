@@ -64,9 +64,10 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
             
             # trainings step
             outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
-           
+            print(outputs)
             # loss
             loss = outputs[0]
+            print(loss)
             
             # backward pass and gradient step
             loss.backward()
