@@ -1,8 +1,8 @@
 import numpy as np
-import transformers
+#import transformers
 import torch
 import time
-from pympler import asizeof
+#from pympler import asizeof
 
 # Evaluate function for the reg
 def evaluate(model, val_loader, device):
@@ -22,7 +22,7 @@ def evaluate(model, val_loader, device):
 
             outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
 
-            loss = outputs[0]
+            loss = outputs[0].mean()
 
             num_samples_batch = input_ids.shape[0]
             num_eval_samples += num_samples_batch
