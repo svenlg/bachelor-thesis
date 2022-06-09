@@ -70,7 +70,7 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
             # loss
             
             loss = outputs[0].mean()
-            split += outputs[0]
+            split += torch.to_numpy(outputs[0])
             
             # backward pass and gradient step
             loss.backward()
