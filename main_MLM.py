@@ -30,7 +30,7 @@ def main():
     print(f'The laws are {asizeof.asizeof(laws)/8_000_000} MB.\n')
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
-    train_dataset = LawDatasetForMLM(train_laws, 2400)
+    train_dataset = LawDatasetForMLM(train_laws, 3000)
     val_dataset = LawDatasetForMLM(val_laws, 1080)
     #test_dataset = LawDatasetForMLM(test_laws)
 
@@ -52,7 +52,7 @@ def main():
 
     # num_train_epochs
     if use_cuda:
-        num_train_epochs = 250
+        num_train_epochs = 300
     else:
         num_train_epochs = 1
         
