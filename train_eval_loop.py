@@ -36,7 +36,7 @@ def evaluate(model, val_loader, device):
 def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, epochs=200):
 
     loss_train = np.empty((epochs,))
-    #loss_split = np.empty((epochs,4))
+    loss_split = np.empty((epochs,4))
     loss_val = np.empty((epochs,))
 
     print(f'Start finetuning model')
@@ -49,9 +49,9 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
         train_loss_cum = 0.0
         num_samples_epoch = 0
         t = time.time()
-        #split = np.zeros((4,))
-        # Go once through the training dataset (-> epoch)
+        split = None
 
+        # Go once through the training dataset (-> epoch)
         for batch in train_loader:
             # get batches 
             input_ids = batch['input_ids'].to(device)
@@ -75,15 +75,15 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
             # keep track of train stats
             num_samples_batch = input_ids.shape[0]
             num_samples_epoch += num_samples_batch
-            #split += outputs[0] * num_samples_batch
+            split += outputs[0] * num_samples_batch
             train_loss_cum += loss * num_samples_batch
 
 
         # average the accumulated statistics
         avg_train_loss = train_loss_cum / num_samples_epoch
-        #split = split / num_samples_epoch
+        avg_gpu_loss = split / num_samples_epoch
         loss_train[epoch-1] = avg_train_loss.item()
-        #loss_split[epoch-1] = torch.to_numpy(split)
+        loss_split[epoch-1] = torch.to_numpy(avg_gpu_loss)
 
         val_loss = evaluate(model, val_loader, device)
         loss_val[epoch-1] = val_loss.item()
@@ -103,8 +103,8 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
                         'loss': loss}, save_path)
             np.save('/scratch/sgutjahr/log/loss_train.npy', loss_train)
             np.save('/scratch/sgutjahr/log/loss_val.npy', loss_val)
-            #np.save('/scratch/sgutjahr/log/loss_split.npy', loss_split)
-            print(f'Saved model and loss stats checkpoint to {save_path}\n')
+            np.save('/scratch/sgutjahr/log/loss_split.npy', loss_split)
+            print(f'Saved model and loss stats in {epoch}\n')
 
         if cur_low_val_eval > val_loss and epoch > 2:
             cur_low_val_eval = val_loss
@@ -118,6 +118,6 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
     np.save('log/loss_train.npy', loss_train)
     np.save('log/loss_val.npy', loss_val)
-    #np.save('log/loss_split.npy', loss_split)
+    np.save('log/loss_split.npy', loss_split)
     print('')
 
