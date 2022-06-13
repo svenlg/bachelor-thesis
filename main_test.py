@@ -9,7 +9,7 @@ from train_eval_loop import train_loop
 import time
 from pympler import asizeof
 
-def main(ba_size, tr_epochs, save):
+def main(tr_epochs, save):
     took = time.time()
 
     # Getting the trainings device
@@ -41,8 +41,8 @@ def main(ba_size, tr_epochs, save):
     model.train()
 
     # Creat a DataLoader
-    train_loader = DataLoader(train_dataset, batch_size=ba_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=ba_size, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=24, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=24, shuffle=True)
 
     # Optimizer
     optim = torch.optim.Adam(model.parameters(), lr=5e-5)
@@ -61,8 +61,7 @@ def main(ba_size, tr_epochs, save):
 
 
 if __name__ == '__main__':
-    ba_size = int(input('Batch Size?'))
     tr_epochs = int(input('Trainings Epochs?'))
-    save = int(input('Wie oft soll gespeichert werder?'))
-    main(ba_size, tr_epochs, save)
+    save = ints(input('Wie oft soll gespeichert werder?'))
+    main(tr_epochs, save)
 
