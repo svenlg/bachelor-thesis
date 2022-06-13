@@ -26,7 +26,7 @@ def main():
     # Getting the data train and test and split the trainings data into train and val sets
     #laws, test_laws = get_laws_train(0.85)
     laws = get_laws_test(1, use_cuda)
-    print(f'The laws are {asizeof.asizeof(laws)/8_000_000} MB.\n')
+    print(f'The laws are {asizeof.asizeof(laws)/8_000_000} MB.')
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
     train_dataset = LawDatasetForMLM(train_laws, 3000)

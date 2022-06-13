@@ -25,14 +25,14 @@ def main(tr_epochs, save):
 
     # Getting the data train and test and split the trainings data into train and val sets
     laws = get_laws_test(0.2, use_cuda)
-    print(f'The laws are {asizeof.asizeof(laws)/8_000_000} MB.\n')
+    print(f'The laws are {asizeof.asizeof(laws)/8_000_000} MB.')
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
     train_dataset = LawDatasetForMLM(train_laws, 2000)
     val_dataset = LawDatasetForMLM(val_laws, 1000)
 
     print(f'The train dataset is {asizeof.asizeof(train_dataset)/8_000_000} MB.')
-    print(f'The val dataset is {asizeof.asizeof(val_dataset)/8_000_000} MB.')
+    print(f'The val dataset is {asizeof.asizeof(val_dataset)/8_000_000} MB.\n')
 
     # Push model to the device and set into train mode
     model.to(device)
