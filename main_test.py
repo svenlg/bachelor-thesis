@@ -3,10 +3,10 @@ from sklearn.model_selection import train_test_split
 import torch
 import torch.nn as nn
 from MLMmodel import LawNet
-from transformers import BertForMaskedLM
+#from transformers import BertForMaskedLM
 from laws_for_MLM import get_laws_test, LawDatasetForMLM
 from torch.utils.data import DataLoader
-from train_eval_loop import train_loop
+from train_eval_loop_test import train_loop
 import time
 from pympler import asizeof
 
@@ -21,7 +21,7 @@ def main(tr_epochs, save):
 
     # Pretrained model
     checkpoint = 'dbmdz/bert-base-german-cased'
-    model = BertForMaskedLM.from_pretrained(checkpoint)
+    model = LawNet(checkpoint)
     if torch.cuda.device_count() > 1:
         model = nn.DataParallel(model)
 
