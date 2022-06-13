@@ -3,8 +3,9 @@ import torch.nn as nn
 from transformers import BertForMaskedLM
 
 class LawNet(nn.Module):
-    def __init__(self,checkpoint):
+    def __init__(self):
         super(LawNet, self).__init__()
+        checkpoint = 'dbmdz/bert-base-german-cased'
         self.model = BertForMaskedLM.from_pretrained(checkpoint)
 
 
