@@ -83,10 +83,10 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
         avg_train_loss = train_loss_cum / num_samples_epoch
         avg_gpu_loss = split.to('cpu') / num_samples_epoch
         loss_train[epoch-1] = avg_train_loss.item()
-        loss_split[epoch-1] = avg_gpu_loss.numpy()
+        loss_split[epoch-1] = avg_gpu_loss.detach().numpy()
 
         val_loss = evaluate(model, val_loader, device)
-        loss_val[epoch-1] = val_loss.item()
+        loss_val[epoch-1] = val_loss.item() 
 
         epoch_duration = time.time() - t
 
