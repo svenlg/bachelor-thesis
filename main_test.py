@@ -9,7 +9,7 @@ from train_eval_loop import train_loop
 import time
 from pympler import asizeof
 
-def main(ba_size,tr_epochs):
+def main(ba_size,tr_epochs, save):
     took = time.time()
 
     # Getting the trainings device
@@ -53,7 +53,7 @@ def main(ba_size,tr_epochs):
     else:
         num_train_epochs = 1
 
-    train_loop(model, train_loader, val_loader, optim, device, show=1, save=10e9, epochs=num_train_epochs)
+    train_loop(model, train_loader, val_loader, optim, device, show=1, save=save, epochs=num_train_epochs)
 
     print(f'Done')
     duration = time.time() - took
@@ -62,6 +62,7 @@ def main(ba_size,tr_epochs):
 
 if __name__ == '__main__':
     ba_size = int(input('Batch Size?'))
-    tr_epochs = int(input('Trainings Epochs'))
-    main(ba_size, tr_epochs)
+    tr_epochs = int(input('Trainings Epochs?'))
+    save = int(input('Wie oft soll gespeichert werder?'))
+    main(ba_size, tr_epochs, save)
     
