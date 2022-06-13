@@ -34,6 +34,7 @@ def evaluate(model, val_loader, device):
 # Trainigs Loop for the reg
 def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, epochs=200):
     
+    print('This is a test run!!!')
     loss_train = np.empty((epochs,))
     #loss_split = np.empty((epochs,4))
     loss_val = np.empty((epochs,))
