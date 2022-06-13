@@ -62,6 +62,6 @@ def main(tr_epochs, save):
 
 if __name__ == '__main__':
     tr_epochs = int(input('Trainings Epochs?'))
-    save = ints(input('Wie oft soll gespeichert werder?'))
+    save = int(input('Wie oft soll gespeichert werder?'))
     main(tr_epochs, save)
 
