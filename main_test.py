@@ -65,4 +65,4 @@ if __name__ == '__main__':
     tr_epochs = int(input('Trainings Epochs?'))
     save = int(input('Wie oft soll gespeichert werder?'))
     main(ba_size, tr_epochs, save)
-    
+
