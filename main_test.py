@@ -16,6 +16,8 @@ def main(ba_size, tr_epochs, save):
     use_cuda = torch.cuda.is_available()
     device = torch.device('cuda:0' if use_cuda else 'cpu')
     torch.backends.cudnn.benchmark = True
+    print(f'test')
+    print(f'moin {use_cuda}')
     print(f"The model is trained on {torch.cuda.device_count()} {device}.")
 
     # Pretrained model
