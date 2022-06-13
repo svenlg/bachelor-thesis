@@ -49,7 +49,7 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
         train_loss_cum = 0.0
         num_samples_epoch = 0
         t = time.time()
-        split = None
+        split = torch.empty((4,))
 
         # Go once through the training dataset (-> epoch)
         for batch in train_loader:
