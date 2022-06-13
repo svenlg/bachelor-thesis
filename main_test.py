@@ -20,8 +20,7 @@ def main(tr_epochs, save):
     print(f"The model is trained on {torch.cuda.device_count()} {device}.\n")
 
     # Pretrained model
-    checkpoint = 'dbmdz/bert-base-german-cased'
-    model = LawNet(checkpoint)
+    model = LawNet()
     if torch.cuda.device_count() > 1:
         model = nn.DataParallel(model)
 
