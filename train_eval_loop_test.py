@@ -103,7 +103,6 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
             line = True
             save_path = f'/scratch/sgutjahr/log/BERT_MLM_epoch_{epoch}.pt'
             torch.save({'model_state_dict': model.module.state_dict(),
-                        'optimizer_state_dict': optim.state_dict(),
                         'loss': loss}, save_path)
             #np.save('/scratch/sgutjahr/log/loss_train.npy', loss_train)
             #np.save('/scratch/sgutjahr/log/loss_val.npy', loss_val)
@@ -116,7 +115,6 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
             save_path = f'log/BERT_MLM_best.pt'
             torch.save({'epoch': epoch,
                         'model_state_dict': model.module.state_dict(),
-                        'optimizer_state_dict': optim.state_dict(),
                         'loss': loss}, save_path)
 
         if line:
