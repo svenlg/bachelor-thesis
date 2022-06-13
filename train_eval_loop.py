@@ -83,7 +83,7 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
         avg_train_loss = train_loss_cum / num_samples_epoch
         avg_gpu_loss = split.to('cpu') / num_samples_epoch
         loss_train[epoch-1] = avg_train_loss.item()
-        loss_split[epoch-1] = torch.to_numpy(avg_gpu_loss)
+        loss_split[epoch-1] = torch.detach().numpy(avg_gpu_loss)
 
         val_loss = evaluate(model, val_loader, device)
         loss_val[epoch-1] = val_loss.item()

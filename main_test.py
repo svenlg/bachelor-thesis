@@ -33,7 +33,6 @@ def main(tr_epochs, save):
 
     print(f'The train dataset is {asizeof.asizeof(train_dataset)/8_000_000} MB.')
     print(f'The val dataset is {asizeof.asizeof(val_dataset)/8_000_000} MB.')
-    print(f'Modelsize: {asizeof.asizeof(model)/8_000} kB \n')
 
     # Push model to the device and set into train mode
     model.to(device)
