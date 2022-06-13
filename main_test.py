@@ -9,14 +9,14 @@ from train_eval_loop import train_loop
 import time
 from pympler import asizeof
 
-def main(ba_size,tr_epochs, save):
+def main(ba_size, tr_epochs, save):
     took = time.time()
 
     # Getting the trainings device
     use_cuda = torch.cuda.is_available()
     device = torch.device('cuda:0' if use_cuda else 'cpu')
     torch.backends.cudnn.benchmark = True
-    print(f"The model is trained on {torch.cuda.device_count()} {device}.\n")
+    print(f"The model is trained on {torch.cuda.device_count()} {device}.")
 
     # Pretrained model
     checkpoint = 'dbmdz/bert-base-german-cased'
