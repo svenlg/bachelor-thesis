@@ -49,7 +49,7 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
         train_loss_cum = 0.0
         num_samples_epoch = 0
         t = time.time()
-        split = torch.empty((4,))
+        split = torch.empty((4,)).to(device)
 
         # Go once through the training dataset (-> epoch)
         for batch in train_loader:
@@ -81,7 +81,7 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
 
         # average the accumulated statistics
         avg_train_loss = train_loss_cum / num_samples_epoch
-        avg_gpu_loss = split / num_samples_epoch
+        avg_gpu_loss = split.to('cpu') / num_samples_epoch
         loss_train[epoch-1] = avg_train_loss.item()
         loss_split[epoch-1] = torch.to_numpy(avg_gpu_loss)
 
