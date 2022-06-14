@@ -1,5 +1,4 @@
 import numpy as np
-#import transformers
 import torch
 import time
 
@@ -77,7 +76,6 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
             num_samples_epoch += num_samples_batch
             split += outputs[0] * num_samples_batch
             train_loss_cum += loss * num_samples_batch
-
 
         # average the accumulated statistics
         avg_train_loss = train_loss_cum / num_samples_epoch
