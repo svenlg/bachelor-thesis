@@ -107,7 +107,7 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
             np.save('/scratch/sgutjahr/log/loss_split.npy', loss_split)
             print(f'Saved model and loss stats in {epoch}\n')
 
-        if cur_low_val_eval > val_loss and epoch > 2:
+        if cur_low_val_eval > val_loss and epoch > 25:
             cur_low_val_eval = val_loss
             best_round = epoch
             save_path = f'log/BERT_MLM_best.pt'
