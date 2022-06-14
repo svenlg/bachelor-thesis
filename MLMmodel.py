@@ -4,11 +4,11 @@ from transformers import BertForMaskedLM
 from torch.utils.data import Dataset
 
 class LawNet(nn.Module):
+
     def __init__(self):
         super(LawNet, self).__init__()
         checkpoint = 'dbmdz/bert-base-german-cased'
         self.model = BertForMaskedLM.from_pretrained(checkpoint)
-
 
     def forward(self, input_ids=None, attention_mask=None, labels=None):
          #Extract outputs from the body
@@ -35,3 +35,4 @@ class LawDatasetForMLM(Dataset):
         # 250 batch pro epoch batchsize=8 --> 2000 -- len == 2000
         idx = (idx + self.len*self.epoch) % self.mod
         return self.data[idx]
+
