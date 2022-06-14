@@ -1,7 +1,6 @@
 # Import
 import torch
 import numpy as np
-from torch.utils.data import Dataset
 
 # what get_laws will return
 
@@ -23,25 +22,6 @@ from torch.utils.data import Dataset
 # [SEP]  Indicates a seperator - between and end of sequences token   102
 # [MASK] Used when masking tokens, masked language modelling (MLM)    103
 
-# Data set for the MLM Task
-class LawDatasetForMLM(Dataset):
-
-    def __init__(self, data, size):
-        self.data = data
-        self.len = size
-        self.mod = len(self.data)
-        self.epoch = -3 #start @-3 bec the __len__()-fuc is called 3 times before training
-
-    def __len__(self):
-        self.epoch += 1
-        return self.len
-
-    def __getitem__(self, idx):
-        # 155.842 Batch overall
-        # 250 batch pro epoch batchsize=8 --> 2000 -- len == 2000
-        idx = (idx + self.len*self.epoch) % self.mod
-        return self.data[idx]
-    
 
 # Returns a dict with masked input_ids an labels
 def get_tensors(ocn):
@@ -50,11 +30,12 @@ def get_tensors(ocn):
     input_ids = torch.from_numpy(np.load(ocn))
     att_mask = torch.ones(input_ids.size())
 
-    # split into chunks so the model can prosses the full law
-    input_id_chunks = input_ids.split(510)
-    att_mask_chunks = att_mask.split(510)
-
     chunksize = 512
+
+    # split into chunks so the model can prosses the full law
+    input_id_chunks = input_ids.split(chunksize-2)
+    att_mask_chunks = att_mask.split(chunksize-2)
+
 
     input_id_chunks = list(input_id_chunks)
     att_mask_chunks = list(att_mask_chunks)
@@ -110,6 +91,7 @@ def get_tensors(ocn):
         'attention_mask': attentions_mask.int(),
         'labels': labels.long()
     }
+
     return input_dict
 
 
@@ -147,37 +129,8 @@ def get_old_change_new(fname, law):
    
     return ten_law
 
-
-# full traing returns training and test laws
-def get_laws_train(split,use_set=True):
-
-    assert 0 <= split <= 1
-
-    if use_set:
-        fname = '/scratch/sgutjahr/Data_Tokoenzied/'
-    else:
-        fname = '../Data_Tokoenzied/'
-
-    laws = np.loadtxt(fname + 'done_with.txt', dtype=str,  encoding='utf-8')
-    train = []
-    test = []
-    np.random.shuffle(laws)
-    num_data = int(split*len(laws))
-
-    for i in range(num_data):
-        train.append(get_old_change_new(fname, laws[i]))
-
-    for i in range(num_data, len(laws)):
-        test.append(get_old_change_new(fname, laws[i]))
-
-    print(f'{num_data} out of {len(laws)} will be used for training')
-    print(f'{len(laws) - num_data} out of {len(laws)} will be used for testing')
-
-    return train, test
-
-
 # test tries
-def get_laws_test(split=0.05, use_set=True):
+def get_laws_test(split=1, use_set=True):
 
     assert 0 <= split <= 1
 
@@ -213,9 +166,8 @@ def get_laws_test(split=0.05, use_set=True):
             )
             ret.append(new)
 
-    print(f'{num_data} out of {len(laws)} will be used for training')
-    print(f'There are {len(flat)} ocn and {len(ret)} batch lines')
-    print(f'Just testing\n')
+    print(f'{num_data} out of {len(laws)} will be used for training.')
+    print(f'There are {len(flat)} ocn and {len(ret)} batch lines.\n')
 
     return ret
 
