@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 import torch
 import torch.nn as nn
 from MLMmodel import LawNet, LawDatasetForMLM
-from laws_for_MLM import get_laws_test, get_laws_train
+from laws_for_MLM import get_laws_test
 from torch.utils.data import DataLoader
 from train_eval_loop import train_loop, evaluate
 import time
@@ -25,13 +25,12 @@ def main():
 
     # Getting the data train and test and split the trainings data into train and val sets
     #laws, test_laws = get_laws_train(0.85)
-    laws = get_laws_test(1, use_cuda)
+    laws = get_laws_test()
     print(f'The laws are {asizeof.asizeof(laws)/8_000_000} MB.')
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
     train_dataset = LawDatasetForMLM(train_laws, 3000)
     val_dataset = LawDatasetForMLM(val_laws, 1080)
-    #test_dataset = LawDatasetForMLM(test_laws)
 
     print(f'The train dataset is {asizeof.asizeof(train_dataset)/8_000_000} MB.')
     print(f'The val dataset is {asizeof.asizeof(val_dataset)/8_000_000} MB.\n')
