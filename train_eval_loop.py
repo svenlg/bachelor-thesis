@@ -95,13 +95,13 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
             print(f'Epoch {epoch} | Duration {epoch_duration:.2f} sec')
             print(f'Train loss:      {avg_train_loss:.4f}')
             print(f'Validation loss: {val_loss:.4f}')
-            print(f'GPUs : {avg_gpu_loss:.4f}\n')
+            print(f'GPUs : {avg_gpu_loss}\n')
 
         # save checkpoint of model
         if epoch % save == 0:
             save_path = f'/scratch/sgutjahr/log/BERT_MLM_epoch_{epoch}.pt'
-            torch.save({'model_state_dict': model.module.state_dict(),
-                        'loss': loss}, save_path)
+            #torch.save({'model_state_dict': model.module.state_dict(),
+            #            'loss': loss}, save_path)
             np.save('/scratch/sgutjahr/log/loss_train.npy', loss_train)
             np.save('/scratch/sgutjahr/log/loss_val.npy', loss_val)
             np.save('/scratch/sgutjahr/log/loss_split.npy', loss_split)
@@ -111,9 +111,9 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
             cur_low_val_eval = val_loss
             best_round = epoch
             save_path = f'log/BERT_MLM_best.pt'
-            torch.save({'epoch': epoch,
-                        'model_state_dict': model.module.state_dict(),
-                        'loss': loss}, save_path)
+            #torch.save({'epoch': epoch,
+            #            'model_state_dict': model.module.state_dict(),
+            #            'loss': loss}, save_path)
 
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
