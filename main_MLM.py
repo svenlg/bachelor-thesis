@@ -27,21 +27,24 @@ def main():
     #laws, test_laws = get_laws_train(0.85)
     laws = get_laws_test()
     print(f'The laws are {asizeof.asizeof(laws)/8_000_000} MB.')
-    train_laws, val_laws = train_test_split(laws, test_size=.2)
-
+    #train_laws, val_laws = train_test_split(laws, test_size=.2)
+    split = int(0.8*len(laws))
+    train_laws = laws[:split]
+    val_laws = laws[split:] 
+    
     train_dataset = LawDatasetForMLM(train_laws, 3000)
     val_dataset = LawDatasetForMLM(val_laws, 1080)
 
-    print(f'The train dataset is {asizeof.asizeof(train_dataset)/8_000_000} MB.')
-    print(f'The val dataset is {asizeof.asizeof(val_dataset)/8_000_000} MB.\n')
+    print(f'The train dataset is {asizeof.asizeof(train_dataset)/8_000_000} MB and has {len(train_laws)} entrys.')
+    print(f'The val dataset is {asizeof.asizeof(val_dataset)/8_000_000} MB and has {len(val_laws)} entrys.\n')
 
     # Push model to the device and set into train mode
     model.to(device)
     model.train()
 
     # Creat a DataLoader
-    train_loader = DataLoader(train_dataset, batch_size=24, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=24, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=24, shuffle=False)
+    val_loader = DataLoader(val_dataset, batch_size=24, shuffle=False)
     #test_loader = DataLoader(test_laws ,batch_size=24, shuffle=True)
 
     # Optimizer
