@@ -5,7 +5,7 @@ import torch.nn as nn
 from MLMmodel import LawNet, LawDatasetForMLM
 from laws_for_MLM import get_laws_test
 from torch.utils.data import DataLoader
-from train_eval_loop import train_loop, evaluate
+from train_eval_loop import train_loop
 import time
 from pympler import asizeof
 

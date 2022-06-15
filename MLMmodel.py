@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 from transformers import BertForMaskedLM
 from torch.utils.data import Dataset
