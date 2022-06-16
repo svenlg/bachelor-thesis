@@ -60,7 +60,7 @@ def main(tr_epochs, save):
 
 
 if __name__ == '__main__':
-    tr_epochs = int(input('Trainings Epochen? '))
-    save = int(input('Speicher Epochen? '))
+    tr_epochs = 25 #int(input('Trainings Epochen? '))
+    save = 5 # int(input('Speicher Epochen? '))
     main(tr_epochs, save)
 
