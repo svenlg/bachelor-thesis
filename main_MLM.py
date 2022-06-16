@@ -28,10 +28,10 @@ def main():
     #laws, test_laws = get_laws_train(0.85)
     laws = get_laws_test()
     print(f'The laws are {asizeof.asizeof(laws)/8_000_000} MB.')
-    #train_laws, val_laws = train_test_split(laws, test_size=.2)
-    split = int(0.8*len(laws))
-    train_laws = laws[:split]
-    val_laws = laws[split:] 
+    train_laws, val_laws = train_test_split(laws, test_size=.2)
+    #split = int(0.8*len(laws))
+    #train_laws = laws[:split]
+    #val_laws = laws[split:] 
     
     train_dataset = LawDatasetForMLM(train_laws, 3000)
     val_dataset = LawDatasetForMLM(val_laws, 1080)
