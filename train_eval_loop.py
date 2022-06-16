@@ -32,7 +32,7 @@ def evaluate(model, val_loader, device):
 
 
 # Trainigs Loop for the reg
-def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, epochs=200):
+def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, epochs=200, name = 'try'):
 
     loss_train = np.empty((epochs,))
     loss_split = np.empty((epochs,4))
@@ -96,26 +96,26 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
 
         # save checkpoint of model
         if epoch % save == 0:
-            save_path = f'/scratch/sgutjahr/log/BERT_MLM_epoch_{epoch}.pt'
+            save_path = f'/scratch/sgutjahr/log/BERT_MLM_{name}_epoch_{epoch}.pt'
             torch.save({'model_state_dict': model.module.state_dict(),
-                        'loss': loss}, save_path)
-            np.save('/scratch/sgutjahr/log/loss_train.npy', loss_train)
-            np.save('/scratch/sgutjahr/log/loss_val.npy', loss_val)
-            np.save('/scratch/sgutjahr/log/loss_split.npy', loss_split)
+                        'loss': val_loss}, save_path)
+            np.save(f'/scratch/sgutjahr/log/{name}_loss_train.npy', loss_train)
+            np.save(f'/scratch/sgutjahr/log/{name}_loss_val.npy', loss_val)
+            np.save(f'/scratch/sgutjahr/log/{name}_loss_split.npy', loss_split)
             print(f'Saved model and loss stats in {epoch}\n')
 
         if cur_low_val_eval > val_loss and epoch > 25:
             cur_low_val_eval = val_loss
             best_round = epoch
-            save_path = f'log/BERT_MLM_best.pt'
+            save_path = f'log/BERT_MLM_{name}_best.pt'
             torch.save({'epoch': epoch,
                         'model_state_dict': model.module.state_dict(),
-                        'loss': loss}, save_path)
+                        'loss': cur_low_val_eval}, save_path)
 
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
-    np.save('log/loss_train.npy', loss_train)
-    np.save('log/loss_val.npy', loss_val)
-    np.save('log/loss_split.npy', loss_split)
+    np.save(f'log/{name}_loss_train.npy', loss_train)
+    np.save(f'log/{name}_loss_val.npy', loss_val)
+    np.save(f'log/{name}_loss_split.npy', loss_split)
     print('')
 

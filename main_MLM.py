@@ -10,6 +10,7 @@ import time
 from pympler import asizeof
 
 def main():
+    name = input('Name of the Try: ')
     took = time.time()
 
     # Getting the trainings device
@@ -56,7 +57,8 @@ def main():
     else:
         num_train_epochs = 1
         
-    train_loop(model, train_loader, val_loader, optim, device, show=1, save=25, epochs=num_train_epochs)
+    train_loop(model, train_loader, val_loader, optim, device,
+               show=1, save=25, epochs=num_train_epochs, name=name)
 
     #loss = evaluate(model, test_loader, device)
     #print(loss)
