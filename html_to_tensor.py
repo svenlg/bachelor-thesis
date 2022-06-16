@@ -30,7 +30,7 @@ def html_to_str_to_tensor(url, save):
     tensor = tokens_np.input_ids[0]
     save_path = '../Data_Laws/' + save
     
-    np.save(save_path, tensor)
+    #np.save(save_path, tensor)
     
     return
 

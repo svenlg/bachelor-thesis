@@ -92,7 +92,7 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
         if epoch % show == 0:
             print(f'Epoch {epoch} | Duration {epoch_duration:.2f} sec')
             print(f'Train loss:      {avg_train_loss:.4f}')
-            print(f'Validation loss: {val_loss:.4f}')
+            print(f'Validation loss: {val_loss:.4f}\n')
 
         # save checkpoint of model
         if epoch % save == 0:
@@ -102,7 +102,7 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
             np.save(f'/scratch/sgutjahr/log/{name}_loss_train.npy', loss_train)
             np.save(f'/scratch/sgutjahr/log/{name}_loss_val.npy', loss_val)
             np.save(f'/scratch/sgutjahr/log/{name}_loss_split.npy', loss_split)
-            print(f'Saved model and loss stats in {epoch}\n')
+            print(f'Saved model and loss stats in epoch {epoch}\n')
 
         if cur_low_val_eval > val_loss and epoch > 25:
             cur_low_val_eval = val_loss

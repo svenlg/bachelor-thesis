@@ -44,8 +44,8 @@ def main():
     model.train()
 
     # Creat a DataLoader
-    train_loader = DataLoader(train_dataset, batch_size=24, shuffle=False)
-    val_loader = DataLoader(val_dataset, batch_size=24, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=24, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=24, shuffle=True)
     #test_loader = DataLoader(test_laws ,batch_size=24, shuffle=True)
 
     # Optimizer
