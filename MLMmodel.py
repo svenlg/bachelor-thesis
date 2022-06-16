@@ -26,7 +26,6 @@ class LawDatasetForMLM(Dataset):
         self.epoch = 0 #start @-3 bec the __len__()-fuc is called 3 times before training
 
     def __len__(self):
-        print(self.epoch)
         self.epoch += 1
         return self.len
 
