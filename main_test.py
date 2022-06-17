@@ -25,7 +25,7 @@ def main(tr_epochs, save):
         model = nn.DataParallel(model)
 
     # Getting the data train and test and split the trainings data into train and val sets
-    laws = get_laws_test(0.2,use_cuda)
+    laws = get_laws_test(1,use_cuda)
     print(f'The laws are {asizeof.asizeof(laws)/8_000_000} MB.')
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
