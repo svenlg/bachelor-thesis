@@ -25,19 +25,15 @@ def main():
         model = nn.DataParallel(model)
 
     # Getting the data train and test and split the trainings data into train and val sets
-    #laws, test_laws = get_laws_train(0.85)
     laws = get_laws_test()
-    print(f'The laws are {asizeof.asizeof(laws)/8_000_000} MB.')
+    print(f'The laws are {asizeof.asizeof(laws)/1_000_000} MB.')
     train_laws, val_laws = train_test_split(laws, test_size=.2)
-    #split = int(0.8*len(laws))
-    #train_laws = laws[:split]
-    #val_laws = laws[split:] 
     
     train_dataset = LawDatasetForMLM(train_laws, 3000)
     val_dataset = LawDatasetForMLM(val_laws, 1080)
 
-    print(f'The train dataset is {asizeof.asizeof(train_dataset)/8_000_000} MB and has {len(train_laws)} entrys.')
-    print(f'The val dataset is {asizeof.asizeof(val_dataset)/8_000_000} MB and has {len(val_laws)} entrys.\n')
+    print(f'The train dataset is {asizeof.asizeof(train_dataset)/1_000_000} MB and has {len(train_laws)} entrys.')
+    print(f'The val dataset is {asizeof.asizeof(val_dataset)/1_000_000} MB and has {len(val_laws)} entrys.\n')
 
     # Push model to the device and set into train mode
     model.to(device)
@@ -46,7 +42,7 @@ def main():
     # Creat a DataLoader
     train_loader = DataLoader(train_dataset, batch_size=24, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=24, shuffle=True)
-    #test_loader = DataLoader(test_laws ,batch_size=24, shuffle=True)
+    # test_loader = DataLoader(test_laws ,batch_size=24, shuffle=True)
 
     # Optimizer
     optim = torch.optim.Adam(model.parameters(), lr=5e-5)
@@ -60,8 +56,8 @@ def main():
     train_loop(model, train_loader, val_loader, optim, device,
                show=1, save=25, epochs=num_train_epochs, name=name)
 
-    #loss = evaluate(model, test_loader, device)
-    #print(loss)
+    # loss = evaluate(model, test_loader, device)
+    # print(loss)
 
     print(f'Done')
     duration = time.time() - took
