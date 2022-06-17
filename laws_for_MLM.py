@@ -136,8 +136,8 @@ def get_laws_test(split=1, use_set=True):
     assert 0 <= split <= 1
 
     if use_set:
-        #fname = '/scratch/sgutjahr/Data_Tokenized/'
-        fname = '/scratch/sgutjahr/Data_Token/'
+        fname = '/scratch/sgutjahr/Data_Tokenized/'
+        #fname = '/scratch/sgutjahr/Data_Token/'
     else:
         fname = '../Data_Tokenized/'
 
