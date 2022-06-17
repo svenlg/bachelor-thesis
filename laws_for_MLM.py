@@ -16,11 +16,11 @@ import numpy as np
 #                     -> values: there pt_tensor representation
 # data[0][0][0]['input_ids'].shape --> shape = (__,512)
 
-# [PAD]  Padding token 512 tokens per seqences                          0
-# [UNK]  Used when a word is unknown to Bert                          100
-# [CLS]  Appears at the start of every sequence                       101
-# [SEP]  Indicates a seperator - between and end of sequences token   102
-# [MASK] Used when masking tokens, masked language modelling (MLM)    103
+# [PAD]  Padding token 512 tokens per seqences                          0   (0)
+# [UNK]  Used when a word is unknown to Bert                          101 (100)
+# [CLS]  Appears at the start of every sequence                       102 (101)
+# [SEP]  Indicates a seperator - between and end of sequences token   103 (102)
+# [MASK] Used when masking tokens, masked language modelling (MLM)    104 (103)
 
 
 # Returns a dict with masked input_ids an labels
@@ -49,18 +49,18 @@ def get_tensors(ocn):
         rand = torch.rand(label.shape)
         # where the random array is less than 0.15, we set true
         mask_arr = (rand < 0.15)
-        # change all true values in the mask to [MASK] tokens (103)
-        input_id_chunks[i][mask_arr] = 103
+        # change all true values in the mask to [MASK] tokens (104)
+        input_id_chunks[i][mask_arr] = 104
 
-        # add the [CLS] and [SEP] tokens
+        # add the [CLS] = 102 and [SEP] = 103 tokens
         input_id_chunks[i] = torch.cat([
-            torch.Tensor([101]), input_id_chunks[i], torch.Tensor([102])
+            torch.Tensor([102]), input_id_chunks[i], torch.Tensor([103])
         ])
         att_mask_chunks[i] = torch.cat([
             torch.Tensor([1]), att_mask_chunks[i], torch.Tensor([1])
         ])
         labels[i] = torch.cat([
-            torch.Tensor([101]), label ,torch.Tensor([102])
+            torch.Tensor([102]), label ,torch.Tensor([103])
         ])
 
         # get required padding length

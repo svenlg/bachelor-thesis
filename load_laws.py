@@ -2,11 +2,11 @@
 import torch
 import numpy as np
 
-# [PAD]  Padding token 512 tokens per seqences                          0
-# [UNK]  Used when a word is unknown to Bert                          100
-# [CLS]  Appears at the start of every sequence                       101
-# [SEP]  Indicates a seperator - between and end of sequences token   102
-# [MASK] Used when masking tokens, masked language modelling (MLM)    103
+# [PAD]  Padding token 512 tokens per seqences                          0   (0)
+# [UNK]  Used when a word is unknown to Bert                          101 (100)
+# [CLS]  Appears at the start of every sequence                       102 (101)
+# [SEP]  Indicates a seperator - between and end of sequences token   103 (102)
+# [MASK] Used when masking tokens, masked language modelling (MLM)    104 (103)
 
 
 def get_tensors(ocn):
