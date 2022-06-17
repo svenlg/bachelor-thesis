@@ -136,12 +136,13 @@ def get_laws_test(split=1, use_set=True):
     assert 0 <= split <= 1
 
     if use_set:
-        fname = '/scratch/sgutjahr/Data_Tokenized/'
-        #fname = '/scratch/sgutjahr/Data_Token/'
+        #fname = '/scratch/sgutjahr/Data_Tokenized/'
+        fname = '/scratch/sgutjahr/Data_Token/'
     else:
-        fname = '../Data_Tokenized/'
+        #fname = '../Data_Tokenized/'
+        fname = '../Data_Token/' 
 
-    laws = np.loadtxt(fname + 'done_with.txt', dtype=str, encoding='utf-8')
+    laws = np.loadtxt(fname + 'done_with.txt', dtype=str, encoding='ISO-8859-1')
     big = []
     np.random.shuffle(laws)
     num_data = int(split*len(laws))
