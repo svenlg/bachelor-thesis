@@ -2,7 +2,7 @@
 from sklearn.model_selection import train_test_split
 import torch
 import torch.nn as nn
-from MLMmodel import LawNet, LawDatasetForMLM
+from modelMLM import LawNet, LawDatasetForMLM
 from laws_for_MLM import get_laws_test
 from torch.utils.data import DataLoader
 from train_eval_loop import train_loop
