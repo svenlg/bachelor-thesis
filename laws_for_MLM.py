@@ -141,7 +141,7 @@ def get_laws_test(split=1, use_set=True):
     else:
         fname = '../Data_Tokenized/'
 
-    laws = np.loadtxt(fname + 'done_with.txt', dtype=str)
+    laws = np.loadtxt(fname + 'done_with.txt', dtype=str, encoding='utf-8')
     big = []
     np.random.shuffle(laws)
     num_data = int(split*len(laws))
