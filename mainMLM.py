@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 import torch
 import torch.nn as nn
 from modelMLM import LawNet, LawDatasetForMLM
-from laws_for_MLM import get_laws_test
+from lawsMLM import get_laws
 from torch.utils.data import DataLoader
 from train_eval_loop import train_loop
 import time
@@ -25,7 +25,7 @@ def main():
         model = nn.DataParallel(model)
 
     # Getting the data train and test and split the trainings data into train and val sets
-    laws = get_laws_test()
+    laws = get_laws()
     print(f'The laws are {asizeof.asizeof(laws)/1_000_000} MB.')
     train_laws, val_laws = train_test_split(laws, test_size=.2)
     
