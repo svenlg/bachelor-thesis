@@ -2,7 +2,7 @@
 from sklearn.model_selection import train_test_split
 import torch
 import torch.nn as nn
-from modelMLM import LawNet, LawDatasetForMLM
+from modelMLM import LawNetMLM, LawDatasetForMLM
 from lawsMLM import get_laws
 from torch.utils.data import DataLoader
 from train_eval_loop import train_loop
@@ -10,17 +10,16 @@ import time
 from pympler import asizeof
 
 def main():
-    name = input('Name of the Try: ')
+    name = input(f'Name of the Try: \n')
     took = time.time()
 
     # Getting the trainings device
     use_cuda = torch.cuda.is_available()
     device = torch.device('cuda:0' if use_cuda else 'cpu')
     torch.backends.cudnn.benchmark = True
-    print(f'The model is trained on {torch.cuda.device_count()} {device}.\n')
 
     # Pretrained model
-    model = LawNet()
+    model = LawNetMLM()
     if torch.cuda.device_count() > 1:
         model = nn.DataParallel(model)
 
@@ -42,7 +41,6 @@ def main():
     # Creat a DataLoader
     train_loader = DataLoader(train_dataset, batch_size=24, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=24, shuffle=True)
-    # test_loader = DataLoader(test_laws ,batch_size=24, shuffle=True)
 
     # Optimizer
     optim = torch.optim.Adam(model.parameters(), lr=5e-5)
@@ -55,9 +53,6 @@ def main():
         
     train_loop(model, train_loader, val_loader, optim, device,
                show=1, save=25, epochs=num_train_epochs, name=name)
-
-    # loss = evaluate(model, test_loader, device)
-    # print(loss)
 
     print(f'Done')
     duration = time.time() - took
