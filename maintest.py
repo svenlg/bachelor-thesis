@@ -2,7 +2,7 @@
 from sklearn.model_selection import train_test_split
 import torch
 import torch.nn as nn
-from modelMLM import LawNet, LawDatasetForMLM
+from modelMLM import LawNetMLM, LawDatasetForMLM
 from lawsMLM import get_laws
 from torch.utils.data import DataLoader
 from train_eval_loop import train_loop
@@ -20,7 +20,7 @@ def main(tr_epochs, save):
     print(f"The model is trained on {torch.cuda.device_count()} {device}.\n")
     
     # Pretrained model
-    model = LawNet()
+    model = LawNetMLM()
     if torch.cuda.device_count() > 1:
         model = nn.DataParallel(model)
 
