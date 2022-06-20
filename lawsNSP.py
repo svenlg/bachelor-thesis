@@ -2,20 +2,6 @@
 import torch
 import numpy as np
 
-# what get_laws will return
-
-# type(data) -> list: Gesetzten die genutzt werden
-# len(data)  -> int(split*len(laws))
-
-# type(data[0]) -> list: Changes die es gab pro Gesetz
-# len(data[0])  -> Num an Changes
-
-# type(data[0][0]) -> tuple: old, change, new
-
-# type(data[0][0][0]) -> dict: key: ('input_ids', 'attention_mask', 'lables')
-#                     -> values: there pt_tensor representation
-# data[0][0][0]['input_ids'].shape --> shape = (__,512)
-
 # [PAD]  Padding token 512 tokens per seqences                          0   (0)
 # [UNK]  Used when a word is unknown to Bert                          101 (100)
 # [CLS]  Appears at the start of every sequence                       102 (101)
