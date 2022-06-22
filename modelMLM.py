@@ -14,7 +14,7 @@ class LawNetMLM(nn.Module):
         outputs = self.model(input_ids=input_ids,
                              attention_mask=attention_mask,
                              labels=labels)
-        return outputs
+        return outputs.mean()
 
 
 # Data set for the MLM Task
