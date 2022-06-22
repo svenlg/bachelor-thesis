@@ -6,7 +6,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from modelMLM import LawNetMLM, LawDatasetForMLM
 from lawsMLM import get_laws
 from torch.utils.data import DataLoader
-from train_eval_loop import train_loop
+from train_loop import train_loop
 import time
 from pympler import asizeof
 
