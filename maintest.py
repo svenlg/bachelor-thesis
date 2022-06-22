@@ -10,6 +10,9 @@ from train_loop import train_loop
 import time
 from pympler import asizeof
 
+import warnings
+warnings.filterwarnings('ignore')
+
 
 def main(tr_epochs, save=1000):
     took = time.time()
