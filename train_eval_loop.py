@@ -37,8 +37,10 @@ def evaluate(model, val_loader, device):
             y_pred = pred[np.where(input_ids.to('cpu') == 104)]
             
             #Calutate the Accuracy and the f1-scores
-            acc = accuracy_score(np.flatten(y_true), np.flatten(y_pred))
-            f1 = f1_score(np.flatten(y_true), np.flatten(y_pred), average='weighted')
+            acc = accuracy_score(np.ndarray.flatten(y_true), 
+                                 np.ndarray.flatten(y_pred))
+            f1 = f1_score(np.ndarray.flatten(y_true), 
+                          np.ndarray.flatten(y_pred), average='weighted')
             
             num_samples_batch = input_ids.shape[0]
             num_eval_samples += num_samples_batch
