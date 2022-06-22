@@ -39,8 +39,8 @@ def main():
     model.train()
 
     # Creat a DataLoader
-    train_loader = DataLoader(train_dataset, batch_size=24, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=24, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=24, shuffle=True, num_workers=4)
+    val_loader = DataLoader(val_dataset, batch_size=24, shuffle=True, num_workers=4)
 
     # Optimizer
     optim = torch.optim.Adam(model.parameters(), lr=5e-5)
