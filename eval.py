@@ -20,17 +20,14 @@ def evaluate(model, val_loader, device):
             input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
             labels = batch['labels'].to(device)
-
-            outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
             
             # outputs -> loss, logits 
             # lofits.shape = batch_size, 512, vocsize
             outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
             
+            # Get the loss and the prediction
             loss = outputs[0].mean()
             pred = np.argmax(outputs[1].to('cpu').numpy(),axis=-1)
-            
-            assert input_ids.shape == pred.shape == labels.shape
             
             # Get the prdictet and true tokens words for the Masked (104) Tokens
             y_true = labels[np.where(input_ids.to('cpu') == 104)].to('cpu').numpy()
