@@ -81,6 +81,8 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
             input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
             labels = batch['labels'].to(device)
+            
+            print(input_ids.shape)
 
             # zero grads and put model into train mode            
             optim.zero_grad()
@@ -109,7 +111,7 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
         loss_split[epoch-1] = avg_gpu_loss.detach().numpy()
 
         val_loss = evaluate(model, val_loader, device)
-        loss_val[epoch-1] = val_loss
+        loss_val[epoch-1] = val_loss.detach().numpy()
         print(val_loss)
         epoch_duration = time.time() - t
 
