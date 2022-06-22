@@ -23,7 +23,8 @@ def main(tr_epochs, save):
     # Pretrained model
     model = LawNetMLM()
     if torch.cuda.device_count() > 1:
-        model = DDP(model)
+        model = nn.DataParallel(model)
+        #model = DDP(model)
 
     # Getting the data train and test and split the trainings data into train and val sets
     laws = get_laws(0.3,use_cuda)
@@ -42,8 +43,8 @@ def main(tr_epochs, save):
     model.train()
 
     # Creat a DataLoader
-    train_loader = DataLoader(train_dataset, batch_size=24, shuffle=False)
-    val_loader = DataLoader(val_dataset, batch_size=24, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=24, shuffle=False, num_workers=4)
+    val_loader = DataLoader(val_dataset, batch_size=24, shuffle=False, num_workers=4)
 
     # Optimizer
     optim = torch.optim.Adam(model.parameters(), lr=5e-5)
