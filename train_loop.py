@@ -70,7 +70,7 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
             print(f'f1_score:        {f1:.4f}\n')
 
         # save checkpoint of model
-        if epoch % save == 0 and epoch > 20:
+        if epoch % save == 0 and epoch > 25:
             save_path = f'/scratch/sgutjahr/log/BERT_MLM_{name}_epoch_{epoch}.pt'
             torch.save({'model_state_dict': model.module.state_dict(),
                         'loss': val_loss}, save_path)
