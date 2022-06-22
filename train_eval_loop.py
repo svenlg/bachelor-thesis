@@ -29,12 +29,12 @@ def evaluate(model, val_loader, device):
             
             loss = outputs[0].mean()
             pred = np.argmax(outputs[1].to('cpu').numpy(),axis=-1)
-            print(type(pred))
+            
             assert input_ids.shape == pred.shape == labels.shape
             
             # Get the prdictet and true tokens words for the Masked (104) Tokens
             y_true = labels[np.where(input_ids.to('cpu') == 104)].to('cpu').numpy()
-            y_pred = pred[np.where(input_ids == 104)]
+            y_pred = pred[np.where(input_ids.to('cpu') == 104)]
             
             #Calutate the Accuracy and the f1-scores
             acc = accuracy_score(torch.flatten(y_true), torch.flatten(y_pred))
