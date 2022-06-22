@@ -55,7 +55,7 @@ def main(tr_epochs, save):
     else:
         num_train_epochs = 1
 
-    train_loop(model, train_loader, val_loader, optim, device, show=1, save=save, epochs=num_train_epochs)
+    train_loop(model, train_loader, val_loader, optim, device, show=1, save=1000, epochs=num_train_epochs)
 
     print(f'Done')
     duration = time.time() - took
@@ -64,6 +64,5 @@ def main(tr_epochs, save):
 
 if __name__ == '__main__':
     tr_epochs = int(input('Trainings Epochen? '))
-    save = int(input('Speicher Epochen? '))
-    main(tr_epochs, save)
+    main(tr_epochs)
 
