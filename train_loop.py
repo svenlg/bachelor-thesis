@@ -56,15 +56,18 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
         loss_train[epoch-1] = avg_train_loss.item()
         loss_split[epoch-1] = avg_gpu_loss.detach().numpy()
 
-        val_loss = evaluate(model, val_loader, device)
-        loss_val[epoch-1] = val_loss
+        # val_loss = val_loss, acc, f1
+        val_loss, acc, f1 = evaluate(model, val_loader, device)
+        loss_val[epoch-1] = [val_loss, acc, f1]
         epoch_duration = time.time() - t
 
         # print some infos
         if epoch % show == 0:
             print(f'Epoch {epoch} | Duration {epoch_duration:.2f} sec')
             print(f'Train loss:      {avg_train_loss:.4f}')
-            print(f'Validation loss: {val_loss:.4f}\n')
+            print(f'Validation loss: {val_loss[0]:.4f}')
+            print(f'accuracy_score:  {acc:.4f}')
+            print(f'f1_score:        {f1:.4f}\n')
 
         # save checkpoint of model
         if epoch % save == 0 and epoch > 20:
@@ -82,7 +85,9 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
             save_path = f'log/BERT_MLM_{name}_best.pt'
             torch.save({'epoch': epoch,
                         'model_state_dict': model.module.state_dict(),
-                        'loss': cur_low_val_eval}, save_path)
+                        'loss': cur_low_val_eval,
+                        'accuracy': acc,
+                        'f1': f1}, save_path)
 
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
