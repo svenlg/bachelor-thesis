@@ -32,12 +32,12 @@ def evaluate(model, val_loader, device):
             assert input_ids.shape == pred.shape == labels.shape
             
             # Get the prdictet and true tokens words for the Masked (104) Tokens
-            y_true = labels[np.where(input_ids == 104)]
-            y_pred = pred[np.where(input_ids == 104)]
+            y_true = labels[np.where(input_ids == 104)].to('cpu').numpy()
+            y_pred = pred[np.where(input_ids == 104)].to('cpu').numpy()
             
             #Calutate the Accuracy and the f1-scores
-            acc = accuracy_score(torch.flatten(y_true),torch.flatten(y_pred))
-            f1 = f1_score(torch.flatten(y_true),torch.flatten(y_pred), average='weighted')
+            acc = accuracy_score(torch.flatten(y_true), torch.flatten(y_pred))
+            f1 = f1_score(torch.flatten(y_true), torch.flatten(y_pred), average='weighted')
             
             num_samples_batch = input_ids.shape[0]
             num_eval_samples += num_samples_batch
