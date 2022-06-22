@@ -2,7 +2,6 @@
 from sklearn.model_selection import train_test_split
 import torch
 import torch.nn as nn
-from torch.nn.parallel import DistributedDataParallel as DDP
 from modelMLM import LawNetMLM, LawDatasetForMLM
 from lawsMLM import get_laws
 from torch.utils.data import DataLoader
@@ -21,13 +20,11 @@ def main(tr_epochs, save=1000):
     use_cuda = torch.cuda.is_available()
     device = torch.device('cuda:0' if use_cuda else 'cpu')
     torch.backends.cudnn.benchmark = True
-    print(f"The model is trained on {torch.cuda.device_count()} {device}.\n")
-    
+
     # Pretrained model
     model = LawNetMLM()
     if torch.cuda.device_count() > 1:
         model = nn.DataParallel(model)
-        #model = DDP(model)
 
     # Getting the data train and test and split the trainings data into train and val sets
     laws = get_laws(0.3,use_cuda)
@@ -39,7 +36,6 @@ def main(tr_epochs, save=1000):
 
     print(f'The train dataset is {asizeof.asizeof(train_dataset)/1_000_000} MB.')
     print(f'The val dataset is {asizeof.asizeof(val_dataset)/1_000_000} MB.\n')
-
     
     # Push model to the device and set into train mode
     model.to(device)
