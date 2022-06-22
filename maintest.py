@@ -11,7 +11,7 @@ import time
 from pympler import asizeof
 
 
-def main(tr_epochs, save):
+def main(tr_epochs, save=1000):
     took = time.time()
 
     # Getting the trainings device
@@ -55,7 +55,7 @@ def main(tr_epochs, save):
     else:
         num_train_epochs = 1
 
-    train_loop(model, train_loader, val_loader, optim, device, show=1, save=1000, epochs=num_train_epochs)
+    train_loop(model, train_loader, val_loader, optim, device, show=1, save=save, epochs=num_train_epochs)
 
     print(f'Done')
     duration = time.time() - took
