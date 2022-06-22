@@ -28,7 +28,7 @@ def evaluate(model, val_loader, device):
 
             # Get the loss and the prediction
             loss = outputs[0].mean()
-            pred = np.argmax(outputs[1].to('cpu').numpy(),axis=-1).numpy()
+            pred = torch.argmax(outputs[1],axis=-1).to('cpu').numpy()
             
             # Get the prdictet and true tokens words for the Masked (104) Tokens
             y_true = labels_cpu[np.where(input_ids_cpu == 104)]
