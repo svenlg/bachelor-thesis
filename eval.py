@@ -31,7 +31,7 @@ def evaluate(model, val_loader, device):
             pred = np.argmax(outputs[1].to('cpu').numpy(),axis=-1)
             
             # Get the prdictet and true tokens words for the Masked (104) Tokens
-            y_true = labels_cpu[np.where(input_ids_cpu = batch['input_ids'] == 104)]
+            y_true = labels_cpu[np.where(input_ids_cpu == 104)]
             y_pred = pred[np.where(input_ids_cpu == 104)]
             
             #Calutate the Accuracy and the f1-scores
