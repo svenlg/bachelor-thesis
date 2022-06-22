@@ -32,8 +32,8 @@ def evaluate(model, val_loader, device):
             assert input_ids.shape == pred.shape == labels.shape
             
             # Get the prdictet and true tokens words for the Masked (104) Tokens
-            y_true = labels[np.where(input_ids == 104)].to('cpu').numpy()
-            y_pred = pred[np.where(input_ids == 104)].to('cpu').numpy()
+            y_true = labels[np.where(input_ids.to('cpu') == 104)].to('cpu').numpy()
+            y_pred = pred[np.where(input_ids.to('cpu') == 104)].to('cpu').numpy()
             
             #Calutate the Accuracy and the f1-scores
             acc = accuracy_score(torch.flatten(y_true), torch.flatten(y_pred))
@@ -107,7 +107,7 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
 
         val_loss = evaluate(model, val_loader, device)
         loss_val[epoch-1] = val_loss
-
+        print(val_loss)
         epoch_duration = time.time() - t
 
         # print some infos
