@@ -9,6 +9,9 @@ from train_loop import train_loop
 import time
 from pympler import asizeof
 
+import warnings
+warnings.filterwarnings('ignore')
+
 def main():
     name = input(f'Name of the Try: \n')
     took = time.time()
