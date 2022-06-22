@@ -57,8 +57,10 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
         loss_split[epoch-1] = avg_gpu_loss.detach().numpy()
 
         val_loss = evaluate(model, val_loader, device)
-        loss_val[epoch-1] = val_loss
         print(val_loss)
+        for k in val_loss:
+            print(type(k))
+        loss_val[epoch-1] = val_loss
         epoch_duration = time.time() - t
 
         # print some infos
