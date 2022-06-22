@@ -29,6 +29,7 @@ def evaluate(model, val_loader, device):
             
             loss = outputs[0].mean()
             pred = np.argmax(outputs[1].to('cpu').numpy(),axis=-1)
+            print(type(pred))
             assert input_ids.shape == pred.shape == labels.shape
             
             # Get the prdictet and true tokens words for the Masked (104) Tokens
