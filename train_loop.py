@@ -65,7 +65,7 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
         if epoch % show == 0:
             print(f'Epoch {epoch} | Duration {epoch_duration:.2f} sec')
             print(f'Train loss:      {avg_train_loss:.4f}')
-            print(f'Validation loss: {val_loss[0]:.4f}')
+            print(f'Validation loss: {val_loss:.4f}')
             print(f'accuracy_score:  {acc:.4f}')
             print(f'f1_score:        {f1:.4f}\n')
 
