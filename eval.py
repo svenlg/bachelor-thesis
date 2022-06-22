@@ -14,6 +14,7 @@ def evaluate(model, val_loader, device):
     with torch.no_grad():
         num_eval_samples = 0
         for batch in val_loader:
+            print(f'Evaluation')
 
             # get batches 
             input_ids = batch['input_ids'].to(device)
