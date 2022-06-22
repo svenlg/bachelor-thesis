@@ -28,17 +28,17 @@ def evaluate(model, val_loader, device):
 
             # Get the loss and the prediction
             loss = outputs[0].mean()
-            pred = torch.argmax(outputs[1],axis=-1).to('cpu').numpy()
+            pred = torch.argmax(outputs[1],axis=-1).to('cpu')
             
             # Get the prdictet and true tokens words for the Masked (104) Tokens
             y_true = labels_cpu[np.where(input_ids_cpu == 104)]
             y_pred = pred[np.where(input_ids_cpu == 104)]
             
             #Calutate the Accuracy and the f1-scores
-            acc = accuracy_score(np.ndarray.flatten(y_true), 
-                                 np.ndarray.flatten(y_pred))
-            f1 = f1_score(np.ndarray.flatten(y_true), 
-                          np.ndarray.flatten(y_pred), average='weighted')
+            acc = accuracy_score(torch.flatten(y_true), 
+                                 torch.flatten(y_pred))
+            f1 = f1_score(torch.flatten(y_true), 
+                          torch.flatten(y_pred), average='weighted')
             
             num_samples_batch = input_ids_gpu.shape[0]
             num_eval_samples += num_samples_batch
