@@ -14,7 +14,7 @@ def evaluate(model, val_loader, device):
     with torch.no_grad():
         num_eval_samples = 0
         for batch in val_loader:
-            print(f'Evaluation')
+            
 
             # get batches 
             input_ids = batch['input_ids'].to(device)
@@ -23,8 +23,9 @@ def evaluate(model, val_loader, device):
             
             # outputs -> loss, logits 
             # lofits.shape = batch_size, 512, vocsize
+            print(f'Vor')
             outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
-            
+            print(f'nach')
             # Get the loss and the prediction
             loss = outputs[0].mean()
             pred = np.argmax(outputs[1].to('cpu').numpy(),axis=-1)
