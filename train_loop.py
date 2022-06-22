@@ -57,9 +57,6 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
         loss_split[epoch-1] = avg_gpu_loss.detach().numpy()
 
         val_loss = evaluate(model, val_loader, device)
-        print(val_loss)
-        for k in val_loss:
-            print(type(k))
         loss_val[epoch-1] = val_loss
         epoch_duration = time.time() - t
 
@@ -70,7 +67,7 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
             print(f'Validation loss: {val_loss:.4f}\n')
 
         # save checkpoint of model
-        if epoch % save == 0:
+        if epoch % save == 0 and epoch > 20:
             save_path = f'/scratch/sgutjahr/log/BERT_MLM_{name}_epoch_{epoch}.pt'
             torch.save({'model_state_dict': model.module.state_dict(),
                         'loss': val_loss}, save_path)
