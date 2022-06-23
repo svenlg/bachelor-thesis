@@ -31,7 +31,6 @@ def evaluate(model, val_loader, device, mask):
             pred = torch.argmax(outputs[1],axis=-1).to('cpu')
             
             # Get the prdictet and true tokens words for the Masked Tokens
-            print(f'Mask {mask}')
             y_true = labels_cpu[np.where(input_ids_cpu == mask)]
             y_pred = pred[np.where(input_ids_cpu == mask)]
             

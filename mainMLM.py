@@ -73,12 +73,12 @@ if __name__ == '__main__':
     name = 'B1bd'
     checkpoint = 'dbmdz/bert-base-german-cased'
     fname = '/scratch/sgutjahr/Data_Token/'
-    
     main(name, checkpoint, fname)
     
     name = 'B2gc'
     checkpoint = 'bert-base-german-cased'
     fname = '/scratch/sgutjahr/Data_Token2/'
-    
     main(name, checkpoint, fname)
+
+
 
