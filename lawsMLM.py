@@ -10,14 +10,24 @@ import numpy as np
 
 
 # Returns a dict with masked input_ids an labels
-def get_tensors(ocn):
+def get_tensors(data, ocn):
 
     # load the tokenized representaion of the laws
     input_ids = torch.from_numpy(np.load(ocn))
     att_mask = torch.ones(input_ids.size())
 
     chunksize = 512
-
+    
+    if data == 'dbmdz/bert-base-german-cased':
+        cls_ =  torch.Tensor([102])
+        sep_ = torch.Tensor([103])
+        mask_ = 104
+    
+    if data == 'bert-base-german-cased':
+        cls_ = torch.Tensor([3])
+        sep_ = torch.Tensor([4])
+        mask_ = 5
+    
     # split into chunks so the model can prosses the full law
     input_id_chunks = input_ids.split(chunksize-2)
     att_mask_chunks = att_mask.split(chunksize-2)
@@ -36,17 +46,17 @@ def get_tensors(ocn):
         # where the random array is less than 0.15, we set true
         mask_arr = (rand < 0.15)
         # change all true values in the mask to [MASK] tokens (104)
-        input_id_chunks[i][mask_arr] = 104
+        input_id_chunks[i][mask_arr] = mask_
 
         # add the [CLS] = 102 and [SEP] = 103 tokens
         input_id_chunks[i] = torch.cat([
-            torch.Tensor([102]), input_id_chunks[i], torch.Tensor([103])
+            cls_ , input_id_chunks[i], sep_
         ])
         att_mask_chunks[i] = torch.cat([
             torch.Tensor([1]), att_mask_chunks[i], torch.Tensor([1])
         ])
         labels[i] = torch.cat([
-            torch.Tensor([102]), label ,torch.Tensor([103])
+            cls_, label, sep_
         ])
 
         # get required padding length
@@ -82,7 +92,7 @@ def get_tensors(ocn):
 
 
 # Get the old change new Law as list of tripples
-def get_old_change_new(fname, law):
+def get_old_change_new(data, fname, law):
 
     law = str(law)
     fname = fname + law + '/'
@@ -92,11 +102,11 @@ def get_old_change_new(fname, law):
 
     if changes.shape == ():
         change = str(changes)
-        old = get_tensors(fname + change + '/old.npy')
+        old = get_tensors(data, fname + change + '/old.npy')
         ten_law.append(old)
-        cha = get_tensors(fname + change + '/change.npy')
+        cha = get_tensors(data, fname + change + '/change.npy')
         ten_law.append(cha)
-        new = get_tensors(fname + change + '/new.npy')
+        new = get_tensors(data, fname + change + '/new.npy')
         ten_law.append(new)
         return ten_law
 
@@ -106,11 +116,11 @@ def get_old_change_new(fname, law):
         if law == 'KWG' and change == 'Nr7_2020-12-29':
             continue
 
-        old = get_tensors(fname + change + '/old.npy')
+        old = get_tensors(data, fname + change + '/old.npy')
         ten_law.append(old)
-        cha = get_tensors(fname + change + '/change.npy')
+        cha = get_tensors(data, fname + change + '/change.npy')
         ten_law.append(cha)
-        new = get_tensors(fname + change + '/new.npy')
+        new = get_tensors(data, fname + change + '/new.npy')
         ten_law.append(new)
    
     return ten_law
@@ -132,7 +142,7 @@ def get_laws(data, split=1, use_set=True):
     num_data = int(split*len(laws))
 
     for i in range(num_data):
-        big.append(get_old_change_new(fname, laws[i]))
+        big.append(get_old_change_new(data, fname, laws[i]))
 
     flat = []
     for li in big:

@@ -51,7 +51,7 @@ def main(name, checkpoint, data):
 
     # num_train_epochs
     if use_cuda:
-        num_train_epochs = 1
+        num_train_epochs = 300
     else:
         num_train_epochs = 1
 
@@ -60,7 +60,7 @@ def main(name, checkpoint, data):
 
     print(f'Done')
     duration = time.time() - took
-    print(f'Took: {duration/60} min')
+    print(f'Took: {duration/60:.4f} min')
 
 
 if __name__ == '__main__':
