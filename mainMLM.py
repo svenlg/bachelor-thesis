@@ -51,7 +51,7 @@ def main(name, checkpoint, data):
 
     # num_train_epochs
     if use_cuda:
-        num_train_epochs = 300
+        num_train_epochs = 1
     else:
         num_train_epochs = 1
 
