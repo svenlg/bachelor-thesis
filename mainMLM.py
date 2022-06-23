@@ -13,8 +13,8 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-def main():
-    name = input(f'Name of the Try: ')
+def main(name, checkpoint, data):
+
     took = time.time()
 
     # Getting the trainings device
@@ -23,12 +23,12 @@ def main():
     torch.backends.cudnn.benchmark = True
 
     # Pretrained model
-    model = LawNetMLM()
+    model = LawNetMLM(checkpoint)
     if torch.cuda.device_count() > 1:
         model = nn.DataParallel(model)
 
     # Getting the data train and test and split the trainings data into train and val sets
-    laws = get_laws()
+    laws = get_laws(data)
     print(f'The laws are {asizeof.asizeof(laws)/1_000_000} MB.')
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
@@ -51,7 +51,7 @@ def main():
 
     # num_train_epochs
     if use_cuda:
-        num_train_epochs = 300
+        num_train_epochs = 1
     else:
         num_train_epochs = 1
 
@@ -64,5 +64,15 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    name = 'B1bd'
+    checkpoint = 'dbmdz/bert-base-german-cased'
+    fname = '/scratch/sgutjahr/Data_Token/'
+    
+    main(name, checkpoint, fname)
+    
+    name = 'B2gc'
+    checkpoint = 'bert-base-german-cased'
+    fname = '/scratch/sgutjahr/Data_Token2/'
+    
+    main(name, checkpoint, fname)
 
