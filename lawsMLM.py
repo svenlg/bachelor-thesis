@@ -17,8 +17,8 @@ def get_tensors(data, ocn):
     att_mask = torch.ones(input_ids.size())
 
     chunksize = 512
-    print(data)
-    if data == '/scratch/sgutjahr/Data_Token1/':
+
+    if data == '/scratch/sgutjahr/Data_Token/':
         cls_ =  torch.Tensor([102])
         sep_ = torch.Tensor([103])
         mask_ = 104
