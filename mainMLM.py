@@ -58,7 +58,7 @@ def main(name, checkpoint, data):
     if checkpoint == 'dbmdz/bert-base-german-cased':
         mask = 104
 
-    if checkpoint == 'dbmdz/bert-base-german-cased':
+    if checkpoint == 'bert-base-german-cased':
         mask = 5
 
     train_loop(model, train_loader, val_loader, optim, device, mask,
