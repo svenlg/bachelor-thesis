@@ -117,15 +117,13 @@ def get_old_change_new(fname, law):
 
 
 # test tries
-def get_laws(split=1, use_set=True):
+def get_laws(data, split=1, use_set=True):
 
     assert 0 <= split <= 1
 
     if use_set:
-        #fname = '/scratch/sgutjahr/Data_Tokenized/'
-        fname = '/scratch/sgutjahr/Data_Token/'
+        fname = data
     else:
-        #fname = '../Data_Tokenized/'
         fname = '../Data_Token/' 
 
     laws = np.loadtxt(fname + 'done_with.txt', dtype=str, encoding='ISO-8859-1')

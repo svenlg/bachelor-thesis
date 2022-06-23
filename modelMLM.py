@@ -4,9 +4,8 @@ from torch.utils.data import Dataset
 
 class LawNetMLM(nn.Module):
 
-    def __init__(self):
+    def __init__(self, checkpoint):
         super(LawNetMLM, self).__init__()
-        checkpoint = 'dbmdz/bert-base-german-cased'
         self.model = BertForMaskedLM.from_pretrained(checkpoint)
 
     def forward(self, input_ids=None, attention_mask=None, labels=None):
