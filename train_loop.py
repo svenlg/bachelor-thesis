@@ -5,7 +5,7 @@ from eval import evaluate
 
 
 # Trainigs Loop for BertMLM Task
-def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, epochs=200, name = 'try'):
+def train_loop(model, train_loader, val_loader, optim, device, mask, show=1, save=40, epochs=200, name = 'try'):
 
     loss_train = np.empty((epochs,))
     loss_split = np.empty((epochs,4))
@@ -57,7 +57,7 @@ def train_loop(model, train_loader, val_loader, optim, device, show=1, save=40, 
         loss_split[epoch-1] = avg_gpu_loss.detach().numpy()
 
         # val_loss = val_loss, acc, f1
-        val_loss, acc, f1 = evaluate(model, val_loader, device)
+        val_loss, acc, f1 = evaluate(model, val_loader, device, mask)
         loss_val[epoch-1] = [val_loss, acc, f1]
         epoch_duration = time.time() - t
 

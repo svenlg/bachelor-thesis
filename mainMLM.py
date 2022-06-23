@@ -54,8 +54,14 @@ def main(name, checkpoint, data):
         num_train_epochs = 1
     else:
         num_train_epochs = 1
+        
+    if checkpoint == 'dbmdz/bert-base-german-cased':
+        mask = 104
 
-    train_loop(model, train_loader, val_loader, optim, device,
+    if checkpoint == 'dbmdz/bert-base-german-cased':
+        mask = 5
+
+    train_loop(model, train_loader, val_loader, optim, device, mask,
                show=1, save=25, epochs=num_train_epochs, name=name)
 
     print(f'Done')

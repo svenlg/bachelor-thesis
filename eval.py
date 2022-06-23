@@ -3,7 +3,7 @@ import torch
 from sklearn.metrics import accuracy_score, f1_score
 
 # Evaluate Model
-def evaluate(model, val_loader, device):
+def evaluate(model, val_loader, device, mask):
     # goes through the test dataset and computes the test accuracy
     val_loss_cum = 0.0
     val_acc = 0.0
@@ -31,8 +31,8 @@ def evaluate(model, val_loader, device):
             pred = torch.argmax(outputs[1],axis=-1).to('cpu')
             
             # Get the prdictet and true tokens words for the Masked (104) Tokens
-            y_true = labels_cpu[np.where(input_ids_cpu == 104)]
-            y_pred = pred[np.where(input_ids_cpu == 104)]
+            y_true = labels_cpu[np.where(input_ids_cpu == mask)]
+            y_pred = pred[np.where(input_ids_cpu == mask)]
             
             #Calutate the Accuracy and the f1-scores
             acc = accuracy_score(torch.flatten(y_true), 
