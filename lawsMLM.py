@@ -18,12 +18,12 @@ def get_tensors(data, ocn):
 
     chunksize = 512
     
-    if data == 'dbmdz/bert-base-german-cased':
+    if data == '/scratch/sgutjahr/Data_Token1/':
         cls_ =  torch.Tensor([102])
         sep_ = torch.Tensor([103])
         mask_ = 104
     
-    if data == 'bert-base-german-cased':
+    if data == '/scratch/sgutjahr/Data_Token2/':
         cls_ = torch.Tensor([3])
         sep_ = torch.Tensor([4])
         mask_ = 5
