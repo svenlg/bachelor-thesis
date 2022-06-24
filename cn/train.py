@@ -66,15 +66,6 @@ def train(encoder_decoder: EncoderDecoder,
 
             batch_bleu_score = corpus_bleu(batch_targets, batch_outputs, smoothing_function=SmoothingFunction().method1)
 
-            if global_step < 10 or (global_step % 10 == 0 and global_step < 100) or (global_step % 100 == 0 and epoch < 2):
-                input_string = "Amy, Please schedule a meeting with Marcos on Tuesday April 3rd. Adam Kleczewski"
-                output_string = encoder_decoder.get_response(input_string)
-                writer.add_text('schedule', output_string, global_step=global_step)
-
-                input_string = "Amy, Please cancel this meeting. Adam Kleczewski"
-                output_string = encoder_decoder.get_response(input_string)
-                writer.add_text('cancel', output_string, global_step=global_step)
-
             if global_step % 100 == 0:
 
                 writer.add_scalar('train_batch_loss', batch_loss, global_step)
@@ -99,14 +90,6 @@ def train(encoder_decoder: EncoderDecoder,
         decoder_embeddings = encoder_decoder.decoder.embedding.weight.data
         decoder_vocab = encoder_decoder.lang.tok_to_idx.keys()
         writer.add_embedding(decoder_embeddings, metadata=decoder_vocab, global_step=0, tag='decoder_embeddings')
-
-        input_string = "Amy, Please schedule a meeting with Marcos on Tuesday April 3rd. Adam Kleczewski"
-        output_string = encoder_decoder.get_response(input_string)
-        writer.add_text('schedule', output_string, global_step=global_step)
-
-        input_string = "Amy, Please cancel this meeting. Adam Kleczewski"
-        output_string = encoder_decoder.get_response(input_string)
-        writer.add_text('cancel', output_string, global_step=global_step)
 
         print('val loss: %.5f, val BLEU score: %.5f' % (val_loss, val_bleu_score), flush=True)
         torch.save(encoder_decoder, "%s%s_%i.pt" % (model_path, model_name, epoch))

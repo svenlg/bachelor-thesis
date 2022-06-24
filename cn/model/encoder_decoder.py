@@ -2,7 +2,6 @@ from torch import nn
 from .attention_decoder import AttentionDecoder
 from .copynet_decoder import CopyNetDecoder
 from utils import seq_to_string, tokens_to_seq
-from spacy.lang.en import English
 from .encoder import EncoderRNN
 
 
@@ -42,27 +41,5 @@ class EncoderDecoder(nn.Module):
                                                      teacher_forcing=teacher_forcing)
         return decoder_outputs, sampled_idxs
 
-    def get_response(self, input_string):
-        use_extended_vocab = isinstance(self.decoder, CopyNetDecoder)
 
-        if not hasattr(self, 'parser_'):
-            self.parser_ = English()
-
-        idx_to_tok = self.lang.idx_to_tok
-        tok_to_idx = self.lang.tok_to_idx
-
-        input_tokens = self.parser_(' '.join(input_string.split()))
-        input_tokens = ['<SOS>'] + [token.orth_.lower() for token in input_tokens] + ['<EOS>']
-        input_seq = tokens_to_seq(input_tokens, tok_to_idx, len(input_tokens), use_extended_vocab)
-        input_ = input_seq.view(1, -1)
-
-        if next(self.parameters()).is_cuda:
-            input_ = input_.cuda()
-
-        outputs, idxs = self.forward(input_, [len(input_seq)])
-        idxs = idxs.data.view(-1)
-        eos_idx = list(idxs).index(2) if 2 in list(idxs) else len(idxs)
-        output_string = seq_to_string(idxs[:eos_idx + 1], idx_to_tok, input_tokens=input_tokens)
-
-        return output_string
 
