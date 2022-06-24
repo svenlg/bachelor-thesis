@@ -1,4 +1,5 @@
 # Imports
+import argparse
 from sklearn.model_selection import train_test_split
 import torch
 import torch.nn as nn
@@ -13,7 +14,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-def main(name, checkpoint, data):
+def main(args,mask,fname):
 
     took = time.time()
 
@@ -23,17 +24,17 @@ def main(name, checkpoint, data):
     torch.backends.cudnn.benchmark = True
 
     # Pretrained model
-    model = LawNetMLM(checkpoint)
+    model = LawNetMLM(args.checkpoint)
     if torch.cuda.device_count() > 1:
         model = nn.DataParallel(model)
 
     # Getting the data train and test and split the trainings data into train and val sets
-    laws = get_laws(data)
+    laws = get_laws(fname,mask)
     print(f'The laws are {asizeof.asizeof(laws)/1_000_000} MB.')
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
-    train_dataset = LawDatasetForMLM(train_laws, 3000)
-    val_dataset = LawDatasetForMLM(val_laws, 1080)
+    train_dataset = LawDatasetForMLM(train_laws, args.loader_size_tr)#4032
+    val_dataset = LawDatasetForMLM(val_laws, args.loader_size_val)#1008
 
     print(f'The train dataset is {asizeof.asizeof(train_dataset)/1_000_000} MB and has {len(train_laws)} entrys.')
     print(f'The val dataset is {asizeof.asizeof(val_dataset)/1_000_000} MB and has {len(val_laws)} entrys.\n')
@@ -49,20 +50,8 @@ def main(name, checkpoint, data):
     # Optimizer
     optim = torch.optim.Adam(model.parameters(), lr=5e-5)
 
-    # num_train_epochs
-    if use_cuda:
-        num_train_epochs = 300
-    else:
-        num_train_epochs = 1
-        
-    if checkpoint == 'dbmdz/bert-base-german-cased':
-        mask = 104
-
-    if checkpoint == 'bert-base-german-cased':
-        mask = 5
-
     train_loop(model, train_loader, val_loader, optim, device, mask,
-               show=1, save=25, epochs=num_train_epochs, name=name)
+               show=1, save=args.save, epochs=args.epoch, name=args.name)
 
     print(f'Done')
     duration = time.time() - took
@@ -70,15 +59,39 @@ def main(name, checkpoint, data):
 
 
 if __name__ == '__main__':
-    name = 'B1bd'
-    checkpoint = 'dbmdz/bert-base-german-cased'
-    fname = '/scratch/sgutjahr/Data_Token/'
-    main(name, checkpoint, fname)
+
+    parser = argparse.ArgumentParser(description='Parse training parameters')
     
-    name = 'B2gc'
-    checkpoint = 'bert-base-german-cased'
-    fname = '/scratch/sgutjahr/Data_Token2/'
-    main(name, checkpoint, fname)
+    parser.add_argument('checkpoint', type=str,
+                        help='The checkpoint of the model.')
 
+    parser.add_argument('name', type=str,
+                        help='Name wtih whicht the model is saved.')
 
+    parser.add_argument('-e','--epochs', type=int, default=300,
+                        help='Number of Trainings Epochs.')
+    
+    parser.add_argument('-t','--loader_size_tr', type=int, default=3000,
+                        help='Number of data used for training per epoch')
+    
+    parser.add_argument('-v','--loader_size_val', type=int, default=1080,
+                        help='Number of data used for validation per epoch')
 
+    parser.add_argument('-s', '--split_size', type=float, default=0.2,
+                        help='The fractional size of the validation split.')
+
+    parser.add_argument('--save', type=float, default=25,
+                        help='After how many epochs the model is saved.')
+
+    args = parser.parse_args()
+    
+    if args.checkpoint == 'dbmdz/bert-base-german-cased':
+        mask = 104
+        fname = '/scratch/sgutjahr/Data_Token/'
+
+    if args.checkpoint == 'bert-base-german-cased':
+        mask = 5
+        fname = '/scratch/sgutjahr/Data_Token2/'
+    
+    
+    main(args,mask,fname)

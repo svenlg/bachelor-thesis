@@ -10,7 +10,7 @@ import numpy as np
 
 
 # Returns a dict with masked input_ids an labels
-def get_tensors(data, ocn):
+def get_tensors(mask, ocn):
 
     # load the tokenized representaion of the laws
     input_ids = torch.from_numpy(np.load(ocn))
@@ -18,12 +18,12 @@ def get_tensors(data, ocn):
 
     chunksize = 512
 
-    if data == '/scratch/sgutjahr/Data_Token/':
+    if mask == 104:
         cls_ =  torch.Tensor([102])
         sep_ = torch.Tensor([103])
         mask_ = 104
     
-    if data == '/scratch/sgutjahr/Data_Token2/':
+    if mask == 5:
         cls_ = torch.Tensor([3])
         sep_ = torch.Tensor([4])
         mask_ = 5
@@ -92,7 +92,7 @@ def get_tensors(data, ocn):
 
 
 # Get the old change new Law as list of tripples
-def get_old_change_new(data, fname, law):
+def get_old_change_new(mask, fname, law):
 
     law = str(law)
     fname = fname + law + '/'
@@ -102,11 +102,11 @@ def get_old_change_new(data, fname, law):
 
     if changes.shape == ():
         change = str(changes)
-        old = get_tensors(data, fname + change + '/old.npy')
+        old = get_tensors(mask, fname + change + '/old.npy')
         ten_law.append(old)
-        cha = get_tensors(data, fname + change + '/change.npy')
+        cha = get_tensors(mask, fname + change + '/change.npy')
         ten_law.append(cha)
-        new = get_tensors(data, fname + change + '/new.npy')
+        new = get_tensors(mask, fname + change + '/new.npy')
         ten_law.append(new)
         return ten_law
 
@@ -116,18 +116,18 @@ def get_old_change_new(data, fname, law):
         if law == 'KWG' and change == 'Nr7_2020-12-29':
             continue
 
-        old = get_tensors(data, fname + change + '/old.npy')
+        old = get_tensors(mask, fname + change + '/old.npy')
         ten_law.append(old)
-        cha = get_tensors(data, fname + change + '/change.npy')
+        cha = get_tensors(mask, fname + change + '/change.npy')
         ten_law.append(cha)
-        new = get_tensors(data, fname + change + '/new.npy')
+        new = get_tensors(mask, fname + change + '/new.npy')
         ten_law.append(new)
    
     return ten_law
 
 
 # test tries
-def get_laws(data, split=1, use_set=True):
+def get_laws(data, mask, split=1, use_set=True):
 
     assert 0 <= split <= 1
 
@@ -142,7 +142,7 @@ def get_laws(data, split=1, use_set=True):
     num_data = int(split*len(laws))
 
     for i in range(num_data):
-        big.append(get_old_change_new(data, fname, laws[i]))
+        big.append(get_old_change_new(mask, fname, laws[i]))
 
     flat = []
     for li in big:

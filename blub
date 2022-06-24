@@ -1,0 +1,7 @@
+name = 'B1bd'
+checkpoint = 'dbmdz/bert-base-german-cased'
+fname = '/scratch/sgutjahr/Data_Token/'
+    
+name = 'B2gc'
+checkpoint = 'bert-base-german-cased'
+fname = '/scratch/sgutjahr/Data_Token2/'
