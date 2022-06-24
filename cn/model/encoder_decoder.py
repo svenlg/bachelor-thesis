@@ -66,13 +66,3 @@ class EncoderDecoder(nn.Module):
 
         return output_string
 
-    def interactive(self, unsmear):
-        while True:
-            input_string = input("\nType a message to Amy:\n")
-            output_string = self.get_response(input_string)
-
-            if unsmear:
-                output_string = output_string.replace('<SOS>', '')
-                output_string = output_string.replace('<EOS>', '')
-
-            print('\nAmy:\n', output_string)

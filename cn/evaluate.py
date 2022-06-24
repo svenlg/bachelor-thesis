@@ -90,7 +90,7 @@ def print_output(input_seq, encoder_decoder: EncoderDecoder, input_tokens=None, 
     return idxs
 
 
-def main(model_name, use_cuda, n_print, idxs_print, use_train_dataset, val_size, batch_size, interact, unsmear):
+def main(model_name, use_cuda, n_print, idxs_print, use_train_dataset, val_size, batch_size, unsmear):
     model_path = './model/' + model_name + '/'
 
     if use_cuda:
@@ -109,8 +109,6 @@ def main(model_name, use_cuda, n_print, idxs_print, use_train_dataset, val_size,
                                   val_size=val_size)
 
     data_loader = DataLoader(dataset, batch_size=batch_size)
-    if interact:
-        encoder_decoder.interactive(unsmear)
 
     if n_print is not None:
         for _ in range(n_print):
@@ -164,9 +162,6 @@ if __name__ == '__main__':
                              'the integers in this list will be used to select specific examples'
                              'to transform. The output will be printed.')
 
-    arg_parser.add_argument('--interact', action='store_true',
-                            help='Take model inputs from the keyboard.')
-
     arg_parser.add_argument('--use_cuda', action='store_true',
                             help='A flag indicating that cuda will be used.')
 
@@ -192,7 +187,6 @@ if __name__ == '__main__':
              args.use_train_dataset,
              args.val_size,
              args.batch_size,
-             args.interact,
              args.unsmear)
     except KeyboardInterrupt:
         pass
