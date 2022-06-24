@@ -1,6 +1,5 @@
 import torch
 from torch import nn
-from torch.autograd import Variable
 
 
 class EncoderRNN(nn.Module):
@@ -24,7 +23,7 @@ class EncoderRNN(nn.Module):
         return output, hidden
 
     def init_hidden(self, batch_size):
-        hidden = Variable(torch.zeros(2, batch_size, self.hidden_size))  # bidirectional rnn
+        hidden = torch.zeros(2, batch_size, self.hidden_size) # bidirectional rnn
         if next(self.parameters()).is_cuda:
             return hidden.cuda()
         else:

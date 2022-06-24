@@ -1,6 +1,5 @@
 import torch
 from torch import nn
-from torch.autograd import Variable
 import torch.nn.functional as F
 from dataset import Language
 from utils import DecoderBase
@@ -25,16 +24,16 @@ class AttentionDecoder(DecoderBase):
     def forward(self, encoder_outputs, inputs, final_encoder_hidden, targets=None, keep_prob=1.0, teacher_forcing=0.0):
         batch_size = encoder_outputs.data.shape[0]
 
-        hidden = Variable(torch.zeros(1, batch_size, self.hidden_size))  # overwrite the encoder hidden state with zeros
+        hidden = torch.zeros(1, batch_size, self.hidden_size) # overwrite the encoder hidden state with zeros
         if next(self.parameters()).is_cuda:
             hidden = hidden.cuda()
         else:
             hidden = hidden
 
         # every decoder output seq starts with <SOS>
-        sos_output = Variable(torch.zeros((batch_size, self.embedding.num_embeddings)))
+        sos_output = torch.zeros((batch_size, self.embedding.num_embeddings))
         sos_output[:, 1] = 1.0  # index 1 is the <SOS> token, one-hot encoding
-        sos_idx = Variable(torch.ones((batch_size, 1)).long())
+        sos_idx = torch.ones((batch_size, 1)).long()
 
         if next(self.parameters()).is_cuda:
             sos_output = sos_output.cuda()
@@ -47,13 +46,13 @@ class AttentionDecoder(DecoderBase):
 
         dropout_mask = torch.rand(batch_size, 1, self.hidden_size + self.embedding.embedding_dim)
         dropout_mask = dropout_mask <= keep_prob
-        dropout_mask = Variable(dropout_mask).float() / keep_prob
+        dropout_mask = dropout_mask.float() / keep_prob
 
         for step_idx in range(1, self.max_length):
 
             if targets is not None and teacher_forcing > 0.0:
                 # replace some inputs with the targets (i.e. teacher forcing)
-                teacher_forcing_mask = Variable((torch.rand((batch_size, 1)) <= teacher_forcing), requires_grad=False)
+                teacher_forcing_mask = torch.tensor((torch.rand((batch_size, 1)) <= teacher_forcing), requires_grad=False)
                 if next(self.parameters()).is_cuda:
                     teacher_forcing_mask = teacher_forcing_mask.cuda()
                 iput = iput.masked_scatter(teacher_forcing_mask, targets[:, step_idx-1:step_idx])
@@ -101,7 +100,7 @@ class AttentionDecoder(DecoderBase):
         return output, hidden
 
     def init_hidden(self, batch_size):
-        result = Variable(torch.zeros(1, batch_size, self.hidden_size))
+        result = torch.zeros(1, batch_size, self.hidden_size)
         if next(self.parameters()).is_cuda:
             return result.cuda()
         else:

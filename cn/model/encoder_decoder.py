@@ -4,7 +4,6 @@ from .copynet_decoder import CopyNetDecoder
 from utils import seq_to_string, tokens_to_seq
 from spacy.lang.en import English
 from .encoder import EncoderRNN
-from torch.autograd import Variable
 
 
 class EncoderDecoder(nn.Module):
@@ -55,12 +54,12 @@ class EncoderDecoder(nn.Module):
         input_tokens = self.parser_(' '.join(input_string.split()))
         input_tokens = ['<SOS>'] + [token.orth_.lower() for token in input_tokens] + ['<EOS>']
         input_seq = tokens_to_seq(input_tokens, tok_to_idx, len(input_tokens), use_extended_vocab)
-        input_variable = Variable(input_seq).view(1, -1)
+        input_ = input_seq.view(1, -1)
 
         if next(self.parameters()).is_cuda:
-            input_variable = input_variable.cuda()
+            input_ = input_.cuda()
 
-        outputs, idxs = self.forward(input_variable, [len(input_seq)])
+        outputs, idxs = self.forward(input_, [len(input_seq)])
         idxs = idxs.data.view(-1)
         eos_idx = list(idxs).index(2) if 2 in list(idxs) else len(idxs)
         output_string = seq_to_string(idxs[:eos_idx + 1], idx_to_tok, input_tokens=input_tokens)
