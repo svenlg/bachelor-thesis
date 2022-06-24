@@ -71,7 +71,7 @@ def train_loop(model, train_loader, val_loader, optim, device, mask, show=1, sav
 
         # save checkpoint of model
         if epoch % save == 0 and epoch > 25:
-            save_path = f'/scratch/sgutjahr/log/BERT_MLM_{name}_epoch_{epoch}.pt'
+            save_path = f'/scratch/sgutjahr/log/{name}_BERT_MLM_epoch_{epoch}.pt'
             torch.save({'model_state_dict': model.module.state_dict(),
                         'loss': val_loss}, save_path)
             np.save(f'/scratch/sgutjahr/log/{name}_loss_train.npy', loss_train)
@@ -82,7 +82,7 @@ def train_loop(model, train_loader, val_loader, optim, device, mask, show=1, sav
         if cur_low_val_eval > val_loss and epoch > 25:
             cur_low_val_eval = val_loss
             best_round = epoch
-            save_path = f'log/BERT_MLM_{name}_best.pt'
+            save_path = f'log/{name}_BERT_MLM_best.pt'
             torch.save({'epoch': epoch,
                         'model_state_dict': model.module.state_dict(),
                         'loss': cur_low_val_eval,
