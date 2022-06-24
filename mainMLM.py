@@ -68,7 +68,7 @@ if __name__ == '__main__':
     parser.add_argument('checkpoint', type=str,
                         help='The checkpoint of the model.')
 
-    parser.add_argument('-e','--epochs', type=int, default=300,
+    parser.add_argument('-e','--epoch', type=int, default=300,
                         help='Number of Trainings Epochs.')
     
     parser.add_argument('-t','--loader_size_tr', type=int, default=3000,
