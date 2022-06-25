@@ -1,79 +1,81 @@
 import torch
-from torch import nn
+import torch.nn as nn
 import torch.nn.functional as F
-from dataset import Language
-from utils import to_one_hot, DecoderBase
+
+# Device configuration
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+# Hyper-parameters 
+num_classes = 10
+batch_size = 100
+learning_rate = 0.001
+
+input_size = 28
+sequence_length = 28
+hidden_size = 128
+num_layers = 2
 
 
-class CopyNetDecoder(DecoderBase):
-    def __init__(self, hidden_size, embedding_size, lang: Language, max_length):
-        super(CopyNetDecoder, self).__init__()
+class Decoder(nn.Module):
+    def __init__(self, hidden_size, max_length, device):
+        super(Decoder, self).__init__()
+        self.device = device
         self.hidden_size = hidden_size
-        self.embedding_size = embedding_size
-        self.lang = lang
-        self.max_length = max_length
-        self.embedding = nn.Embedding(len(self.lang.tok_to_idx), self.embedding_size, padding_idx=0)
-        self.embedding.weight.data.normal_(0, 1 / self.embedding_size**0.5)
-        self.embedding.weight.data[0, :] = 0.0
+        #self.gru = nn.GRU((mitgeben) input_size, hidden_size, num_layers, batch_first=True)
+        # -> x needs to be: (batch_size, seq, input_size)
 
+        #acts like nuber of lyers but so i can regulate the steps
+        self.max_length = max_length 
+        
         self.attn_W = nn.Linear(self.hidden_size, self.hidden_size)
         self.copy_W = nn.Linear(self.hidden_size, self.hidden_size)
 
-        self.gru = nn.GRU(2 * self.hidden_size + self.embedding.embedding_dim, self.hidden_size, batch_first=True)  # input = (context + selective read size + embedding)
-        self.out = nn.Linear(self.hidden_size, len(self.lang.tok_to_idx))
-
-    def forward(self, encoder_outputs, inputs, final_encoder_hidden, targets=None, keep_prob=1.0, teacher_forcing=0.0):
-        batch_size = encoder_outputs.data.shape[0]
-        seq_length = encoder_outputs.data.shape[1]
-
-        hidden = torch.zeros(1, batch_size, self.hidden_size)
-        if next(self.parameters()).is_cuda:
-            hidden = hidden.cuda()
-        else:
-            hidden = hidden
-
-        # every decoder output seq starts with <SOS>
-        sos_output = torch.zeros((batch_size, self.embedding.num_embeddings + seq_length))
-        sampled_idx = torch.ones((batch_size, 1)).long()
-        if next(self.parameters()).is_cuda:
-            sos_output = sos_output.cuda()
-            sampled_idx = sampled_idx.cuda()
-
-        sos_output[:, 1] = 1.0  # index 1 is the <SOS> token, one-hot encoding 
-
-        decoder_outputs = [sos_output]
+        self.gru = nn.GRU(2 * self.hidden_size + '''''', self.hidden_size, batch_first=True)  # input = (context + selective read size + embedding)
+        self.out = nn.Linear(self.hidden_size, len('tokenizer'))
+        
+    def forward(self, encoder_outputs, targets, keep_prob=1.0, teacher_forcing=0.0):
+        batch_size = encoder_outputs.shape[0]
+        seq_length = encoder_outputs.shape[1]
+        vocab_size = len(self.lang.tok_to_idx)
+        
+        # Set initial hidden states 
+        hidden = torch.zeros(1, batch_size, self.hidden_size).to(self.device)
+        
+        sos_output = torch.zeros((batch_size, 'self.embedding.num_embeddings' + seq_length)).to(self.device)
+        sos_output[:, 1] = "'[CLS]' - Zahl" 
+        sampled_idx = torch.ones((batch_size, 1)).long().to(self.device)
+        
+        decoder_output = [sos_output]
         sampled_idxs = [sampled_idx]
-
+        
         if keep_prob < 1.0:
-            dropout_mask = (torch.rand(batch_size, 1, 2 * self.hidden_size + self.embedding.embedding_dim) < keep_prob).float() / keep_prob
+            dropout_mask = (torch.rand(batch_size, 1, 2 * self.hidden_size + 'self.embedding.embedding_dim') < keep_prob).float() / keep_prob
         else:
             dropout_mask = None
-
-        selective_read = torch.zeros(batch_size, 1, self.hidden_size)
-        one_hot_input_seq = to_one_hot(inputs, len(self.lang.tok_to_idx) + seq_length)
-        if next(self.parameters()).is_cuda:
-            selective_read = selective_read.cuda()
-            one_hot_input_seq = one_hot_input_seq.cuda()
-
+            
+        # Set initial selective-read states 
+        selective_read = torch.zeros(batch_size, 1, self.hidden_size).to(self.device)
+        #one_hot_input_seq = to_one_hot(inputs, vocab_size + seq_length).to(self.device)
+        
         for step_idx in range(1, self.max_length):
 
-            if targets is not None and teacher_forcing > 0.0 and step_idx < targets.shape[1]:
+            if step_idx < targets.shape[1]:
                 # replace some inputs with the targets (i.e. teacher forcing)
                 teacher_forcing_mask = torch.tensor((torch.rand((batch_size, 1)) < teacher_forcing), requires_grad=False)
                 if next(self.parameters()).is_cuda:
                     teacher_forcing_mask = teacher_forcing_mask.cuda()
                 sampled_idx = sampled_idx.masked_scatter(teacher_forcing_mask, targets[:, step_idx-1:step_idx])
 
-            sampled_idx, output, hidden, selective_read = self.step(sampled_idx, hidden, encoder_outputs, selective_read, one_hot_input_seq, dropout_mask=dropout_mask)
+            sampled_idx, output, hidden, selective_read = self.step(sampled_idx, hidden, encoder_outputs, selective_read, 'one_hot_input_seq', dropout_mask=dropout_mask)
 
             decoder_outputs.append(output)
             sampled_idxs.append(sampled_idx)
-
+        
         decoder_outputs = torch.stack(decoder_outputs, dim=1)
         sampled_idxs = torch.stack(sampled_idxs, dim=1)
-
-        return decoder_outputs, sampled_idxs
-
+        
+        return decoder_output, sampled_idxs
+    
     def step(self, prev_idx, prev_hidden, encoder_outputs, prev_selective_read, one_hot_input_seq, dropout_mask=None):
 
         batch_size = encoder_outputs.shape[0]
@@ -94,8 +96,7 @@ class CopyNetDecoder(DecoderBase):
 
         rnn_input = torch.cat((context, prev_selective_read, embedded), dim=2)
         if dropout_mask is not None:
-            if next(self.parameters()).is_cuda:
-                dropout_mask = dropout_mask.cuda()
+            dropout_mask.to(self.device)
             rnn_input *= dropout_mask
 
         self.gru.flatten_parameters()
@@ -114,16 +115,14 @@ class CopyNetDecoder(DecoderBase):
         gen_scores[:, 0] = -1000000.0  # penalize <MSK> tokens in generate mode too
 
         # Combine results from copy and generate mechanisms
-        combined_scores = torch.cat((gen_scores, copy_scores), dim=1)
-        probs = F.softmax(combined_scores, dim=1)
-        gen_probs = probs[:, :vocab_size]
+        combined_scores = torch.cat((gen_scores, copy_scores), dim=1) # [b, vocab_size + vocab_size + seq_length]
+        probs = F.softmax(combined_scores, dim=1) # [b, vocab_size + vocab_size + seq_length]
 
-        gen_padding = torch.zeros(batch_size, seq_length)
-        if next(self.parameters()).is_cuda:
-            gen_padding = gen_padding.cuda()
+        gen_probs = probs[:, :vocab_size]
+        gen_padding = torch.zeros(batch_size, seq_length).to(self.device)
         gen_probs = torch.cat((gen_probs, gen_padding), dim=1)  # [b, vocab_size + seq_length]
 
-        copy_probs = probs[:, vocab_size:]
+        copy_probs = probs[:, vocab_size+1:]
 
         final_probs = gen_probs + copy_probs
 
@@ -133,7 +132,7 @@ class CopyNetDecoder(DecoderBase):
         sampled_idx = topi.view(batch_size, 1)
 
         # Create selective read embedding for next time step
-        reshaped_idxs = sampled_idx.view(-1, 1, 1).expand(one_hot_input_seq.size(0), one_hot_input_seq.size(1), 1)
+        reshaped_idxs = sampled_idx.view(-1, 1, 1).expand(one_hot_input_seq.shape[0], one_hot_input_seq.shape[1], 1)
         pos_in_input_of_sampled_token = one_hot_input_seq.gather(2, reshaped_idxs)  # [b, seq_length, 1]
         selected_scores = pos_in_input_of_sampled_token * copy_score_seq
         selected_scores_norm = F.normalize(selected_scores, p=1)
@@ -141,3 +140,4 @@ class CopyNetDecoder(DecoderBase):
         selective_read = (selected_scores_norm * encoder_outputs).sum(dim=1).unsqueeze(1)
 
         return sampled_idx, log_probs, hidden, selective_read
+

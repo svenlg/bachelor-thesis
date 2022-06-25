@@ -1,33 +1,22 @@
 from torch import nn
-from .attention_decoder import AttentionDecoder
 from .copynet_decoder import CopyNetDecoder
+from SimulartyNet import SimNet
 from utils import seq_to_string, tokens_to_seq
-from .encoder import EncoderRNN
-
+from modelMLM import LawNetMLM
 
 class EncoderDecoder(nn.Module):
-    def __init__(self, lang, max_length, hidden_size, embedding_size, decoder_type):
+    
+    def __init__(self, lang, max_length, hidden_size, embedding_size, checkpoint):
         super(EncoderDecoder, self).__init__()
-
         self.lang = lang
-
-        self.encoder = EncoderRNN(len(self.lang.tok_to_idx),
-                                  hidden_size,
-                                  embedding_size)
-        self.decoder_type = decoder_type
+        self.encoder = LawNetMLM(checkpoint)
+        self.simularity = SimNet()
         decoder_hidden_size = 2 * self.encoder.hidden_size
-        if self.decoder_type == 'attn':
-            self.decoder = AttentionDecoder(decoder_hidden_size,
-                                            embedding_size,
-                                            lang,
-                                            max_length)
-        elif self.decoder_type == 'copy':
-            self.decoder = CopyNetDecoder(decoder_hidden_size,
-                                          embedding_size,
-                                          lang,
-                                          max_length)
-        else:
-            raise ValueError("decoder_type must be 'attn' or 'copy'")
+        
+        self.decoder = CopyNetDecoder(decoder_hidden_size,
+                                      embedding_size,
+                                      lang,
+                                      max_length)
 
     def forward(self, inputs, lengths, targets=None, keep_prob=1.0, teacher_forcing=0.0):
 

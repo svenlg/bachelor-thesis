@@ -47,7 +47,7 @@ def to_one_hot(y, n_dims=None):
     return Variable(y_one_hot) if isinstance(y, Variable) else y_one_hot
 
 
-def tokens_to_seq(tokens, tok_to_idx, max_length, use_extended_vocab, input_tokens=None, ):
+def tokens_to_seq(tokens, tok_to_idx, max_length, use_extended_vocab, input_tokens=None):
     seq = torch.zeros(max_length).long()
     tok_to_idx_extension = dict()
 
