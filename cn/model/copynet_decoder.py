@@ -1,11 +1,10 @@
 import torch
-from torch import nn
+import torch.nn as nn
 import torch.nn.functional as F
 from dataset import Language
-from utils import to_one_hot, DecoderBase
+from utils import to_one_hot
 
-
-class CopyNetDecoder(DecoderBase):
+class CopyNetDecoder(nn.Module):
     def __init__(self, hidden_size, embedding_size, lang: Language, max_length):
         super(CopyNetDecoder, self).__init__()
         self.hidden_size = hidden_size

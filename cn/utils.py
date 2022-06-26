@@ -1,17 +1,9 @@
 import numpy as np
 import torch
 from torch.autograd import Variable
-from abc import ABC
-from torch import nn
-
-
-class DecoderBase(ABC, nn.Module):
-    def forward(self, encoder_outputs, inputs, final_encoder_hidden, targets=None, teacher_forcing=1.0):
-        raise NotImplementedError
-
 
 def to_np(x):
-    return x.data.cpu().numpy()
+    return x.to('cpu').numpy()
 
 
 def seq_to_string(seq, idx_to_tok, input_tokens=None):

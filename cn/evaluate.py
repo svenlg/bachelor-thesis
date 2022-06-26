@@ -9,7 +9,6 @@ from utils import seq_to_string, to_np, trim_seqs
 from model.encoder_decoder import EncoderDecoder
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from nltk.translate.bleu_score import corpus_bleu, SmoothingFunction
 
 
 def evaluate(encoder_decoder: EncoderDecoder, data_loader):
@@ -39,9 +38,7 @@ def evaluate(encoder_decoder: EncoderDecoder, data_loader):
 
     mean_loss = len(losses) / sum(losses)
 
-    bleu_score = corpus_bleu(all_target_seqs, all_output_seqs, smoothing_function=SmoothingFunction().method1)
-
-    return mean_loss, bleu_score
+    return mean_loss
 
 
 def print_output(input_seq, encoder_decoder: EncoderDecoder, input_tokens=None, target_tokens=None, target_seq=None):
