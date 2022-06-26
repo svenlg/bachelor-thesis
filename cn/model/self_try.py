@@ -2,18 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# Device configuration
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-# Hyper-parameters 
-num_classes = 10
-batch_size = 100
-learning_rate = 0.001
-
-input_size = 28
-sequence_length = 28
-hidden_size = 128
-num_layers = 2
 
 
 class Decoder(nn.Module):

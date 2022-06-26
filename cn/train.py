@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 from dataset import SequencePairDataset
 from model.encoder_decoder import EncoderDecoder
 from evaluate import evaluate
-from utils import to_np, trim_seqs
+from utils import to_np
 
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
@@ -56,10 +56,6 @@ def train(encoder_decoder: EncoderDecoder,
             batch_loss = loss_function(flattened_outputs, target_variable.contiguous().view(-1))
             batch_loss.backward()
             optimizer.step()
-
-            batch_outputs = trim_seqs(output_seqs)
-
-            batch_targets = [[list(seq[seq > 0])] for seq in list(to_np(target_variable))]
 
             if global_step % 100 == 0:
 
@@ -217,11 +213,11 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    writer = SummaryWriter('./logs/%s_%s' % (args.model_name, str(int(time.time()))))
+    writer = SummaryWriter(f'./logs/{args.model_name}_{int(time.time())}')
     if args.scheduled_teacher_forcing:
         schedule = np.arange(1.0, 0.0, -1.0/args.epochs)
     else:
         schedule = np.ones(args.epochs) * args.teacher_forcing_fraction
 
     main(args.model_name, args.batch_size, schedule, args.keep_prob, args.val_size, args.lr, args.decoder_type, args.vocab_limit, args.hidden_size, args.embedding_size, args.max_length)
-    # main(str(int(time.time())), args.batch_size, schedule, args.keep_prob, args.val_size, args.lr, args.decoder_type, args.vocab_limit, args.hidden_size, args.embedding_size, args.max_length)
+

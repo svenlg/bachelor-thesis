@@ -5,7 +5,7 @@ from eval import evaluate
 
 
 # Trainigs Loop for BertMLM Task
-def train_loop(model, train_loader, val_loader, optim, device, mask, show=1, save=40, epochs=200, name = 'try'):
+def train_loop(model, train_loader, val_loader, optim, device, mask, show=1, save=40, epochs=200, name='try'):
 
     loss_train = np.empty((epochs,))
     loss_split = np.empty((epochs,4))
