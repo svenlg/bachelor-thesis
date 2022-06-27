@@ -8,16 +8,13 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
         self.device = device
         self.hidden_size = hidden_size
-        #self.gru = nn.GRU((mitgeben) input_size, hidden_size, num_layers, batch_first=True)
-        # -> x needs to be: (batch_size, seq, input_size)
-
-        #acts like nuber of lyers but so i can regulate the steps
         self.max_length = max_length 
         
         self.attn_W = nn.Linear(self.hidden_size, self.hidden_size)
         self.copy_W = nn.Linear(self.hidden_size, self.hidden_size)
-
-        self.gru = nn.GRU(2 * self.hidden_size + '''self.embedding.embedding_dim''', self.hidden_size, batch_first=True)  # input = (context + selective read size + embedding)
+        
+        # input = (embedding + selective read size + context)
+        self.gru = nn.GRU(3* self.hidden_size, self.hidden_size, batch_first=True) 
         self.out = nn.Linear(self.hidden_size, len('tokenizer'))
         
     def forward(self, encoder_outputs, targets, keep_prob=1.0, teacher_forcing=0.0):
