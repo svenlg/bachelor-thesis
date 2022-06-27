@@ -1,45 +1,49 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from utils import to_one_hot
 
 
 class Decoder(nn.Module):
-    def __init__(self, hidden_size, max_length, device):
+    def __init__(self, hidden_size, max_length, vocab_size, device):
         super(Decoder, self).__init__()
         self.device = device
         self.hidden_size = hidden_size
-        self.max_length = max_length 
+        self.max_length = max_length
+        self.vocab_size = vocab_size
+        self.seq_len = 512
+        self.embedding_dim = 768
         
         self.attn_W = nn.Linear(self.hidden_size, self.hidden_size)
         self.copy_W = nn.Linear(self.hidden_size, self.hidden_size)
         
         # input = (embedding + selective read size + context)
-        self.gru = nn.GRU(3* self.hidden_size, self.hidden_size, batch_first=True) 
-        self.out = nn.Linear(self.hidden_size, len('tokenizer'))
+        self.gru = nn.GRU(3*self.hidden_size, self.hidden_size, batch_first=True) 
+        self.out = nn.Linear(self.hidden_size, self.vocab_size)
         
-    def forward(self, encoder_outputs, targets, keep_prob=1.0, teacher_forcing=0.0):
+    def forward(self, encoder_outputs, inputs,  cls_to, sep_to, targets=None, keep_prob=1.0, teacher_forcing=0.0):
         batch_size = encoder_outputs.shape[0]
         seq_length = encoder_outputs.shape[1]
-        vocab_size = len(self.lang.tok_to_idx)
+        vocab_size = self.vocab_size
         
         # Set initial hidden states 
         hidden = torch.zeros(1, batch_size, self.hidden_size).to(self.device)
         
-        sos_output = torch.zeros((batch_size, 'self.embedding.num_embeddings' + seq_length)).to(self.device)
-        sos_output[:, 1] = "'[CLS]' - Zahl" 
+        sos_output = torch.zeros((batch_size, vocab_size + seq_length)).to(self.device)
+        sos_output[:, 0] = cls_to
         sampled_idx = torch.ones((batch_size, 1)).long().to(self.device)
         
         decoder_output = [sos_output]
         sampled_idxs = [sampled_idx]
         
         if keep_prob < 1.0:
-            dropout_mask = (torch.rand(batch_size, 1, 2 * self.hidden_size + 'self.embedding.embedding_dim') < keep_prob).float() / keep_prob
+            dropout_mask = (torch.rand(batch_size, 1, 2 * self.hidden_size + self.embedding_dim) < keep_prob).float() / keep_prob
         else:
             dropout_mask = None
             
         # Set initial selective-read states 
         selective_read = torch.zeros(batch_size, 1, self.hidden_size).to(self.device)
-        #one_hot_input_seq = to_one_hot(inputs, vocab_size + seq_length).to(self.device)
+        one_hot_input_seq = to_one_hot(inputs, vocab_size + seq_length).to(self.device)
         
         for step_idx in range(1, self.max_length):
 
@@ -50,7 +54,7 @@ class Decoder(nn.Module):
                     teacher_forcing_mask = teacher_forcing_mask.cuda()
                 sampled_idx = sampled_idx.masked_scatter(teacher_forcing_mask, targets[:, step_idx-1:step_idx])
 
-            sampled_idx, output, hidden, selective_read = self.step(sampled_idx, hidden, encoder_outputs, selective_read, 'one_hot_input_seq', dropout_mask=dropout_mask)
+            sampled_idx, output, hidden, selective_read = self.step(sampled_idx, hidden, encoder_outputs, selective_read, one_hot_input_seq, dropout_mask=dropout_mask)
 
             decoder_outputs.append(output)
             sampled_idxs.append(sampled_idx)
@@ -64,7 +68,7 @@ class Decoder(nn.Module):
 
         batch_size = encoder_outputs.shape[0]
         seq_length = encoder_outputs.shape[1]
-        vocab_size = len(self.lang.tok_to_idx)
+        vocab_size = self.vocab_size
 
         # Attention mechanism
         transformed_hidden = self.attn_W(prev_hidden).view(batch_size, self.hidden_size, 1)

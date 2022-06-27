@@ -34,7 +34,7 @@ class EncoderDecoder(nn.Module):
     def forward(self, inputs, lengths, targets=None, keep_prob=1.0, teacher_forcing=0.0):
 
         batch_size = inputs.data.shape[0]
-        hidden = self.encoder.init_hidden(batch_size)
+        hidden = self.encoder.init_hidden(batch_size) #[2, b, hidden_size]
         encoder_outputs, hidden = self.encoder(inputs, hidden, lengths)
         decoder_outputs, sampled_idxs = self.decoder(encoder_outputs,
                                                      inputs,
