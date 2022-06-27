@@ -1,46 +1,24 @@
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
-from transformers import BertModel
+from MLM.modelMLM import LawNetMLM
 
 class Encoder(nn.Module):
-    def __init__(self, input_size, hidden_size, embedding_size):
+    def __init__(self, model_path, device):
         super(Encoder, self).__init__()
-        self.hidden_size = hidden_size
-        self.embedding_size = embedding_size
+        
+        model_loaded = LawNetMLM('dbmdz/bert-base-german-cased')
+        BERTft = torch.load(model_path, map_location=device)
+        model_loaded.load_state_dict(BERTft['model_state_dict'])
+        self.embedding_size = 768
+        self.BERT = model_loaded.model.bert
 
-        self.embedding = nn.Embedding(input_size, self.embedding_size)
-        self.embedding.weight.data.normal_(0, 1 / self.embedding_size**0.5)
-        self.gru = nn.GRU(embedding_size, hidden_size, bidirectional=True, batch_first=True)
-
-    def forward(self, iput, hidden, lengths):
-        # iput batch must be sorted by sequence length
-        iput = iput.masked_fill(iput > self.embedding.num_embeddings, 3)  # replace OOV words with <UNK> before embedding
-        embedded = self.embedding(iput)
-        packed_embedded = torch.nn.utils.rnn.pack_padded_sequence(embedded, lengths, batch_first=True)
-        self.gru.flatten_parameters()
-        output, hidden = self.gru(packed_embedded, hidden)
-        output, output_lengths = torch.nn.utils.rnn.pad_packed_sequence(output, batch_first=True)
-        return output, hidden
-
-    def init_hidden(self, batch_size):
-        hidden = Variable(torch.zeros(2, batch_size, self.hidden_size))  # bidirectional rnn
-        if next(self.parameters()).is_cuda:
-            return hidden.cuda()
+    def forward(self, input_ids, attention_mask, token_type_ids = None):
+        # iput batch musst at least have: 'input_ids' && 'attention_mask'
+        if token_type_ids == None:
+            outputs = self.BERT(input_ids, attention_mask=attention_mask)
+            outputs = outputs['last_hidden_state']
         else:
-            return hidden
-
-
-
-class LawNetMLM(nn.Module):
-
-    def __init__(self, checkpoint):
-        super(LawNetMLM, self).__init__()
-        self.model = BertForMaskedLM.from_pretrained(checkpoint)
-
-    def forward(self, input_ids=None, attention_mask=None, labels=None):
-        #Extract outputs from the body
-        outputs = self.model(input_ids=input_ids,
-                             attention_mask=attention_mask,
-                             labels=labels)
+            outputs = self.BERT(input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids)
+            outputs = outputs['last_hidden_state']
+            
         return outputs
