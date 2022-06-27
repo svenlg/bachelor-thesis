@@ -22,6 +22,7 @@ class Decoder(nn.Module):
         self.out = nn.Linear(self.hidden_size, self.vocab_size)
         
     def forward(self, encoder_outputs, inputs,  cls_to, sep_to, targets=None, keep_prob=1.0, teacher_forcing=0.0):
+        
         batch_size = encoder_outputs.shape[0]
         seq_length = encoder_outputs.shape[1]
         vocab_size = self.vocab_size
