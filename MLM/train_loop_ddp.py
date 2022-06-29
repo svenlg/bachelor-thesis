@@ -123,11 +123,10 @@ def train(rank, args):
         val[epoch-1] = [val_loss, acc, f1]
         epoch_duration = time.time() - t
 
-
-        print(f'Rank {rank}',
-              f'Epoch {epoch} | Duration {epoch_duration:.2f} sec |',
+        print(f'GPU{rank}:',
+              f'Epoch {epoch} | Duration: {epoch_duration:.2f} s |',
               f'Train loss: {avg_train_loss:.4f} | Validation loss: {val_loss:.4f} |',
-              f'Acc: {acc:.4f} | f1 {f1:.4f}')
+              f'Acc: {acc:.4f} | f1: {f1:.4f}')
         
         if rank == 0:
             print(f'')
