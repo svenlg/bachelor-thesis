@@ -43,7 +43,6 @@ def train(rank, args):
     # Wrap the model
     model = DDP(model, device_ids=[rank])
     ################################################################
-    batch_size = 6
     
     # define optimizer
     optim = torch.optim.Adam(model.parameters(), lr=5e-5)
@@ -64,21 +63,20 @@ def train(rank, args):
     ################################################################
     
     ################################################################
-    train_loader = DataLoader(train_dataset, batch_size=batch_size,
+    train_loader = DataLoader(train_dataset, batch_size=args.batch_size,
                               shuffle=False,
                               num_workers=0,
                               sampler=train_sampler)
     ################################################################
     
     ################################################################
-    val_loader = DataLoader(val_dataset, batch_size=batch_size,
+    val_loader = DataLoader(val_dataset, batch_size=args.batch_size,
                             shuffle=False,
                             num_workers=0,
                             sampler=val_sampler)
     ################################################################
     
     loss_train = np.empty((args.epoch,))
-    loss_split = np.empty((args.epoch,4))
     val = np.empty((args.epoch,3))
     print(f'Start finetuning model on GPU {rank}')
     best_round = 0
@@ -130,11 +128,9 @@ def train(rank, args):
         
         
         print(f'Rank {rank}',
-              f'Epoch {epoch} | Duration {epoch_duration:.2f} sec',
-              f'Train loss:      {avg_train_loss:.4f}',
-              f'Validation loss: {val_loss:.4f}',
-              f'accuracy_score:  {acc:.4f}',
-              f'f1_score:        {f1:.4f}\n')
+              f'Epoch {epoch} | Duration {epoch_duration:.2f} sec |',
+              f'Train loss: {avg_train_loss:.4f} | Validation loss: {val_loss:.4f} |',
+              f'Acc: {acc:.4f} | f1 {f1:.4f}\n')
             
         if cur_low_val_eval > val_loss and epoch > 3 and rank == 0:
             cur_low_val_eval = val_loss
@@ -150,10 +146,12 @@ def train(rank, args):
 
     dist.destroy_process_group()
 
-    print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
+    if rank == 0: 
+        print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
+        
+        
     np.save(f'/scratch/sgutjahr/log/{args.name}_{rank}_loss_train.npy', loss_train)
     np.save(f'/scratch/sgutjahr/log/{args.name}_{rank}_loss_val.npy', val)
-    np.save(f'/scratch/sgutjahr/log/{args.name}_{rank}_loss_split.npy', loss_split)
     print('')
                 
 
@@ -170,6 +168,9 @@ if __name__ == '__main__':
 
     parser.add_argument('-e','--epoch', type=int, default=300,
                         help='Number of Trainings Epochs.')
+    
+    parser.add_argument('-bs','--batch_size', type=int, default=8,
+                        help='Batch Size')
     
     parser.add_argument('-t','--loader_size_tr', type=int, default=4032,
                         help='Number of data used for training per epoch')
