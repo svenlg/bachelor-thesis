@@ -5,7 +5,7 @@ from eval import evaluate
 
 
 # Trainigs Loop for BertMLM Task
-def train_loop(model, train_loader, val_loader, optim, device, mask, show=1, save=40, epochs=200, name='try'):
+def train_loop(model, train_loader, val_loader, optim, device, mask, checkpoint, show=1, save=40, epochs=200, name='try'):
 
     loss_train = np.empty((epochs,))
     loss_split = np.empty((epochs,4))
@@ -79,11 +79,12 @@ def train_loop(model, train_loader, val_loader, optim, device, mask, show=1, sav
             np.save(f'/scratch/sgutjahr/log/{name}_loss_split.npy', loss_split)
             print(f'Saved model and loss stats in epoch {epoch}\n')
 
-        if cur_low_val_eval > val_loss and epoch > 25:
+        if cur_low_val_eval > val_loss and epoch > 3:
             cur_low_val_eval = val_loss
             best_round = epoch
-            save_path = f'log/{name}_BERT_MLM_best.pt'
-            torch.save({'epoch': epoch,
+            save_path = f'/scratch/sgutjahr/log/{name}_BERT_MLM_best.pt'
+            torch.save({'checkpoint': checkpoint,
+                        'epoch': epoch,
                         'model_state_dict': model.module.state_dict(),
                         'loss': cur_low_val_eval,
                         'accuracy': acc,

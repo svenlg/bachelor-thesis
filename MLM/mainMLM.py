@@ -50,7 +50,7 @@ def main(args,mask,fname):
     # Optimizer
     optim = torch.optim.Adam(model.parameters(), lr=5e-5)
 
-    train_loop(model, train_loader, val_loader, optim, device, mask,
+    train_loop(model, train_loader, val_loader, optim, device, mask, args.checkpoint,
                show=1, save=args.save, epochs=args.epoch, name=args.name)
 
     print(f'Done')
