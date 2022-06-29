@@ -129,8 +129,8 @@ def train(rank, args):
         epoch_duration = time.time() - t
 
         print(f'GPU{rank}:',
-            f'Epoch {epoch} | Duration: {epoch_duration:.2f} s |',
-            f'Train loss: {avg_train_loss:.4f} | Validation loss: {val_loss:.4f} |',
+            f'Epoch {epoch} | Dur: {epoch_duration:.2f} s |',
+            f'Train loss: {avg_train_loss:.4f} | Val loss: {val_loss:.4f} |',
             f'Acc: {acc:.4f} | f1: {f1:.4f}')
 
         if cur_low_val_eval > val_loss and epoch > 15:
