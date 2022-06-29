@@ -13,7 +13,6 @@ from torch.utils.data import DataLoader
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data.distributed import DistributedSampler
 from sklearn.model_selection import train_test_split
-from torch.distributed.algorithms.join import Join
 
 from eval_ddp import evaluate
 from lawsMLM import get_laws
@@ -85,69 +84,65 @@ def train(rank, args):
     INF = 10e9
     cur_low_val_eval = INF
     
-    print(f'{rank}')
+    for epoch in range(1, args.epoch+1):
 
-    with Join([model, optim]):
-        print(f'{rank}')
-        for epoch in range(1, args.epoch+1):
-            
-            if rank == 0:
-                print(f'Epoch {epoch}')
+        if rank == 0:
+            print(f'Epoch {epoch}')
 
-            # reset statistics trackers
-            train_loss_cum = 0.0
-            num_samples_epoch = 0
-            t = time.time()
+        # reset statistics trackers
+        train_loss_cum = 0.0
+        num_samples_epoch = 0
+        t = time.time()
 
-            for batch in train_loader:
+        for batch in train_loader:
 
-                # get batches 
-                input_ids = batch['input_ids'].to(rank)
-                attention_mask = batch['attention_mask'].to(rank)
-                labels = batch['labels'].to(rank)
-        
-                model.train()
+            # get batches 
+            input_ids = batch['input_ids'].to(rank)
+            attention_mask = batch['attention_mask'].to(rank)
+            labels = batch['labels'].to(rank)
 
-                # Forward pass
-                outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
+            model.train()
 
-                # loss
-                loss = outputs[0].mean()
+            # Forward pass
+            outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
 
-                # Backward and optimize
-                optim.zero_grad()
-                loss.backward()
-                optim.step()        
+            # loss
+            loss = outputs[0].mean()
 
-                # keep track of train stats
-                num_samples_batch = input_ids.shape[0]
-                num_samples_epoch += num_samples_batch
-                train_loss_cum += loss * num_samples_batch
+            # Backward and optimize
+            optim.zero_grad()
+            loss.backward()
+            optim.step()        
 
-            # average the accumulated statistics
-            avg_train_loss = train_loss_cum / num_samples_epoch
-            loss_train[epoch-1] = avg_train_loss.item()
+            # keep track of train stats
+            num_samples_batch = input_ids.shape[0]
+            num_samples_epoch += num_samples_batch
+            train_loss_cum += loss * num_samples_batch
 
-            # val_loss = val_loss, acc, f1
-            val_loss, acc, f1 = evaluate(model, val_loader, rank, args.mask)
-            val[epoch-1] = [val_loss, acc, f1]
-            epoch_duration = time.time() - t
+        # average the accumulated statistics
+        avg_train_loss = train_loss_cum / num_samples_epoch
+        loss_train[epoch-1] = avg_train_loss.item()
 
-            print(f'GPU{rank}:',
-                f'Epoch {epoch} | Duration: {epoch_duration:.2f} s |',
-                f'Train loss: {avg_train_loss:.4f} | Validation loss: {val_loss:.4f} |',
-                f'Acc: {acc:.4f} | f1: {f1:.4f}')
+        # val_loss = val_loss, acc, f1
+        val_loss, acc, f1 = evaluate(model, val_loader, rank, args.mask)
+        val[epoch-1] = [val_loss, acc, f1]
+        epoch_duration = time.time() - t
 
-            if cur_low_val_eval > val_loss and epoch > 15:
-                cur_low_val_eval = val_loss
-                best_round = epoch
-                save_path = f'/scratch/sgutjahr/log/{args.name}_BERT_MLM_best_{rank}.pt'
-                torch.save({'checkpoint': args.checkpoint,
-                            'epoch': epoch,
-                            'model_state_dict': model.module.state_dict(),
-                            'loss': cur_low_val_eval,
-                            'accuracy': acc,
-                            'f1': f1}, save_path)
+        print(f'GPU{rank}:',
+            f'Epoch {epoch} | Duration: {epoch_duration:.2f} s |',
+            f'Train loss: {avg_train_loss:.4f} | Validation loss: {val_loss:.4f} |',
+            f'Acc: {acc:.4f} | f1: {f1:.4f}')
+
+        if cur_low_val_eval > val_loss and epoch > 15:
+            cur_low_val_eval = val_loss
+            best_round = epoch
+            save_path = f'/scratch/sgutjahr/log/{args.name}_BERT_MLM_best_{rank}.pt'
+            torch.save({'checkpoint': args.checkpoint,
+                        'epoch': epoch,
+                        'model_state_dict': model.module.state_dict(),
+                        'loss': cur_low_val_eval,
+                        'accuracy': acc,
+                        'f1': f1}, save_path)
 
 
     dist.destroy_process_group()
