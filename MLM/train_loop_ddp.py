@@ -222,7 +222,7 @@ if __name__ == '__main__':
     took = time.time()
 
     #########################################################
-    mp.spawn(train, nprocs=args.gpus, args=(args,))
+    mp.spawn(train, nprocs=args.world_size, args=(args,))
     #########################################################
     
     print(f'Done')
