@@ -92,7 +92,6 @@ def train(rank, args):
         train_loss_cum = 0.0
         num_samples_epoch = 0
         t = time.time()
-        split = torch.empty((4,)).to(rank)
         
         for i, batch in enumerate(train_loader):
             
@@ -117,35 +116,27 @@ def train(rank, args):
             # keep track of train stats
             num_samples_batch = input_ids.shape[0]
             num_samples_epoch += num_samples_batch
-            split += outputs[0] * num_samples_batch
             train_loss_cum += loss * num_samples_batch
 
         
         # average the accumulated statistics
         avg_train_loss = train_loss_cum / num_samples_epoch
-        avg_gpu_loss = split.to('cpu') / num_samples_epoch
         loss_train[epoch-1] = avg_train_loss.item()
-        loss_split[epoch-1] = avg_gpu_loss.detach().numpy()
 
         # val_loss = val_loss, acc, f1
         val_loss, acc, f1 = evaluate(model, val_loader, rank, args.mask)
         val[epoch-1] = [val_loss, acc, f1]
         epoch_duration = time.time() - t
         
-        print(f'Epoch {epoch} | Duration {epoch_duration:.2f} sec')
-        print(f'Train loss:      {avg_train_loss:.4f}')
-        print(f'Validation loss: {val_loss:.4f}')
-        print(f'accuracy_score:  {acc:.4f}')
-        print(f'f1_score:        {f1:.4f}\n')
         
-
-        # save checkpoint of model
-        if epoch % args.save == 0 and epoch > 25:
-            save_path = f'/scratch/sgutjahr/log/{args.name}_BERT_MLM_epoch_{epoch}.pt'
-            torch.save({'model_state_dict': model.module.state_dict(),
-                        'loss': val_loss}, save_path)
+        print(f'Rank {rank}',
+              f'Epoch {epoch} | Duration {epoch_duration:.2f} sec',
+              f'Train loss:      {avg_train_loss:.4f}',
+              f'Validation loss: {val_loss:.4f}',
+              f'accuracy_score:  {acc:.4f}',
+              f'f1_score:        {f1:.4f}\n')
             
-        if cur_low_val_eval > val_loss and epoch > 3:
+        if cur_low_val_eval > val_loss and epoch > 3 and rank == 0:
             cur_low_val_eval = val_loss
             best_round = epoch
             save_path = f'/scratch/sgutjahr/log/{args.name}_BERT_MLM_best.pt'
@@ -156,7 +147,7 @@ def train(rank, args):
                         'accuracy': acc,
                         'f1': f1}, save_path)
 
-        
+
     dist.destroy_process_group()
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
