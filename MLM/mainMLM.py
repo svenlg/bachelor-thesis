@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--save', type=float, default=25,
                         help='After how many epochs the model is saved.')
-
+    
     args = parser.parse_args()
     
     if args.checkpoint == 'dbmdz/bert-base-german-cased':
@@ -92,6 +92,5 @@ if __name__ == '__main__':
     if args.checkpoint == 'bert-base-german-cased':
         mask = 5
         fname = '/scratch/sgutjahr/Data_Token2/'
-    
     
     main(args,mask,fname)
