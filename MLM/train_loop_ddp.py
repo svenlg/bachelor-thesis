@@ -217,7 +217,7 @@ if __name__ == '__main__':
     took = time.time()
     
     #########################################################
-    dist.launch(train, nprocs=args.world_size, args=(args,), join=True)
+    mp.spawn(train, nprocs=args.world_size, args=(args,), join=True)
     #########################################################
     
     print(f'Done')
