@@ -75,13 +75,19 @@ def train(rank, args):
 
     loss_train = np.empty((args.epoch,))
     val = np.empty((args.epoch,3))
-    print(f'Start on GPU {rank}\n')
+    print(f'Start on GPU {rank}')
+
+    if rank == 0:
+        print('')
 
     best_round = 0
     INF = 10e9
     cur_low_val_eval = INF
 
     for epoch in range(1, args.epoch+1):
+        
+        if rank == 0:
+            print(f'Epoch {epoch}')
 
         # reset statistics trackers
         train_loss_cum = 0.0
@@ -113,7 +119,6 @@ def train(rank, args):
             num_samples_epoch += num_samples_batch
             train_loss_cum += loss * num_samples_batch
 
-
         # average the accumulated statistics
         avg_train_loss = train_loss_cum / num_samples_epoch
         loss_train[epoch-1] = avg_train_loss.item()
@@ -127,14 +132,11 @@ def train(rank, args):
               f'Epoch {epoch} | Duration: {epoch_duration:.2f} s |',
               f'Train loss: {avg_train_loss:.4f} | Validation loss: {val_loss:.4f} |',
               f'Acc: {acc:.4f} | f1: {f1:.4f}')
-        
-        if rank == 0:
-            print(f'')
-            
-        if cur_low_val_eval > val_loss and epoch > 3 and rank == 0:
+
+        if cur_low_val_eval > val_loss and epoch > 15:
             cur_low_val_eval = val_loss
             best_round = epoch
-            save_path = f'/scratch/sgutjahr/log/{args.name}_BERT_MLM_best.pt'
+            save_path = f'/scratch/sgutjahr/log/{args.name}_BERT_MLM_best_{rank}.pt'
             torch.save({'checkpoint': args.checkpoint,
                         'epoch': epoch,
                         'model_state_dict': model.module.state_dict(),
@@ -145,13 +147,9 @@ def train(rank, args):
 
     dist.destroy_process_group()
 
-    if rank == 0: 
-        print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
-        
-        
     np.save(f'/scratch/sgutjahr/log/{args.name}_{rank}_loss_train.npy', loss_train)
     np.save(f'/scratch/sgutjahr/log/{args.name}_{rank}_loss_val.npy', val)
-    print(f'')
+    print(f'Lowest validation loss on GPU{rank}: {cur_low_val_eval:.4f} in Round {best_round}')
 
 
 if __name__ == '__main__':
@@ -206,7 +204,7 @@ if __name__ == '__main__':
     
     print(f'Done')
     duration = time.time() - took
-    print(f'Took: {duration/60:.4f} min')
+    print(f'Took: {duration/60:.4f} min\n')
 
 
 
