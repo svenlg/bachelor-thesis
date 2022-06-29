@@ -37,7 +37,7 @@ def train(gpu, args):
     	rank=rank                                               
     )                                                          
     ############################################################
-    
+    print(f'{gpu}: {1}')
     # Settings 
     torch.manual_seed(0)
     model = LawNetMLM(args.checkpoint)
@@ -52,6 +52,7 @@ def train(gpu, args):
     # Wrap the model
     model = nn.parallel.DistributedDataParallel(model, device_ids=[gpu])
     ###############################################################
+    print(f'{gpu}: {2}')
     
     train_dataset = LawDatasetForMLM(train_laws, args.loader_size_tr)
     ################################################################
@@ -84,11 +85,12 @@ def train(gpu, args):
                 pin_memory=True,
                 sampler=val_sampler)
     ################################################################
+    print(f'{gpu}: {3}')
     
     loss_train = np.empty((args.epochs,))
     loss_split = np.empty((args.epochs,4))
     val = np.empty((args.epochs,3))
-    print(f'Start finetuning model')
+    print(f'Start finetuning model on GPU {gpu}')
     best_round = 0
     INF = 10e9
     cur_low_val_eval = INF
