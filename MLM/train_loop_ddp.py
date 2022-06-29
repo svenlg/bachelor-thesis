@@ -27,15 +27,14 @@ def train(rank, args):
     laws = get_laws(args.fname,args.mask)
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
-    print(f'GPU {rank} hast load the data with a size of {asizeof.asizeof(laws)/1_000_000} \n')
+    print(f'GPU {rank} hast load the data with a size of {asizeof.asizeof(laws)/1_000_000:.3f}MB. \n')
     
     ############################################################             
     dist.init_process_group(                                   
     	backend='nccl',                                         
    		init_method='env://',                                   
     	world_size=args.world_size,                              
-    	rank=rank                                               
-    )                                                          
+    	rank=rank)                                                          
     ############################################################
     
     print(f'{rank}: {1}')
@@ -176,6 +175,8 @@ def train(rank, args):
 
 
 if __name__ == '__main__':
+    
+    dist.destroy_process_group()
 
     parser = argparse.ArgumentParser(description='Parse training parameters')
     
@@ -226,4 +227,6 @@ if __name__ == '__main__':
     print(f'Done')
     duration = time.time() - took
     print(f'Took: {duration/60:.4f} min')
+    
+    dist.destroy_process_group()
 
