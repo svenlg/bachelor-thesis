@@ -67,7 +67,6 @@ def train(rank, args):
     train_loader = DataLoader(train_dataset, batch_size=batch_size,
                               shuffle=False,
                               num_workers=0,
-                              pin_memory=True,
                               sampler=train_sampler)
     ################################################################
     
@@ -75,7 +74,6 @@ def train(rank, args):
     val_loader = DataLoader(val_dataset, batch_size=batch_size,
                             shuffle=False,
                             num_workers=0,
-                            pin_memory=True,
                             sampler=val_sampler)
     ################################################################
     
@@ -94,7 +92,7 @@ def train(rank, args):
         train_loss_cum = 0.0
         num_samples_epoch = 0
         t = time.time()
-        split = torch.empty((4,)).cuda(non_blocking=True)
+        split = torch.empty((4,)).to(rank)
         
         for i, batch in enumerate(train_loader):
             
