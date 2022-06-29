@@ -20,16 +20,16 @@ from modelMLM import LawNetMLM, LawDatasetForMLM
 warnings.filterwarnings('ignore')
 
 
-def train(gpu, args):
+def train(rank, args):
     
+    print(f'Rank:{rank}')
     # Getting the data train and test and split the trainings data into train and val sets
     laws = get_laws(args.fname,args.mask,split = 0.2)
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
-    print(f'GPU {gpu} hast load the data with a size of {asizeof.asizeof(laws)/1_000_000} \n')
+    print(f'GPU {rank} hast load the data with a size of {asizeof.asizeof(laws)/1_000_000} \n')
     
-    ############################################################
-    rank = args.nr * args.gpus + gpu	                          
+    ############################################################             
     dist.init_process_group(                                   
     	backend='nccl',                                         
    		init_method='env://',                                   
@@ -37,12 +37,12 @@ def train(gpu, args):
     	rank=rank                                               
     )                                                          
     ############################################################
-    print(f'{gpu}: {1}')
+    print(f'{rank}: {1}')
     # Settings 
     torch.manual_seed(0)
     model = LawNetMLM(args.checkpoint)
-    torch.cuda.set_device(gpu)
-    model.cuda(gpu)
+    torch.cuda.set_device(rank)
+    model.cuda(rank)
     batch_size = 10
     
     # define optimizer
@@ -50,9 +50,9 @@ def train(gpu, args):
     
     ###############################################################
     # Wrap the model
-    model = nn.parallel.DistributedDataParallel(model, device_ids=[gpu])
+    model = nn.parallel.DistributedDataParallel(model, device_ids=[rank])
     ###############################################################
-    print(f'{gpu}: {2}')
+    print(f'{rank}: {2}')
     
     train_dataset = LawDatasetForMLM(train_laws, args.loader_size_tr)
     ################################################################
@@ -85,12 +85,12 @@ def train(gpu, args):
                 pin_memory=True,
                 sampler=val_sampler)
     ################################################################
-    print(f'{gpu}: {3}')
+    print(f'{rank}: {3}')
     
     loss_train = np.empty((args.epochs,))
     loss_split = np.empty((args.epochs,4))
     val = np.empty((args.epochs,3))
-    print(f'Start finetuning model on GPU {gpu}')
+    print(f'Start finetuning model on GPU {rank}')
     best_round = 0
     INF = 10e9
     cur_low_val_eval = INF
@@ -139,7 +139,7 @@ def train(gpu, args):
         loss_split[epoch-1] = avg_gpu_loss.detach().numpy()
 
         # val_loss = val_loss, acc, f1
-        val_loss, acc, f1 = evaluate(model, val_loader, gpu, args.mask)
+        val_loss, acc, f1 = evaluate(model, val_loader, rank, args.mask)
         val[epoch-1] = [val_loss, acc, f1]
         epoch_duration = time.time() - t
         
@@ -212,10 +212,9 @@ if __name__ == '__main__':
         args.fname = '/scratch/sgutjahr/Data_Token2/'
           
     #########################################################
-    args.nodes = 1
-    args.gpus = 4
-    args.nr = 0
-    args.world_size = args.gpus * args.nodes  
+    n_gpus = torch.cuda.device_count()
+    assert n_gpus >= 2, f'Requires at least 2 GPUs to run, but got {n_gpus}'
+    args.world_size = n_gpus
     os.environ['MASTER_ADDR'] = '10.57.23.164'
     os.environ['MASTER_PORT'] = '8888'
     #########################################################
