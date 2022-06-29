@@ -23,13 +23,13 @@ warnings.filterwarnings('ignore')
 def train(gpu, args):
     
     # Getting the data train and test and split the trainings data into train and val sets
-    laws = get_laws(args.fname,args.mask)
+    laws = get_laws(args.fname,args.mask,split = 0.2)
     
     print(f'The laws are {asizeof.asizeof(laws)/1_000_000} MB.')
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
-    print(f'The train dataset is {asizeof.asizeof(train_dataset)/1_000_000} MB and has {len(train_laws)} entrys.')
-    print(f'The val dataset is {asizeof.asizeof(val_dataset)/1_000_000} MB and has {len(val_laws)} entrys.\n')
+    print(f'The train dataset is {asizeof.asizeof(train_laws)/1_000_000} MB and has {len(train_laws)} entrys.')
+    print(f'The val dataset is {asizeof.asizeof(val_laws)/1_000_000} MB and has {len(val_laws)} entrys.\n')
     
     ############################################################
     rank = args.nr * args.gpus + gpu	                          
