@@ -92,8 +92,8 @@ def train_loop(model, train_loader, val_loader, optim, device, mask, checkpoint,
 
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
-    np.save(f'log/{name}_loss_train.npy', loss_train)
-    np.save(f'log/{name}_loss_val.npy', loss_val)
-    np.save(f'log/{name}_loss_split.npy', loss_split)
+    np.save(f'/scratch/sgutjahr/log/{name}_loss_train.npy', loss_train)
+    np.save(f'/scratch/sgutjahr/log/{name}_loss_val.npy', loss_val)
+    np.save(f'/scratch/sgutjahr/log/{name}_loss_split.npy', loss_split)
     print('')
 
