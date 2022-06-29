@@ -11,6 +11,7 @@ import torch.nn as nn
 import torch.distributed as dist
 import torch.multiprocessing as mp
 from torch.utils.data import DataLoader
+from torch.nn.parallel import DistributedDataParallel as DDP
 from sklearn.model_selection import train_test_split
 
 from eval_ddp import evaluate
@@ -22,9 +23,8 @@ warnings.filterwarnings('ignore')
 
 def train(rank, args):
     
-    print(f'Rank:{rank}')
     # Getting the data train and test and split the trainings data into train and val sets
-    laws = get_laws(args.fname,args.mask,split = 0.2)
+    laws = get_laws(args.fname,args.mask)
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
     print(f'GPU {rank} hast load the data with a size of {asizeof.asizeof(laws)/1_000_000} \n')
@@ -37,12 +37,12 @@ def train(rank, args):
     	rank=rank                                               
     )                                                          
     ############################################################
+    
     print(f'{rank}: {1}')
     # Settings 
     torch.manual_seed(0)
     model = LawNetMLM(args.checkpoint)
-    torch.cuda.set_device(rank)
-    model.cuda(rank)
+    model.to(rank)
     batch_size = 10
     
     # define optimizer
@@ -50,7 +50,7 @@ def train(rank, args):
     
     ###############################################################
     # Wrap the model
-    model = nn.parallel.DistributedDataParallel(model, device_ids=[rank])
+    model = DDP(model, device_ids=[rank])
     ###############################################################
     print(f'{rank}: {2}')
     
@@ -107,10 +107,9 @@ def train(rank, args):
         for i, batch in enumerate(train_loader):
             
             # get batches 
-            input_ids = batch['input_ids'].cuda(non_blocking=True)
-            attention_mask = batch['attention_mask'].cuda(non_blocking=True)
-            labels = batch['labels'].cuda(non_blocking=True)
-            # zero grads and put model into train mode
+            input_ids = batch['input_ids'].to(rank)
+            attention_mask = batch['attention_mask'].to(rank)
+            labels = batch['labels'].to(rank)
                         
             model.train()
 
@@ -213,16 +212,15 @@ if __name__ == '__main__':
           
     #########################################################
     n_gpus = torch.cuda.device_count()
-    assert n_gpus >= 2, f'Requires at least 2 GPUs to run, but got {n_gpus}'
     args.world_size = n_gpus
     os.environ['MASTER_ADDR'] = '10.57.23.164'
     os.environ['MASTER_PORT'] = '8888'
     #########################################################
     
     took = time.time()
-
+    
     #########################################################
-    mp.spawn(train, nprocs=args.world_size, args=(args,))
+    mp.spawn(train, nprocs=args.world_size, args=(args,), join=True)
     #########################################################
     
     print(f'Done')
