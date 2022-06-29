@@ -36,21 +36,18 @@ def train(rank, args):
                             rank=rank)                                                          
     #############################################################
     
-    print(f'{rank}: {1}')
     # Settings 
     torch.manual_seed(0)
     model = LawNetMLM(args.checkpoint).to(rank)
+    ################################################################
+    # Wrap the model
     model = DDP(model, device_ids=[rank])
-    batch_size = 10
+    ################################################################
+    batch_size = 6
     
     # define optimizer
     optim = torch.optim.Adam(model.parameters(), lr=5e-5)
     
-    ################################################################
-    # Wrap the model
-    
-    ################################################################
-    print(f'{rank}: {2}')
     
     train_dataset = LawDatasetForMLM(train_laws, args.loader_size_tr)
     ################################################################
@@ -81,7 +78,6 @@ def train(rank, args):
                             pin_memory=True,
                             sampler=val_sampler)
     ################################################################
-    print(f'{rank}: {3}')
     
     loss_train = np.empty((args.epoch,))
     loss_split = np.empty((args.epoch,4))
