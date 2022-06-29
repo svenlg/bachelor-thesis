@@ -12,6 +12,7 @@ import torch.distributed as dist
 import torch.multiprocessing as mp
 from torch.utils.data import DataLoader
 from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.utils.data.distributed import DistributedSampler
 from sklearn.model_selection import train_test_split
 
 from eval_ddp import evaluate
@@ -30,12 +31,10 @@ def train(rank, args):
     print(f'GPU {rank} hast load the data with a size of {asizeof.asizeof(laws)/1_000_000:.3f}MB. \n')
     
     ############################################################             
-    dist.init_process_group(                                   
-    	backend='nccl',                                         
-   		init_method='env://',                                   
-    	world_size=args.world_size,                              
-    	rank=rank)                                                          
-    ############################################################
+    dist.init_process_group(backend='nccl',
+                            world_size=args.world_size,
+                            rank=rank)                                                          
+    #############################################################
     
     print(f'{rank}: {1}')
     # Settings 
@@ -47,42 +46,40 @@ def train(rank, args):
     # define optimizer
     optim = torch.optim.Adam(model.parameters(), lr=5e-5)
     
-    ###############################################################
+    ################################################################
     # Wrap the model
     model = DDP(model, device_ids=[rank])
-    ###############################################################
+    ################################################################
     print(f'{rank}: {2}')
     
     train_dataset = LawDatasetForMLM(train_laws, args.loader_size_tr)
     ################################################################
-    train_sampler = torch.utils.data.distributed.DistributedSampler(
-    	train_dataset,
-    	num_replicas=args.world_size,
-    	rank=rank)
+    train_sampler = DistributedSampler(train_dataset,
+                                       num_replicas=args.world_size,
+                                       rank=rank)
     ################################################################
     
     val_dataset = LawDatasetForMLM(val_laws, args.loader_size_val)
     ################################################################
-    val_sampler = torch.utils.data.distributed.DistributedSampler(
-    	val_dataset,
-    	num_replicas=args.world_size,
-    	rank=rank)
+    val_sampler = DistributedSampler(val_dataset,
+                                     num_replicas=args.world_size,
+                                     rank=rank)
     ################################################################
     
     ################################################################
     train_loader = DataLoader(train_dataset, batch_size=batch_size,
-                shuffle=False,
-                num_workers=0,
-                pin_memory=True,
-                sampler=train_sampler)
+                              shuffle=False,
+                              num_workers=0,
+                              pin_memory=True,
+                              sampler=train_sampler)
     ################################################################
     
     ################################################################
     val_loader = DataLoader(val_dataset, batch_size=batch_size,
-                shuffle=False,
-                num_workers=0,
-                pin_memory=True,
-                sampler=val_sampler)
+                            shuffle=False,
+                            num_workers=0,
+                            pin_memory=True,
+                            sampler=val_sampler)
     ################################################################
     print(f'{rank}: {3}')
     
