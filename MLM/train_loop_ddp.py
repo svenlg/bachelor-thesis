@@ -62,7 +62,7 @@ def train(rank, args):
                             shuffle=False,
                             num_workers=0,
                             sampler=val_sampler)
-    
+
     print(f'Start on GPU {rank}')
 
     loss_train = np.empty((args.epoch,))
