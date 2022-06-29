@@ -165,18 +165,18 @@ def train(rank, args):
                         'accuracy': acc,
                         'f1': f1}, save_path)
 
+        
+    dist.destroy_process_group()
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
-    np.save(f'/scratch/sgutjahr/log/{args.name}_loss_train.npy', loss_train)
-    np.save(f'/scratch/sgutjahr/log/{args.name}_loss_val.npy', val)
-    np.save(f'/scratch/sgutjahr/log/{args.name}_loss_split.npy', loss_split)
+    np.save(f'/scratch/sgutjahr/log/{args.name}_{rank}_loss_train.npy', loss_train)
+    np.save(f'/scratch/sgutjahr/log/{args.name}_{rank}_loss_val.npy', val)
+    np.save(f'/scratch/sgutjahr/log/{args.name}_{rank}_loss_split.npy', loss_split)
     print('')
                 
 
 
 if __name__ == '__main__':
-    
-    dist.destroy_process_group()
 
     parser = argparse.ArgumentParser(description='Parse training parameters')
     
@@ -227,6 +227,6 @@ if __name__ == '__main__':
     print(f'Done')
     duration = time.time() - took
     print(f'Took: {duration/60:.4f} min')
-    
-    dist.destroy_process_group()
+
+
 
