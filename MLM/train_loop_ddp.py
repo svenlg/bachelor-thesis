@@ -3,7 +3,6 @@ import os
 import time
 import argparse
 import warnings
-from pympler import asizeof
 
 import numpy as np
 import torch
@@ -23,19 +22,17 @@ warnings.filterwarnings('ignore')
 
 
 def train(rank, args):
-    
+
     # Getting the data train and test and split the trainings data into train and val sets
     laws = get_laws(args.fname,args.mask)
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
-    print(f'GPU {rank} hast load the data with a size of {asizeof.asizeof(laws)/1_000_000:.3f}MB. \n')
-    
     ############################################################             
     dist.init_process_group(backend='nccl',
                             world_size=args.world_size,
                             rank=rank)                                                          
     #############################################################
-    
+
     # Settings 
     torch.manual_seed(0)
     model = LawNetMLM(args.checkpoint).to(rank)
@@ -43,61 +40,61 @@ def train(rank, args):
     # Wrap the model
     model = DDP(model, device_ids=[rank])
     ################################################################
-    
+
     # define optimizer
     optim = torch.optim.Adam(model.parameters(), lr=5e-5)
-    
-    
+
+
     train_dataset = LawDatasetForMLM(train_laws, args.loader_size_tr)
     ################################################################
     train_sampler = DistributedSampler(train_dataset,
                                        num_replicas=args.world_size,
                                        rank=rank)
     ################################################################
-    
+
     val_dataset = LawDatasetForMLM(val_laws, args.loader_size_val)
     ################################################################
     val_sampler = DistributedSampler(val_dataset,
                                      num_replicas=args.world_size,
                                      rank=rank)
     ################################################################
-    
+
     ################################################################
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size,
                               shuffle=False,
                               num_workers=0,
                               sampler=train_sampler)
     ################################################################
-    
+
     ################################################################
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size,
                             shuffle=False,
                             num_workers=0,
                             sampler=val_sampler)
     ################################################################
-    
+
     loss_train = np.empty((args.epoch,))
     val = np.empty((args.epoch,3))
-    print(f'Start finetuning model on GPU {rank}')
+    print(f'Start on GPU {rank}\n')
+
     best_round = 0
     INF = 10e9
     cur_low_val_eval = INF
-    
-    
+
     for epoch in range(1, args.epoch+1):
-        
+
         # reset statistics trackers
         train_loss_cum = 0.0
         num_samples_epoch = 0
         t = time.time()
-        
-        for i, batch in enumerate(train_loader):
-            
+
+        for batch in train_loader:
+
             # get batches 
             input_ids = batch['input_ids'].to(rank)
             attention_mask = batch['attention_mask'].to(rank)
             labels = batch['labels'].to(rank)
-                        
+       
             model.train()
 
             # Forward pass
@@ -116,7 +113,7 @@ def train(rank, args):
             num_samples_epoch += num_samples_batch
             train_loss_cum += loss * num_samples_batch
 
-        
+
         # average the accumulated statistics
         avg_train_loss = train_loss_cum / num_samples_epoch
         loss_train[epoch-1] = avg_train_loss.item()
@@ -125,12 +122,15 @@ def train(rank, args):
         val_loss, acc, f1 = evaluate(model, val_loader, rank, args.mask)
         val[epoch-1] = [val_loss, acc, f1]
         epoch_duration = time.time() - t
-        
-        
+
+
         print(f'Rank {rank}',
               f'Epoch {epoch} | Duration {epoch_duration:.2f} sec |',
               f'Train loss: {avg_train_loss:.4f} | Validation loss: {val_loss:.4f} |',
-              f'Acc: {acc:.4f} | f1 {f1:.4f}\n')
+              f'Acc: {acc:.4f} | f1 {f1:.4f}')
+        
+        if rank == 0:
+            print(f'')
             
         if cur_low_val_eval > val_loss and epoch > 3 and rank == 0:
             cur_low_val_eval = val_loss
@@ -152,8 +152,7 @@ def train(rank, args):
         
     np.save(f'/scratch/sgutjahr/log/{args.name}_{rank}_loss_train.npy', loss_train)
     np.save(f'/scratch/sgutjahr/log/{args.name}_{rank}_loss_val.npy', val)
-    print('')
-                
+    print(f'')
 
 
 if __name__ == '__main__':
@@ -172,10 +171,10 @@ if __name__ == '__main__':
     parser.add_argument('-bs','--batch_size', type=int, default=8,
                         help='Batch Size')
     
-    parser.add_argument('-t','--loader_size_tr', type=int, default=4032,
+    parser.add_argument('-t','--loader_size_tr', type=int, default=4000,
                         help='Number of data used for training per epoch')
     
-    parser.add_argument('-v','--loader_size_val', type=int, default=1008,
+    parser.add_argument('-v','--loader_size_val', type=int, default=1000,
                         help='Number of data used for validation per epoch')
 
     parser.add_argument('-s', '--split_size', type=float, default=0.2,
