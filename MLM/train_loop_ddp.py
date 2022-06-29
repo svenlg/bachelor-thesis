@@ -210,8 +210,9 @@ if __name__ == '__main__':
           
     #########################################################
     n_gpus = torch.cuda.device_count()
+    print(n_gpus)
     args.world_size = n_gpus
-    os.environ['MASTER_ADDR'] = '10.57.23.164'
+    os.environ['MASTER_ADDR'] = 'localhost'
     os.environ['MASTER_PORT'] = '8888'
     #########################################################
     
