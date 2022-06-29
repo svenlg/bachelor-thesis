@@ -23,67 +23,54 @@ warnings.filterwarnings('ignore')
 
 def train(rank, args):
 
+    dist.init_process_group(backend='nccl',
+                            world_size=args.world_size,
+                            rank=rank)
+
     # Getting the data train and test and split the trainings data into train and val sets
     laws = get_laws(args.fname,args.mask)
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
-    ############################################################             
-    dist.init_process_group(backend='nccl',
-                            world_size=args.world_size,
-                            rank=rank)                                                          
-    #############################################################
-
     # Settings 
     torch.manual_seed(0)
     model = LawNetMLM(args.checkpoint).to(rank)
-    ################################################################
+
     # Wrap the model
     model = DDP(model, device_ids=[rank])
-    ################################################################
 
     # define optimizer
     optim = torch.optim.Adam(model.parameters(), lr=5e-5)
 
-
     train_dataset = LawDatasetForMLM(train_laws, args.loader_size_tr)
-    ################################################################
+
     train_sampler = DistributedSampler(train_dataset,
                                        num_replicas=args.world_size,
                                        rank=rank)
-    ################################################################
 
-    val_dataset = LawDatasetForMLM(val_laws, args.loader_size_val)
-    ################################################################
-    val_sampler = DistributedSampler(val_dataset,
-                                     num_replicas=args.world_size,
-                                     rank=rank)
-    ################################################################
-
-    ################################################################
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size,
                               shuffle=False,
                               num_workers=0,
                               sampler=train_sampler)
-    ################################################################
 
-    ################################################################
+    val_dataset = LawDatasetForMLM(val_laws, args.loader_size_val)
+
+    val_sampler = DistributedSampler(val_dataset,
+                                     num_replicas=args.world_size,
+                                     rank=rank)
+
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size,
                             shuffle=False,
                             num_workers=0,
                             sampler=val_sampler)
-    ################################################################
-
-    loss_train = np.empty((args.epoch,))
-    val = np.empty((args.epoch,3))
+    
     print(f'Start on GPU {rank}')
 
-    if rank == 0:
-        print('')
-
+    loss_train = np.empty((args.epoch,))
+    val = np.empty((args.epoch,3))    
     best_round = 0
     INF = 10e9
     cur_low_val_eval = INF
-    
+
     for epoch in range(1, args.epoch+1):
 
         if rank == 0:
@@ -128,8 +115,7 @@ def train(rank, args):
         val[epoch-1] = [val_loss, acc, f1]
         epoch_duration = time.time() - t
 
-        print(f'GPU{rank}:',
-            f'Epoch {epoch} | Dur: {epoch_duration:.2f} s |',
+        print(f'GPU{rank} Dur: {epoch_duration:.2f} s |',
             f'Train loss: {avg_train_loss:.4f} | Val loss: {val_loss:.4f} |',
             f'Acc: {acc:.4f} | f1: {f1:.4f}')
 
@@ -189,18 +175,15 @@ if __name__ == '__main__':
     if args.checkpoint == 'bert-base-german-cased':
         args.mask = 5
         args.fname = '/scratch/sgutjahr/Data_Token2/'
-          
-    #########################################################
+
     args.world_size = torch.cuda.device_count()
     os.environ['MASTER_ADDR'] = 'localhost'
     os.environ['MASTER_PORT'] = '8888'
-    #########################################################
     
     took = time.time()
     
-    #########################################################
+    #Train the ModelS
     mp.spawn(train, nprocs=args.world_size, args=(args,), join=True)
-    #########################################################
     
     print(f'Done')
     duration = time.time() - took
