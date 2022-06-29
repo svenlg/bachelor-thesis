@@ -163,8 +163,5 @@ def get_laws(data, mask, split=1, use_set=True):
             )
             ret.append(new)
 
-    print(f'{num_data} out of {len(laws)} will be used for training.')
-    print(f'There are {len(flat)} ocn and {len(ret)} batch lines.\n')
-
     return ret
 
