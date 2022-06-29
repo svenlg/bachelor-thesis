@@ -31,7 +31,7 @@ def train(rank, args):
     laws = get_laws(args.fname,args.mask)
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
-    # Settings 
+    # Settings
     torch.manual_seed(0)
     model = LawNetMLM(args.checkpoint).to(rank)
 
@@ -66,7 +66,7 @@ def train(rank, args):
     print(f'Start on GPU {rank}')
 
     loss_train = np.empty((args.epoch,))
-    val = np.empty((args.epoch,3))    
+    val = np.empty((args.epoch,3))
     best_round = 0
     INF = 10e9
     cur_low_val_eval = INF
@@ -83,7 +83,7 @@ def train(rank, args):
 
         for batch in train_loader:
 
-            # get batches 
+            # get batches
             input_ids = batch['input_ids'].to(rank)
             attention_mask = batch['attention_mask'].to(rank)
             labels = batch['labels'].to(rank)
@@ -99,7 +99,7 @@ def train(rank, args):
             # Backward and optimize
             optim.zero_grad()
             loss.backward()
-            optim.step()        
+            optim.step()
 
             # keep track of train stats
             num_samples_batch = input_ids.shape[0]
@@ -141,22 +141,22 @@ def train(rank, args):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Parse training parameters')
-    
+
     parser.add_argument('name', type=str,
                         help='Name wtih whicht the model is saved.')
-    
+
     parser.add_argument('checkpoint', type=str,
                         help='The checkpoint of the model.')
 
     parser.add_argument('-e','--epoch', type=int, default=300,
                         help='Number of Trainings Epochs.')
-    
+
     parser.add_argument('-bs','--batch_size', type=int, default=8,
                         help='Batch Size')
-    
+
     parser.add_argument('-t','--loader_size_tr', type=int, default=4000,
                         help='Number of data used for training per epoch')
-    
+
     parser.add_argument('-v','--loader_size_val', type=int, default=1000,
                         help='Number of data used for validation per epoch')
 
@@ -165,9 +165,9 @@ if __name__ == '__main__':
 
     parser.add_argument('--save', type=float, default=25,
                         help='After how many epochs the model is saved.')
-    
+
     args = parser.parse_args()
-    
+
     if args.checkpoint == 'dbmdz/bert-base-german-cased':
         args.mask = 104
         args.fname = '/scratch/sgutjahr/Data_Token/'
@@ -179,12 +179,12 @@ if __name__ == '__main__':
     args.world_size = torch.cuda.device_count()
     os.environ['MASTER_ADDR'] = 'localhost'
     os.environ['MASTER_PORT'] = '8888'
-    
+
     took = time.time()
-    
+
     #Train the ModelS
     mp.spawn(train, nprocs=args.world_size, args=(args,), join=True)
-    
+
     print(f'Done')
     duration = time.time() - took
     print(f'Took: {duration/60:.4f} min\n')
