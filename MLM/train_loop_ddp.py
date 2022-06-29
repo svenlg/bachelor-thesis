@@ -39,8 +39,8 @@ def train(rank, args):
     print(f'{rank}: {1}')
     # Settings 
     torch.manual_seed(0)
-    model = LawNetMLM(args.checkpoint)
-    model.to(rank)
+    model = LawNetMLM(args.checkpoint).to(rank)
+    model = DDP(model, device_ids=[rank])
     batch_size = 10
     
     # define optimizer
@@ -48,7 +48,7 @@ def train(rank, args):
     
     ################################################################
     # Wrap the model
-    model = DDP(model, device_ids=[rank])
+    
     ################################################################
     print(f'{rank}: {2}')
     
@@ -209,9 +209,7 @@ if __name__ == '__main__':
         args.fname = '/scratch/sgutjahr/Data_Token2/'
           
     #########################################################
-    n_gpus = torch.cuda.device_count()
-    print(n_gpus)
-    args.world_size = n_gpus
+    args.world_size = torch.cuda.device_count()
     os.environ['MASTER_ADDR'] = 'localhost'
     os.environ['MASTER_PORT'] = '8888'
     #########################################################
