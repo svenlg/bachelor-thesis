@@ -83,16 +83,16 @@ def train(rank, args):
     ################################################################
     print(f'{rank}: {3}')
     
-    loss_train = np.empty((args.epochs,))
-    loss_split = np.empty((args.epochs,4))
-    val = np.empty((args.epochs,3))
+    loss_train = np.empty((args.epoch,))
+    loss_split = np.empty((args.epoch,4))
+    val = np.empty((args.epoch,3))
     print(f'Start finetuning model on GPU {rank}')
     best_round = 0
     INF = 10e9
     cur_low_val_eval = INF
     
     
-    for epoch in range(1, args.epochs+1):
+    for epoch in range(1, args.epoch+1):
         
         # reset statistics trackers
         train_loss_cum = 0.0
