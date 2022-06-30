@@ -12,6 +12,8 @@ import numpy as np
 # Returns a dict with masked input_ids an labels
 def get_tensors(mask, ocn):
 
+    torch.manual_seed(42)
+    
     # load the tokenized representaion of the laws
     input_ids = torch.from_numpy(np.load(ocn))
     att_mask = torch.ones(input_ids.size())
@@ -138,7 +140,6 @@ def get_laws(data, mask, split=1, use_set=True):
 
     laws = np.loadtxt(fname + 'done_with.txt', dtype=str, encoding='ISO-8859-1')
     big = []
-    np.random.shuffle(laws)
     num_data = int(split*len(laws))
 
     for i in range(num_data):

@@ -22,6 +22,10 @@ warnings.filterwarnings('ignore')
 
 
 def train(rank, args):
+    
+    # Settings
+    torch.manual_seed(42)
+    np.random.seed(31415)
 
     dist.init_process_group(backend='nccl',
                             world_size=args.world_size,
@@ -31,8 +35,6 @@ def train(rank, args):
     laws = get_laws(args.fname,args.mask)
     train_laws, val_laws = train_test_split(laws, test_size=.2)
 
-    # Settings
-    torch.manual_seed(0)
     model = LawNetMLM(args.checkpoint).to(rank)
 
     # Wrap the model
