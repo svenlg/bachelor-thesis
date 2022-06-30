@@ -108,7 +108,7 @@ def train(rank, args):
             num_samples_batch = input_ids.shape[0]
             num_samples_epoch += num_samples_batch
             train_loss_cum += loss * num_samples_batch
-            print(rank, round)
+            print(rank, round, input_ids.shape[0])
             round += 1
 
         # average the accumulated statistics
