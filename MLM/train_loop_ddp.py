@@ -166,7 +166,7 @@ if __name__ == '__main__':
                         help='The fractional size of the validation split.')
 
     parser.add_argument('--save', type=bool, default=False,
-                        help='After how many epochs the model is saved.')
+                        help='Should the model be saved.')
 
     args = parser.parse_args()
 
