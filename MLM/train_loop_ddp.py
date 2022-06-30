@@ -117,7 +117,7 @@ def train(rank, args):
         val[epoch-1] = [val_loss, acc, f1]
         epoch_duration = time.time() - t
 
-        print(f'GPU{rank} Dur: {epoch_duration:.2f} s |',
+        print(f'GPU{rank} Dur: {epoch_duration:.2f}s |',
             f'Train loss: {avg_train_loss:.4f} | Val loss: {val_loss:.4f} |',
             f'Acc: {acc:.4f} | f1: {f1:.4f}')
 
@@ -131,7 +131,6 @@ def train(rank, args):
                         'loss': cur_low_val_eval,
                         'accuracy': acc,
                         'f1': f1}, save_path)
-
 
     dist.destroy_process_group()
 
@@ -191,6 +190,4 @@ if __name__ == '__main__':
     print(f'Done')
     duration = time.time() - took
     print(f'Took: {duration/60:.4f} min\n')
-
-
 
