@@ -12,8 +12,6 @@ import numpy as np
 # Returns a dict with masked input_ids an labels
 def get_tensors(mask, ocn):
 
-    #torch.manual_seed(42)
-    
     # load the tokenized representaion of the laws
     input_ids = torch.from_numpy(np.load(ocn))
     att_mask = torch.ones(input_ids.size())
@@ -24,16 +22,15 @@ def get_tensors(mask, ocn):
         cls_ =  torch.Tensor([102])
         sep_ = torch.Tensor([103])
         mask_ = 104
-    
+
     if mask == 5:
         cls_ = torch.Tensor([3])
         sep_ = torch.Tensor([4])
         mask_ = 5
-    
+
     # split into chunks so the model can prosses the full law
     input_id_chunks = input_ids.split(chunksize-2)
     att_mask_chunks = att_mask.split(chunksize-2)
-
 
     input_id_chunks = list(input_id_chunks)
     att_mask_chunks = list(att_mask_chunks)
