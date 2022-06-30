@@ -20,22 +20,18 @@ class LawNetMLM(nn.Module):
 # Data set for the MLM Task
 class LawDatasetForMLM(Dataset):
 
-    def __init__(self, data, size, rank):
+    def __init__(self, data, size):
         self.data = data
         self.len = size
         self.mod = len(self.data)
         self.epoch = 0
-        self.rand = 0
-        self.rank = rank
 
     def __len__(self):
         self.epoch += 1
-        #self.rand = random.randint(0,10000)
         return self.len
 
     def __getitem__(self, idx):
-        print(self.rank, idx)
         # 250 batch pro epoch batchsize=8 --> 2000 -- len == 2000
-        idx = (idx + self.rand + self.len*self.epoch) % self.mod
+        idx = (idx + self.len*self.epoch) % self.mod
         return self.data[idx]
 
