@@ -35,7 +35,7 @@ def train(rank, args):
     laws = get_laws(args.fname,args.mask)
     train_laws, val_laws = train_test_split(laws, test_size=.2)
     
-    print(f'{rank} {len(train_laws)} {type(train_laws)}')
+    print(f'{rank} {type(train_laws[0])}')
     return 
     model = LawNetMLM(args.checkpoint).to(rank)
 
