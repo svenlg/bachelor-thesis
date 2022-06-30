@@ -29,7 +29,7 @@ class LawDatasetForMLM(Dataset):
 
     def __len__(self):
         self.epoch += 1
-        self.rand = random.randint(0,10000)
+        #self.rand = random.randint(0,10000)
         return self.len
 
     def __getitem__(self, idx):
