@@ -43,7 +43,7 @@ def train(rank, args):
     # define optimizer
     optim = torch.optim.Adam(model.parameters(), lr=5e-5)
 
-    train_dataset = LawDatasetForMLM(train_laws, args.loader_size_tr)
+    train_dataset = LawDatasetForMLM(train_laws, args.loader_size_tr, rank)
 
     train_sampler = DistributedSampler(train_dataset,
                                        num_replicas=args.world_size,
@@ -54,7 +54,7 @@ def train(rank, args):
                               num_workers=0,
                               sampler=train_sampler)
 
-    val_dataset = LawDatasetForMLM(val_laws, args.loader_size_val)
+    val_dataset = LawDatasetForMLM(val_laws, args.loader_size_val, rank)
 
     val_sampler = DistributedSampler(val_dataset,
                                      num_replicas=args.world_size,
