@@ -70,7 +70,6 @@ def train(rank, args):
     loss_train = np.empty((args.epoch,))
     val = np.empty((args.epoch,3))
     best_round = 0
-    round = 0
     INF = 10e9
     cur_low_val_eval = INF
 
@@ -108,8 +107,6 @@ def train(rank, args):
             num_samples_batch = input_ids.shape[0]
             num_samples_epoch += num_samples_batch
             train_loss_cum += loss * num_samples_batch
-            print(rank, round, input_ids.shape[0])
-            round += 1
 
         # average the accumulated statistics
         avg_train_loss = train_loss_cum / num_samples_epoch
