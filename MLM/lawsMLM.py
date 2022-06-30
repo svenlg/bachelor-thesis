@@ -12,7 +12,7 @@ import numpy as np
 # Returns a dict with masked input_ids an labels
 def get_tensors(mask, ocn):
 
-    torch.manual_seed(42)
+    #torch.manual_seed(42)
     
     # load the tokenized representaion of the laws
     input_ids = torch.from_numpy(np.load(ocn))
