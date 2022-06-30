@@ -1,7 +1,6 @@
 import torch.nn as nn
 from transformers import BertForMaskedLM
 from torch.utils.data import Dataset
-from numpy import random
 
 class LawNetMLM(nn.Module):
 
