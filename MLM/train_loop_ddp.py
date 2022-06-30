@@ -35,7 +35,7 @@ def train(rank, args):
     laws = get_laws(args.fname,args.mask)
     train_laws, val_laws = train_test_split(laws, test_size=.2)
     
-    print(f'{rank} {train_laws[0]['input_ids']}')
+    print(f'{rank} {train_laws[0].input_ids}')
     dist.destroy_process_group()
     return 
     model = LawNetMLM(args.checkpoint).to(rank)
