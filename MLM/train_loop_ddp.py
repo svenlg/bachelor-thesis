@@ -121,7 +121,9 @@ def train(rank, args):
             f'Train loss: {avg_train_loss:.4f} | Val loss: {val_loss:.4f} |',
             f'Acc: {acc:.4f} | f1: {f1:.4f}')
 
-        if cur_low_val_eval > val_loss and epoch > 50 and args.save:
+        if cur_low_val_eval > val_loss and args.save:
+            print('here')
+            break
             cur_low_val_eval = val_loss
             best_round = epoch
             save_path = f'/scratch/sgutjahr/log/{args.name}_BERT_MLM_best_{rank}.pt'
