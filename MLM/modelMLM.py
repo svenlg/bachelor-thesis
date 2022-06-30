@@ -1,6 +1,7 @@
 import torch.nn as nn
 from transformers import BertForMaskedLM
 from torch.utils.data import Dataset
+from numpy.random import randint
 
 class LawNetMLM(nn.Module):
 
@@ -24,13 +25,16 @@ class LawDatasetForMLM(Dataset):
         self.len = size
         self.mod = len(self.data)
         self.epoch = 0
+        self.rand = 0
 
     def __len__(self):
         self.epoch += 1
+        self.rand = randint(12345)
         return self.len
 
     def __getitem__(self, idx):
+        print(self.rand)
         # 250 batch pro epoch batchsize=8 --> 2000 -- len == 2000
-        idx = (idx + self.len*self.epoch) % self.mod
+        idx = (idx + self.rand + self.len*self.epoch) % self.mod
         return self.data[idx]
 
