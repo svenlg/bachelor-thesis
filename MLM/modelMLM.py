@@ -33,7 +33,6 @@ class LawDatasetForMLM(Dataset):
         return self.len
 
     def __getitem__(self, idx):
-        # 250 batch pro epoch batchsize=8 --> 2000 -- len == 2000
         idx = (idx + self.rand + self.len*self.epoch) % self.mod
         return self.data[idx]
 
