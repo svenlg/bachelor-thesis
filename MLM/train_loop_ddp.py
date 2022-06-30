@@ -183,6 +183,7 @@ if __name__ == '__main__':
     os.environ['MASTER_PORT'] = '8888'
 
     took = time.time()
+    print(args)
 
     #Train the ModelS
     mp.spawn(train, nprocs=args.world_size, args=(args,), join=True)
