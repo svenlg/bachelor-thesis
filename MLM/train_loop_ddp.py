@@ -35,9 +35,6 @@ def train(rank, args):
     laws = get_laws(args.fname,args.mask)
     train_laws, val_laws = train_test_split(laws, test_size=.2)
     
-    print(f'{rank} {train_laws[0]["input_ids"][:30]}')
-    dist.destroy_process_group()
-    return 
     model = LawNetMLM(args.checkpoint).to(rank)
 
     # Wrap the model
@@ -124,7 +121,7 @@ def train(rank, args):
             f'Train loss: {avg_train_loss:.4f} | Val loss: {val_loss:.4f} |',
             f'Acc: {acc:.4f} | f1: {f1:.4f}')
 
-        if cur_low_val_eval > val_loss and epoch > 15:
+        if cur_low_val_eval > val_loss and epoch > 50 and args.save:
             cur_low_val_eval = val_loss
             best_round = epoch
             save_path = f'/scratch/sgutjahr/log/{args.name}_BERT_MLM_best_{rank}.pt'
@@ -138,9 +135,10 @@ def train(rank, args):
 
     dist.destroy_process_group()
 
-    np.save(f'/scratch/sgutjahr/log/{args.name}_{rank}_loss_train.npy', loss_train)
-    np.save(f'/scratch/sgutjahr/log/{args.name}_{rank}_loss_val.npy', val)
-    print(f'Lowest validation loss on GPU{rank}: {cur_low_val_eval:.4f} in Round {best_round}')
+    if args.save:
+        np.save(f'/scratch/sgutjahr/log/{args.name}_{rank}_loss_train.npy', loss_train)
+        np.save(f'/scratch/sgutjahr/log/{args.name}_{rank}_loss_val.npy', val)
+        print(f'Lowest validation loss on GPU{rank}: {cur_low_val_eval:.4f} in Round {best_round}')
 
 
 if __name__ == '__main__':
@@ -168,7 +166,7 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--split_size', type=float, default=0.2,
                         help='The fractional size of the validation split.')
 
-    parser.add_argument('--save', type=float, default=25,
+    parser.add_argument('--save', type=bool, default=False,
                         help='After how many epochs the model is saved.')
 
     args = parser.parse_args()
