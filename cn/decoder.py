@@ -24,8 +24,8 @@ class Decoder(nn.Module):
         self.hidden_size = hidden_size
         self.max_length = max_length
         self.vocab_size = vocab_size
-        self.seq_len = 512
-        self.embedding_dim = 768
+        self.seq_len = self.embedding.num_embeddings
+        self.embedding_dim = self.embedding.embedding_dim
         
         self.attn_W = nn.Linear(self.hidden_size, self.hidden_size)
         self.copy_W = nn.Linear(self.hidden_size, self.hidden_size)
