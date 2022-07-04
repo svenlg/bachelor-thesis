@@ -7,7 +7,7 @@ from transformers import AutoTokenizer
 
 class EncoderDecoder(nn.Module):
 
-    def __init__(self, model_path, device, max_length):
+    def __init__(self, model_path, device, max_length=512):
         super(EncoderDecoder, self).__init__()
 
         # Encoder
@@ -17,10 +17,12 @@ class EncoderDecoder(nn.Module):
         self.encoder = Encoder(model_loaded)
         self.embeddings = Embedder(model_loaded)
 
+        # Settings
         tokenizer = AutoTokenizer.from_pretrained(BERTload['checkpoint'])
         self.vocab_size = tokenizer.vocab_size
         self.cls_to = tokenizer('[CLS]', add_special_tokens=False)['input_ids'][0]
         self.sep_to = tokenizer('[SEP]', add_special_tokens=False)['input_ids'][0]
+        self.device = device
 
         # Decoder
         self.decoder_hidden_size = 2*768
