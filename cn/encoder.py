@@ -15,12 +15,3 @@ class Encoder(nn.Module):
         return outputs
 
 
-class Embedder(nn.Module):
-    def __init__(self,model_loaded):
-        super(Embedder, self).__init__()
-        self.embeddings = model_loaded.model.bert.embeddings
-
-    def forward(self, input_ids):
-        outputs = self.embeddings(input_ids)
-        return outputs
-

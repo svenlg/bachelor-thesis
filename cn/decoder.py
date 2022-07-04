@@ -4,9 +4,22 @@ import torch.nn.functional as F
 from cn.utils import to_one_hot
 
 
+class Embedder(nn.Module):
+    def __init__(self,model_loaded):
+        super(Embedder, self).__init__()
+        self.embeddings = model_loaded.model.bert.embeddings
+        self.num_embeddings = self.embeddings.position_embeddings.num_embeddings
+        self.embedding_dim = self.embeddings.position_embeddings.embedding_dim
+
+    def forward(self, input_ids):
+        outputs = self.embeddings(input_ids)
+        return outputs
+
+
 class Decoder(nn.Module):
-    def __init__(self, hidden_size, max_length, vocab_size, device):
+    def __init__(self, hidden_size, max_length, vocab_size, device, model_loaded):
         super(Decoder, self).__init__()
+        self.embedding = Embedder(model_loaded)
         self.device = device
         self.hidden_size = hidden_size
         self.max_length = max_length

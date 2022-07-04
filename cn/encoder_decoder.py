@@ -1,7 +1,7 @@
 from torch import nn
 import torch
 from .decoder import Decoder
-from .encoder import Encoder, Embedder
+from .encoder import Encoder
 from MLM.modelMLM import LawNetMLM
 from transformers import AutoTokenizer
 
@@ -15,7 +15,6 @@ class EncoderDecoder(nn.Module):
         model_loaded = LawNetMLM(BERTload['checkpoint'])
         model_loaded.load_state_dict(BERTload['model_state_dict'])
         self.encoder = Encoder(model_loaded)
-        self.embeddings = Embedder(model_loaded)
 
         # Settings
         tokenizer = AutoTokenizer.from_pretrained(BERTload['checkpoint'])
@@ -26,7 +25,7 @@ class EncoderDecoder(nn.Module):
 
         # Decoder
         self.decoder_hidden_size = 2*768
-        self.decoder = Decoder(self.decoder_hidden_size, max_length, self.vocab_size, self.device)
+        self.decoder = Decoder(self.decoder_hidden_size, max_length, self.vocab_size, self.device, model_loaded)
 
     def forward(self, inputs, targets=None, keep_prob=1.0, teacher_forcing=0.0):
 
