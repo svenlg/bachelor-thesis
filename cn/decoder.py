@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from utils import to_one_hot
+from cn.utils import to_one_hot
 
 
 class Decoder(nn.Module):
