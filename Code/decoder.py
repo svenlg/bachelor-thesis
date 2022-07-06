@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from utils import to_one_hot
+from .utils import to_one_hot
 
 
 class Embedder(nn.Module):

@@ -1,8 +1,8 @@
 from torch import nn
 import torch
-from decoder import Decoder
-from encoder import Encoder
-from modelMLM import LawNetMLM
+from .decoder import Decoder
+from .encoder import Encoder
+from .modelMLM import LawNetMLM
 from transformers import AutoTokenizer
 
 class EncoderDecoder(nn.Module):
