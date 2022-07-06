@@ -4,14 +4,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 from transformers import AutoTokenizer
 from bs4 import BeautifulSoup
-from ..MLM.modelMLM import LawNetMLM
+from modelMLM import LawNetMLM
 from cn.utils import to_one_hot
 
 checkpoint = 'dbmdz/bert-base-german-cased'
 tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 
 def get_oldnew(url,end) -> None:
-
+    
     # url example: '../Data_Laws/AktG/Nr0_2021-08-12/'
     url = url + end
 
@@ -37,7 +37,8 @@ def get_oldnew(url,end) -> None:
     return li_tokens
 
 def get_change(url,end) -> None:
-
+    
+    print(end)
     # url example: '../Data_Laws/AktG/Nr0_2021-08-12/'
     url = url + end
 
@@ -65,6 +66,7 @@ def get_change(url,end) -> None:
         li_tokens.append(tokens_np)
         print(len(txt), len(tokens_np))
 
+    print('')
     return li_tokens
 
 file = '../Data_Sample/AktGNr0_2021-08-12/'
@@ -87,7 +89,6 @@ for i in range(len(old)):
 data_fit = []
 for i in range(len(data)):
     if len(data[i][0]) < 510 and len(data[i][1]) < 510 and len(data[i][2]) < 510:
-        print(i)
         data_fit.append(data[i])
 
         
@@ -100,12 +101,10 @@ def get_tensors(ocn):
     if mask == 104:
         cls_ =  torch.Tensor([102])
         sep_ = torch.Tensor([103])
-        mask_ = 104
 
     if mask == 5:
         cls_ = torch.Tensor([3])
         sep_ = torch.Tensor([4])
-        mask_ = 5
 
     input_ids = torch.cat([
         cls_ , torch.from_numpy(ocn), sep_
@@ -237,8 +236,6 @@ class Decoder(nn.Module):
     def forward(self, old, change, inputs_old, inputs_cha, targets=None, teacher_forcing=1.0):
     
         batch_size = old.shape[0]
-        seq_length_old = old.shape[1]
-        seq_length_cha = change.shape[1]
         # assert that the inputs are different
         assert not torch.equal(old, change)
         assert not torch.equal(inputs_old, inputs_cha)
@@ -284,7 +281,6 @@ class Decoder(nn.Module):
         assert old.shape[0] == change.shape[0]
         assert old.shape[1] == change.shape[1]
         batch_size = old.shape[0]
-        seq_length = old.shape[1]
         # one_hot_input_seq.shape = (b, 2*seq_length, vocab_size)
         one_hot_input_seq = torch.cat((one_hot_input_seq_old, one_hot_input_seq_cha), dim=1)
 
