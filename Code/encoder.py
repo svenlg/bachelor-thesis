@@ -14,4 +14,3 @@ class Encoder(nn.Module):
         outputs = outputs['last_hidden_state']
         return outputs
 
-
