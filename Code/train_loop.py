@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 import time
-from eval import evaluate
+from evaluate import evaluate
 
 
 # Trainigs Loop for BertMLM Task
