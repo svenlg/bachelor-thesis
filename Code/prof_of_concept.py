@@ -71,7 +71,7 @@ old = []
 cha = []
 new = []
 
-file = '../Data_Sample/AktGNr0_2021-08-12/'
+file = '/scratch/sgutjahr/Data_Sample/AktGNr0_2021-08-12/'
 end = 'old_oG.html'
 old1 = get_oldnew(file, end)
 end = 'change.html'
@@ -83,7 +83,7 @@ old.extend(old1)
 cha.extend(cha1)
 new.extend(new1)
 
-file = '../Data_Sample/StVONr3_2019-06-15/'
+file = '/scratch/sgutjahr/Data_Sample/StVONr3_2019-06-15/'
 end = 'old.html'
 old2 = get_oldnew(file, end)
 end = 'change.html'
@@ -95,7 +95,7 @@ old.extend(old2)
 cha.extend(cha2)
 new.extend(new2)
 
-file = '../Data_Sample/MPGNr7_2017-01-01/'
+file = '/scratch/sgutjahr/Data_Sample/MPGNr7_2017-01-01/'
 end = 'old_oG.html'
 old3 = get_oldnew(file, end)
 end = 'change.html'
@@ -197,6 +197,7 @@ print('Prep done --> model laden und traininen')
 
 
 mp = '../../log/ddp500_3_BERT_MLM_best.pt'
+mp = '/scratch/sgutjahr/log/ddp500_3_BERT_MLM_best.pt'
 model = EncoderDecoder(mp, device, hidden_size=256)
 
 print('mdodel geladen --> traininen')
@@ -213,6 +214,4 @@ output_log_probs, output_seqs = train(encoder_decoder=model,
 
 print(f'output: {output_log_probs.shape}')
 print(f'sampled_idx: {output_seqs.shape}')
-
-
 
