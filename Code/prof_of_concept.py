@@ -1,16 +1,23 @@
 # Import
-import torch
-from transformers import AutoTokenizer
 from bs4 import BeautifulSoup
+
+import numpy as np
+import torch
+from torch.utils.data import DataLoader, Dataset
+
+from transformers import AutoTokenizer
 from encoder_decoder import EncoderDecoder
+from train_COPY import train
 
 checkpoint = 'dbmdz/bert-base-german-cased'
 tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+use_cuda = torch.cuda.is_available()
+device = torch.device('cuda:0' if use_cuda else 'cpu')
+
 
 def get_oldnew(url,end) -> None:
-    
-    print(end)
-    # url example: '../../Data_Laws/AktG/Nr0_2021-08-12/'
+
+    # url example: '../Data_LawsAktGNr0_2021-08-12/'
     url = url + end
 
     with open(url,encoding='utf-8') as fp:
@@ -30,58 +37,86 @@ def get_oldnew(url,end) -> None:
     for txt in li_text:
         tokens_np = tokenizer.encode_plus(txt, add_special_tokens=False, return_tensors='np').input_ids[0]
         li_tokens.append(tokens_np)
-        print(f'txt: {len(txt)}, tok: {len(tokens_np)}')
     
-    print('')
     return li_tokens
 
 
 def get_change(url,end) -> None:
-    
-    print(end)
-    # url example: '../../Data_Laws/AktG/Nr0_2021-08-12/'
+
+    # url example: '../Data_Laws/AktGNr0_2021-08-12/'
     url = url + end
 
     with open(url,encoding='utf-8') as fp:
         soup = BeautifulSoup(fp, 'html.parser')
-
+    
     for tag in soup.body:
         if tag.name == None:
             tag.extract()
-
+    
     _text = []
     for para in soup.body.dl:
-        text = para.get_text(' ', strip=True)
-        if not text == '':
-            _text.append(text)
-
-    li_text= []
-    for i in range(len(_text)//2):
-        txt = _text[2*i] + ' ' + _text[2*i+1]
-        li_text.append(txt)
-
+        if para.name == 'dd':
+            txt = para.get_text(' ', strip=True)
+            _text.append(txt)
+    
     li_tokens = []
-    for txt in li_text:
+    for txt in _text:
         tokens_np = tokenizer.encode_plus(txt, add_special_tokens=False, return_tensors='np').input_ids[0]
         li_tokens.append(tokens_np)
-        print(f'txt: {len(txt)}, tok: {len(tokens_np)}')
-
-    print('')
+    
     return li_tokens
 
-file = '../../Data_Sample/AktGNr0_2021-08-12/'
+old = []
+cha = []
+new = []
+
+file = '../Data_Sample/AktGNr0_2021-08-12/'
 end = 'old_oG.html'
-old = get_oldnew(file, end)
-end = 'new_oG.html'
-new = get_oldnew(file, end)
+old1 = get_oldnew(file, end)
 end = 'change.html'
-cha = get_change(file, end)
+cha1 = get_change(file, end)
+end = 'new_oG.html'
+new1 = get_oldnew(file, end)
+assert len(old1) == len(cha1) == len(new1)
+old.extend(old1)
+cha.extend(cha1)
+new.extend(new1)
+
+file = '../Data_Sample/StVONr3_2019-06-15/'
+end = 'old.html'
+old2 = get_oldnew(file, end)
+end = 'change.html'
+cha2 = get_change(file, end)
+end = 'new.html'
+new2 = get_oldnew(file, end)
+assert len(old2) == len(cha2) == len(new2)
+old.extend(old2)
+cha.extend(cha2)
+new.extend(new2)
+
+file = '../Data_Sample/MPGNr7_2017-01-01/'
+end = 'old_oG.html'
+old3 = get_oldnew(file, end)
+end = 'change.html'
+cha3 = get_change(file, end)
+end = 'new_oG.html'
+new3 = get_oldnew(file, end)
+
+if len(old3) == len(new3) and len(old3)+1 == len(cha3):
+    cha3 = cha3[1:]
+    
+assert len(old3) == len(new3) == len(cha3)
+old.extend(old3)
+cha.extend(cha3)
+new.extend(new3)
 
 assert len(old) == len(new) == len(cha)
 
+#data: list(listl(array))
 data = []
 for i in range(len(old)):
-    data.append([old[i],cha[i],new[i]])
+    if len(old[i]) < 510 and len(cha[i]) < 510 and len(new[i]) < 510:
+        data.append([old[i],cha[i],new[i]])
 
 
 #data_fit: [[array(o),array(c),array(n)],[array(o),array(c),array(n)],[array(o),array(c),array(n)]]
@@ -98,34 +133,18 @@ def get_tensors(ocn):
     chunksize = 512
 
     if mask == 104:
-        cls_ =  torch.Tensor([102])
-        sep_ = torch.Tensor([103])
+        cls_ = np.array([102])
+        sep_ = np.array([103])
 
     if mask == 5:
-        cls_ = torch.Tensor([3])
-        sep_ = torch.Tensor([4])
+        cls_ = np.array([3])
+        sep_ = np.array([4])
 
-    input_ids = torch.cat([
-        cls_ , torch.from_numpy(ocn), sep_
-    ])
-    att_mask = torch.ones(input_ids.shape[0])
-
+    input_ids = np.concatenate((cls_ , ocn, sep_))
     pad_len = chunksize - input_ids.shape[0]
-    # if padding length is more than 0, we must add padding
-    input_ids = torch.cat([
-        input_ids, torch.Tensor([0] * pad_len)
-    ])
-    att_mask = torch.cat([
-        att_mask, torch.Tensor([0] * pad_len)
-    ])
+    input_ids = np.concatenate((input_ids, np.array([0] * pad_len)))
 
-    # input_dict so the model can prosses the data
-    input_dict = {
-        'input_ids': input_ids.long(),
-        'attention_mask': att_mask.int(),
-    }
-
-    return input_dict
+    return input_ids
 
 
 def laws(data):
@@ -138,58 +157,59 @@ def laws(data):
     return ret
 
 # input_ = [[dict('input_ids','att_mask')*(old,cha,new)]*(laws<510)]
+input_ = laws(data)
+
+# input_ = [[dict('input_ids','att_mask')*(old,cha,new)]*(laws<510)]
 input_ = laws(data_fit)
 
-in_1 = input_[0][0]['input_ids']
-in_2 = input_[1][0]['input_ids']
-in_3 = input_[2][0]['input_ids']
-at_1 = input_[0][0]['attention_mask']
-at_2 = input_[1][0]['attention_mask']
-at_3 = input_[2][0]['attention_mask']
-input_ids = torch.stack([in_1, in_2, in_3])
-att_mask = torch.stack([at_1, at_1, at_1])
-input_batch = {'input_ids':input_ids,
-               'attention_mask': att_mask}
+# Data set for the COPY Task
+class DatasetForCOPY(Dataset):
 
+    def __init__(self, data, device):
+        self.len = len(data)
+        self.data = data
+        self.device = device
 
-in_1 = input_[0][1]['input_ids']
-in_2 = input_[1][1]['input_ids']
-in_3 = input_[2][1]['input_ids']
-at_1 = input_[0][1]['attention_mask']
-at_2 = input_[1][1]['attention_mask']
-at_3 = input_[2][1]['attention_mask']
-input_ids = torch.stack([in_1, in_2, in_3])
-att_mask = torch.stack([at_1, at_2, at_3])
-change_batch = {'input_ids':input_ids,
-                'attention_mask': att_mask}
+    def __len__(self):
+        return self.len
 
+    def __getitem__(self, idx):
+        
+        in_ = self.data[idx][0]
+        in_at = np.array(in_, dtype=bool).astype('int')
+        cha_ = self.data[idx][1]
+        cha_at = np.array(cha_, dtype=bool).astype('int')
+        tar_ = self.data[idx][2]
 
-in_1 = input_[0][2]['input_ids']
-in_2 = input_[1][2]['input_ids']
-in_3 = input_[2][2]['input_ids']
-at_1 = input_[0][2]['attention_mask']
-at_2 = input_[1][2]['attention_mask']
-at_3 = input_[2][2]['attention_mask']
-input_ids = torch.stack([in_1, in_2, in_3])
-att_mask = torch.stack([at_1, at_2, at_3])
-target_batch = {'input_ids':input_ids,
-               'attention_mask': att_mask}
+        input_ = {'input_ids':torch.from_numpy(in_).long().to(self.device),
+                  'attention_mask': torch.from_numpy(in_at).long().to(self.device)}
+        change_ = {'input_ids': torch.from_numpy(cha_).long().to(self.device),
+                   'attention_mask': torch.from_numpy(cha_at).long().to(self.device)}
+        target_ = torch.from_numpy(tar_).long().to(self.device)
 
+        return (input_, change_, target_)
 
-assert input_batch['input_ids'].shape == change_batch['input_ids'].shape == target_batch['input_ids'].shape
-assert input_batch['attention_mask'].shape == change_batch['attention_mask'].shape == target_batch['attention_mask'].shape
-assert input_batch['input_ids'].shape == input_batch['attention_mask'].shape
-assert not torch.equal(input_batch['input_ids'], change_batch['input_ids'])
-assert not torch.equal(input_batch['input_ids'], target_batch['input_ids'])
-assert not torch.equal(change_batch['input_ids'], target_batch['input_ids'])
+# Creat a DataSet
+train_dataset = DatasetForCOPY(input_,device)
+
+# Creat a DataLoader
+train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True)
 
 
 mp = '../../log/ddp500_3_BERT_MLM_best.pt'
-device = torch.device('cpu')
-model = EncoderDecoder(mp, device)
+model = EncoderDecoder(mp, device, hidden_size=256)
 
-output, sampled_idx = model(input_batch,change_batch,target_batch)
+output_log_probs, output_seqs = train(encoder_decoder=model,
+                                      train_data_loader=train_loader,
+                                      model_path=None,
+                                      val_data_loader=None,
+                                      epochs=2,
+                                      lr=1e-4,
+                                      max_length=512,
+                                      device=device)
 
-print(f'output: {output.shape}')
-print(f'sampled_idx: {sampled_idx.shape}')
+print(f'output: {output_log_probs.shape}')
+print(f'sampled_idx: {output_seqs.shape}')
+
+
 
