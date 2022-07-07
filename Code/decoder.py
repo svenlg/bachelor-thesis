@@ -1,27 +1,32 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .utils import to_one_hot
 
 
 class Embedder(nn.Module):
-    def __init__(self,model_loaded):
+    def __init__(self,model_loaded, hidden_size):
         super(Embedder, self).__init__()
+        self.hidden_size = hidden_size
         self.embeddings = model_loaded.model.bert.embeddings
+        # num_embeddings: 512
         self.num_embeddings = self.embeddings.position_embeddings.num_embeddings
+        # embedding_dim: 768
         self.embedding_dim = self.embeddings.position_embeddings.embedding_dim
+        self.ff = nn.Linear(self.embedding_dim, self.hidden_size)
 
     def forward(self, input_ids):
         outputs = self.embeddings(input_ids)
+        outputs = self.ff(outputs)
         return outputs
 
 
 class Decoder(nn.Module):
     def __init__(self, hidden_size, max_length, vocab_size, device, model_loaded, pad_to, cls_to, sep_to, mask_to):
         super(Decoder, self).__init__()
-        self.embedding = Embedder(model_loaded)
         self.device = device
         self.hidden_size = hidden_size
+        self.embedding = Embedder(model_loaded, self.hidden_size)
+
         self.max_length = max_length
         self.vocab_size = vocab_size
         self.pad_to = pad_to
@@ -29,7 +34,6 @@ class Decoder(nn.Module):
         self.sep_to = sep_to
         self.mask_to = mask_to
         self.seq_len = self.embedding.num_embeddings
-        self.embedding_dim = self.embedding.embedding_dim
 
         # hidden x hidden
         self.attn_W = nn.Linear(self.hidden_size, self.hidden_size) 
@@ -44,6 +48,7 @@ class Decoder(nn.Module):
     
         batch_size = old.shape[0]
         # assert that the inputs are different
+
         assert not torch.equal(old, change)
         assert not torch.equal(inputs_old, inputs_cha)
         # Set initial hidden states
@@ -60,8 +65,8 @@ class Decoder(nn.Module):
         # Set initial selective-read states
         selective_read = torch.zeros(batch_size, 1, self.hidden_size).to(self.device)
         # ohis = (b, seq_length, vocab_size)
-        one_hot_input_seq_old = to_one_hot(inputs_old, self.vocab_size).to(self.device)
-        one_hot_input_seq_cha = to_one_hot(inputs_cha, self.vocab_size).to(self.device)
+        one_hot_input_seq_old = to_one_hot(inputs_old, self.vocab_size)
+        one_hot_input_seq_cha = to_one_hot(inputs_cha, self.vocab_size)
 
         for step_idx in range(1, self.max_length):
 
@@ -83,7 +88,7 @@ class Decoder(nn.Module):
 
     def step(self, prev_idx, prev_hidden, old, change, prev_selective_read, one_hot_input_seq_old, one_hot_input_seq_cha):
 
-        # prev_hidden.shape = (3, 1, hidden)
+        # prev_hidden.shape = (b, 1, hidden)
         # self.hidden_size = 768
         assert old.shape[0] == change.shape[0]
         assert old.shape[1] == change.shape[1]
@@ -168,5 +173,13 @@ class Decoder(nn.Module):
         selective_read = (selected_scores_norm * encoder_outputs).sum(dim=1).unsqueeze(1)
 
         return sampled_idx, log_probs, hidden, selective_read
+    
+    def to_one_hot(self, y, n_dims=None):
+        """ Take integer y (tensor or variable) with n dims and convert it to 1-hot representation with n+1 dims. """
+        y_tensor = y.long().contiguous().view(-1, 1)
+        n_dims = n_dims if n_dims is not None else int(torch.max(y_tensor)) + 1
+        y_one_hot = torch.zeros(y_tensor.shape[0], n_dims).to(self.device).scatter_(1, y_tensor, 1)
+        y_one_hot = y_one_hot.view(*y.shape, -1)
+        return y_one_hot
 
 
