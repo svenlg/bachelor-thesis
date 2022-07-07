@@ -5,13 +5,7 @@ import torch
 from torch import optim
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
-
 from .encoder_decoder import EncoderDecoder
-
-checkpoint = 'dbmdz/bert-base-german-cased'
-tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-use_cuda = torch.cuda.is_available()
-device = torch.device('cuda:0' if use_cuda else 'cpu')
 
 
 def train(encoder_decoder: EncoderDecoder,
@@ -31,7 +25,7 @@ def train(encoder_decoder: EncoderDecoder,
         print(f'epoch {epoch}', flush=True)
 
         #for input_,change_,target_  in tqdm(train_data_loader):
-        for input_,change_,target_  in train_data_loader:
+        for input_,change_,target_ in train_data_loader:
             global_step += 1
             print(f'global_step: {global_step}')
             t = time()
@@ -44,7 +38,7 @@ def train(encoder_decoder: EncoderDecoder,
             output_log_probs, output_seqs = encoder_decoder(input_,change_,target_)     
 
             # flattened_outputs.shape = (b * max_length, voc_size)
-            flattened_outputs = output_log_probs.view(batch_size * output_log_probs.shape[1], -1)
+            flattened_outputs = output_log_probs.view(batch_size * max_length, -1)
             # target_.contiguous().view(-1).shape: (b * max_length)
             batch_loss = loss_function(flattened_outputs, target_.contiguous().view(-1))
             print(f'loss: {batch_loss.item():.4}')

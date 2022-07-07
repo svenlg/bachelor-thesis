@@ -13,6 +13,7 @@ checkpoint = 'dbmdz/bert-base-german-cased'
 tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 use_cuda = torch.cuda.is_available()
 device = torch.device('cuda:0' if use_cuda else 'cpu')
+print(f'device: {device}')
 
 
 def get_oldnew(url,end) -> None:
@@ -159,9 +160,6 @@ def laws(data):
 # input_ = [[dict('input_ids','att_mask')*(old,cha,new)]*(laws<510)]
 input_ = laws(data)
 
-# input_ = [[dict('input_ids','att_mask')*(old,cha,new)]*(laws<510)]
-input_ = laws(data_fit)
-
 # Data set for the COPY Task
 class DatasetForCOPY(Dataset):
 
@@ -195,9 +193,13 @@ train_dataset = DatasetForCOPY(input_,device)
 # Creat a DataLoader
 train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True)
 
+print('Prep done --> model laden und traininen')
+
 
 mp = '../../log/ddp500_3_BERT_MLM_best.pt'
 model = EncoderDecoder(mp, device, hidden_size=256)
+
+print('mdodel geladen --> traininen')
 
 output_log_probs, output_seqs = train(encoder_decoder=model,
                                       train_data_loader=train_loader,
@@ -207,6 +209,7 @@ output_log_probs, output_seqs = train(encoder_decoder=model,
                                       lr=1e-4,
                                       max_length=512,
                                       device=device)
+
 
 print(f'output: {output_log_probs.shape}')
 print(f'sampled_idx: {output_seqs.shape}')
