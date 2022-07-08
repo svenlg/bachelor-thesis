@@ -94,7 +94,7 @@ def train(rank, args):
             # output_seqs.shape: (b, max_length, 1)
             output_log_probs, output_seqs = encoder_decoder(input_,change_,target_)     
 
-            # flattened_outputs.shape = (b * max_length, voc_size)
+            # flattened_outputs.shape = (b * max_length, voc_size)  
             flattened_outputs = output_log_probs.view(batch_size * args.max_length, -1)
             # target_.contiguous().view(-1).shape: (b * max_length)
             loss = loss_function(flattened_outputs, target_.contiguous().view(-1))

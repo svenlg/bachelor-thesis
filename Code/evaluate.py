@@ -83,4 +83,4 @@ def evaluate(encoder_decoder: EncoderDecoder, val_loader):
         #avg_val_acc = val_acc / num_eval_samples
         #avg_val_f1 = val_f1 / num_eval_samples
         
-        return avg_val_loss # avg_val_loss.to('cpu').numpy(), avg_val_acc, avg_val_f1
+        return avg_val_loss.to('cpu').numpy() # avg_val_loss.to('cpu').numpy(), avg_val_acc, avg_val_f1
