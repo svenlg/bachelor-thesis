@@ -55,7 +55,7 @@ def evaluate(encoder_decoder: EncoderDecoder, val_loader):
             output_log_probs, output_seqs = encoder_decoder(input_,change_,target_) 
 
             # Get the loss and the prediction
-            flattened_log_probs = output_log_probs.view(batch_size * encoder_decoder.decoder.max_length, -1)
+            flattened_log_probs = output_log_probs.view(batch_size * 512, -1)
             
             loss = loss_function(flattened_log_probs, target_.contiguous().view(-1))
             
