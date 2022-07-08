@@ -80,9 +80,9 @@ def train(encoder_decoder: EncoderDecoder,
         epoch_duration = time.time() - t
         
         # print some infos
-        print(f'Epoch {epoch} | Duration {epoch_duration:.2f} sec', flush=True)
-        #      f'Validation loss: {val_loss:.4f}'
-        #      f'accuracy_score:  {acc:.4f}'
+        print(f'Epoch {epoch} | Duration {epoch_duration:.2f} sec\n', flush=True)
+        #      f'Validation loss: {val_loss:.4f}\n'
+        #      f'accuracy_score:  {acc:.4f}\n'
         #      f'f1_score:        {f1:.4f}\n', flush=True)
         
         # if cur_low_val_eval > val_loss and epoch > 3:
@@ -115,9 +115,9 @@ def main(model_name, batch_size, val_size, lr, epochs, hidden_size, max_length,s
     # TODO: Change logging to reflect loaded parameters
 
     print(f'training of {model_name} on {device} with a batch_size of {batch_size}', flush=True)
-    print(f'More information:'
-          f'val_size = {val_size} | lr = {lr}'
-          f'hidden_size = {hidden_size} max_length = {max_length} |'
+    print(f'More information:\n'
+          f'val_size = {val_size} | lr = {lr}\n'
+          f'hidden_size = {hidden_size} max_length = {max_length}\n'
           f'seed={seed}', flush=True)
         
     path = '/scratch/sgutjahr/Data_Token_Copy/'
