@@ -88,7 +88,7 @@ def train(encoder_decoder: EncoderDecoder,
         # if cur_low_val_eval > val_loss and epoch > 3:
         #     cur_low_val_eval = val_loss
         #     best_round = epoch
-        #     save_path = f'/scratch/sgutjahr/log/{name}_BERT_MLM_best.pt'
+        #     save_path = f'/scratch/sgutjahr/log/{name}_COPY_best.pt'
         #     torch.save({'checkpoint': checkpoint,
         #                 'epoch': epoch,
         #                 'model_state_dict': encoder_decoder.module.state_dict(),
@@ -96,8 +96,8 @@ def train(encoder_decoder: EncoderDecoder,
 
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
-    np.save(f'/scratch/sgutjahr/log/{name}_loss_train.npy', np.array(loss_train))
-    #np.save(f'/scratch/sgutjahr/log/{name}_loss_val.npy', loss_val)
+    np.save(f'/scratch/sgutjahr/log/{name}_COPY_train.npy', np.array(loss_train))
+    #np.save(f'/scratch/sgutjahr/log/{name}_COPY_val.npy', loss_val)
         
     return
 
@@ -127,7 +127,7 @@ def main(model_name, batch_size, val_size, lr, epochs, hidden_size, max_length,s
     
     # get model
     model_path = '/scratch/sgutjahr/log/ddp500_BERT_MLM_best_3.pt'
-    encoder_decoder = EncoderDecoder(model_path, device, hidden_size=185)
+    encoder_decoder = EncoderDecoder(model_path, device, hidden_size=hidden_size)
     encoder_decoder #.to(device)
     
     # Creat a DataLoader
