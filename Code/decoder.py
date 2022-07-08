@@ -70,7 +70,7 @@ class Decoder(nn.Module):
 
         for step_idx in range(1, self.max_length):
             
-            if step_idx%32 == 0:
+            if step_idx%64 == 0:
                 print(f'step: {step_idx}')
 
             if step_idx < targets.shape[1]:
