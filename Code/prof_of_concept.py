@@ -1,9 +1,7 @@
 # Import
-from bs4 import BeautifulSoup
-
 import numpy as np
 import torch
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 from lawsCOPY import DatasetForCOPY, get_laws_for_Copy
 
 from transformers import AutoTokenizer
