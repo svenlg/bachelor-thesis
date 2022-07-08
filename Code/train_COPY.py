@@ -24,6 +24,7 @@ def train(encoder_decoder: EncoderDecoder,
           device,
           name='try'):
 
+    print('hi')
     loss_function = torch.nn.NLLLoss(ignore_index=0)
     optimizer = optim.Adam(encoder_decoder.parameters(), lr=lr)
     
@@ -130,16 +131,6 @@ def main(model_name, batch_size, val_size, lr, epochs, hidden_size, max_length,s
     # Creat a DataLoader
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
-    
-    print(f'encoder_decoder: {type(encoder_decoder)}')
-    print(f'model_path: {type(model_path)}')
-    print(f'train_loader: {type(train_loader)}')
-    print(f'val_loader: {type(val_loader)}')
-    print(f'epochs: {type(epochs)}')
-    print(f'lr: {type(lr)}')
-    print(f'max_length: {type(max_length)}')
-    print(f'device: {type(device)}')
-    print(f'model_name: {type(model_name)}')
 
     train(encoder_decoder, train_loader, model_path, val_loader, epochs, lr, max_length, device, model_name)
 
