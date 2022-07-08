@@ -14,14 +14,6 @@ from lawsCOPY import get_laws_for_Copy, DatasetForCOPY
 from encoder_decoder import EncoderDecoder
 from evaluate import evaluate
 
-from tqdm import tqdm
-pbar = tqdm(["a", "b", "c", "d"])
-num_vowels = 0
-for ichar in pbar:
-    if ichar in ['a','e','i','o','u']:
-        num_vowels += 1
-    pbar.set_postfix({'num_vowels': num_vowels})
-
 
 def train(encoder_decoder: EncoderDecoder,
           train_data_loader: DataLoader,
