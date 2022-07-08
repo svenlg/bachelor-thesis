@@ -1,5 +1,6 @@
 # Imports
-import argparse 
+import argparse
+import imp 
 import time
 import numpy as np
 from tqdm import tqdm
@@ -7,9 +8,19 @@ from tqdm import tqdm
 import torch
 from torch import optim
 from torch.utils.data import DataLoader
+from sklearn.model_selection import train_test_split
 
 from lawsCOPY import get_laws_for_Copy, DatasetForCOPY
 from encoder_decoder import EncoderDecoder
+from evaluate import evaluate
+
+from tqdm import tqdm
+pbar = tqdm(["a", "b", "c", "d"])
+num_vowels = 0
+for ichar in pbar:
+    if ichar in ['a','e','i','o','u']:
+        num_vowels += 1
+    pbar.set_postfix({'num_vowels': num_vowels})
 
 
 def train(encoder_decoder: EncoderDecoder,
@@ -22,7 +33,6 @@ def train(encoder_decoder: EncoderDecoder,
           device,
           name='try'):
 
-    global_step = 0
     loss_function = torch.nn.NLLLoss(ignore_index=0)
     optimizer = optim.Adam(encoder_decoder.parameters(), lr=lr)
     
@@ -33,21 +43,20 @@ def train(encoder_decoder: EncoderDecoder,
     best_round = 0
     INF = 10e9
     cur_low_val_eval = INF
-    train_loss_cum = 0.0
-    num_samples_epoch = 0
 
     for epoch in range(1,epochs+1):
         
         print(f'epoch {epoch}', flush=True)
         # reset statistics trackers
         t = time.time()
+        train_loss_cum = 0
+        num_samples_epoch = 0
 
-        #for input_,change_,target_  in tqdm(train_data_loader):
-        for input_,change_,target_ in tqdm(train_data_loader):
+        pbar = tqdm(train_data_loader)
+        for input_,change_,target_ in pbar:
             
             # input_,change_,target_  all ready at the device
             batch_size = input_['input_ids'].shape[0] 
-            global_step += 1
             
             optimizer.zero_grad()
             # output_log_probs.shape = (b, max_length, voc_size)
@@ -66,22 +75,22 @@ def train(encoder_decoder: EncoderDecoder,
             num_samples_epoch += batch_size
             train_loss_cum += loss * batch_size
             
-            if global_step % 50 == 0:
-                avg_train_loss = train_loss_cum / num_samples_epoch
-                print(f'Avgtrain loss: {avg_train_loss:.4f}')
-                loss_train.append(avg_train_loss.item())
-                train_loss_cum = 0
-                num_samples_epoch = 0
-            
-        
+            pbar.set_postfix({'loss': loss})
+            loss_train.append(loss.item())
+            break
+
+
+        avg_train_loss = train_loss_cum / num_samples_epoch
+
         # val_loss = val_loss, acc, f1
-        # val_loss, acc, f1 = evaluate(model, val_loader, device, mask)
-        # loss_val.extend([val_loss, acc, f1])
+        val_loss, losses = evaluate(encoder_decoder, val_data_loader)
+        loss_val.append(val_loss)
         epoch_duration = time.time() - t
-        
+
         # print some infos
-        print(f'Epoch {epoch} | Duration {epoch_duration:.2f} sec\n', flush=True)
-        #      f'Validation loss: {val_loss:.4f}\n'
+        print(f'Epoch {epoch} | Duration {epoch_duration:.2f} sec\n'
+              f'Avgtrain loss: {avg_train_loss:.4f}\n'
+              f'Validation loss: {val_loss:.4f}\n', flush=True)
         #      f'accuracy_score:  {acc:.4f}\n'
         #      f'f1_score:        {f1:.4f}\n', flush=True)
         
@@ -94,10 +103,11 @@ def train(encoder_decoder: EncoderDecoder,
         #                 'model_state_dict': encoder_decoder.module.state_dict(),
         #                 'loss': cur_low_val_eval,}, save_path)
 
-
-    print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
-    np.save(f'/scratch/sgutjahr/log/{name}_COPY_train.npy', np.array(loss_train))
-    #np.save(f'/scratch/sgutjahr/log/{name}_COPY_val.npy', loss_val)
+        break
+    
+    #print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
+    #np.save(f'/scratch/sgutjahr/log/{name}_COPY_train.npy', np.array(loss_train))
+    #np.save(f'/scratch/sgutjahr/log/{name}_COPY_val.npy', np.array(loss_val))
         
     return
 
@@ -109,30 +119,26 @@ def main(model_name, batch_size, val_size, lr, epochs, hidden_size, max_length,s
     torch.backends.cudnn.benchmark = True
     
     path = '/scratch/sgutjahr/Data_Token_Copy/'
-    model_path = '/scratch/sgutjahr/log/' + model_name + '/'
-    save_path = f'{model_path}{model_name}.pt'
-
-    # TODO: Change logging to reflect loaded parameters
+    model_path = '/scratch/sgutjahr/log/ddp500_BERT_MLM_best_3.pt'
+    
 
     print(f'training of {model_name} on {device} with a batch_size of {batch_size}', flush=True)
     print(f'More information:\n'
-          f'val_size = {val_size} | lr = {lr}\n'
-          f'hidden_size = {hidden_size} max_length = {max_length}\n'
-          f'seed={seed}', flush=True)
+          f'lr = {lr} | hidden_size = {hidden_size} | max_length = {max_length}\n', flush=True)
         
     path = '/scratch/sgutjahr/Data_Token_Copy/'
     data = get_laws_for_Copy(path)
     # Creat a DataSet
-    train_dataset = DatasetForCOPY(data,device)
+    train, val = train_test_split(data, test_size=val_size)
+    train_dataset = DatasetForCOPY(train,device)
+    val_dataset = DatasetForCOPY(val,device)
     
     # get model
-    model_path = '/scratch/sgutjahr/log/ddp500_BERT_MLM_best_3.pt'
     encoder_decoder = EncoderDecoder(model_path, device, hidden_size=hidden_size)
-    encoder_decoder #.to(device)
     
     # Creat a DataLoader
     train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True)
-    val_data_loader = None #DataLoader(val_dataset, batch_size=batch_size)
+    val_data_loader = DataLoader(val_dataset, batch_size=batch_size)
 
     train(encoder_decoder, train_loader,
           model_path, val_data_loader,
@@ -153,7 +159,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=100,
                         help='number of examples in a batch')
 
-    parser.add_argument('--val_size', type=float, default=0.1,
+    parser.add_argument('--val_size', type=float, default=0.15,
                         help='fraction of data to use for validation')
 
     parser.add_argument('--lr', type=float, default=5e-5,
