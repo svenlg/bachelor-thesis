@@ -79,6 +79,7 @@ def evaluate(encoder_decoder: EncoderDecoder, val_loader):
             # val_loss_cum += loss * num_samples_batch
             # val_acc += acc * num_samples_batch
             # val_f1 += f1 * num_samples_batch
+            break
 
 
         #avg_val_loss = val_loss_cum / num_eval_samples
@@ -86,6 +87,7 @@ def evaluate(encoder_decoder: EncoderDecoder, val_loader):
         #avg_val_f1 = val_f1 / num_eval_samples
         print(len(losses))
         print(sum(losses))
+        print(batch_losses.shape)
 
         mean_loss = len(losses) / sum(losses)
         
