@@ -24,7 +24,6 @@ def train(encoder_decoder: EncoderDecoder,
           device,
           name='try'):
 
-    print('hi')
     loss_function = torch.nn.NLLLoss(ignore_index=0)
     optimizer = optim.Adam(encoder_decoder.parameters(), lr=lr)
     
@@ -121,9 +120,9 @@ def main(model_name, batch_size, val_size, lr, epochs, hidden_size, max_length,s
     path = '/scratch/sgutjahr/Data_Token_Copy/'
     data = get_laws_for_Copy(path)
     # Creat a DataSet
-    train, val = train_test_split(data, test_size=val_size)
-    train_dataset = DatasetForCOPY(train,device)
-    val_dataset = DatasetForCOPY(val,device)
+    data_train, data_val = train_test_split(data, test_size=val_size)
+    train_dataset = DatasetForCOPY(data_train,device)
+    val_dataset = DatasetForCOPY(data_val,device)
     
     # get model
     encoder_decoder = EncoderDecoder(model_path, device, hidden_size=hidden_size)
