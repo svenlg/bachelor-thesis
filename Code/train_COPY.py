@@ -2,6 +2,7 @@
 import argparse
 import time
 import numpy as np
+from regex import F
 from tqdm import tqdm
 
 import torch
@@ -66,7 +67,7 @@ def train(encoder_decoder: EncoderDecoder,
             num_samples_epoch += batch_size
             train_loss_cum += loss * batch_size
             
-            pbar.set_postfix({'loss': loss})
+            pbar.set_postfix({'loss': f'{loss.item():.2f}'})
             loss_train.append(loss.item())
             break
 
