@@ -4,12 +4,9 @@ import torch
 from torch.utils.data import DataLoader
 from lawsCOPY import DatasetForCOPY, get_laws_for_Copy
 
-from transformers import AutoTokenizer
 from encoder_decoder import EncoderDecoder
 from train_COPY import train
 
-checkpoint = 'dbmdz/bert-base-german-cased'
-tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 use_cuda = torch.cuda.is_available()
 device = torch.device('cuda:0' if use_cuda else 'cpu')
 print(f'device: {device}')
