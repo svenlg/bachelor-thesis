@@ -15,9 +15,8 @@ device = torch.device('cuda:0' if use_cuda else 'cpu')
 print(f'device: {device}')
 
 
-mask = 104
-path = ''
-data = get_laws_for_Copy(path, mask)
+path = '/scratch/sgutjahr/Data_Tokem_Copy/'
+data = get_laws_for_Copy(path)
 
 # Creat a DataSet
 train_dataset = DatasetForCOPY(data,device)
