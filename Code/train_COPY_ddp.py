@@ -39,7 +39,7 @@ def train(rank, args):
     encoder_decoder = EncoderDecoder(model_path, device, hidden_size=args.hidden_size)#.to(rank)
     
     # Wrap the model
-    encoder_decoder = DDP(encoder_decoder, device_ids=[rank])
+    encoder_decoder = DDP(encoder_decoder, device_ids=[rank], find_unused_parameters=True)
 
     # define optimizer
     optimizer = optim.Adam(encoder_decoder.parameters(), lr=args.lr)
@@ -76,7 +76,9 @@ def train(rank, args):
 
     for epoch in range(1,args.epochs+1):
         
-        print(f'epoch {epoch}', flush=True)
+        if rank == 0:
+            print(f'epoch {epoch}', flush=True)
+            
         # reset statistics trackers
         t = time.time()
         train_loss_cum = 0
@@ -98,7 +100,6 @@ def train(rank, args):
             # target_.contiguous().view(-1).shape: (b * max_length)
             loss = loss_function(flattened_outputs, target_.contiguous().view(-1))
             loss.backward()
-            print(f'HI {rank}')
             optimizer.step()
             
             # keep track of train stats
