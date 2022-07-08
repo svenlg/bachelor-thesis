@@ -112,7 +112,7 @@ def main(model_name, batch_size, val_size, lr, epochs, hidden_size, max_length,s
     path = '/scratch/sgutjahr/Data_Token_Copy/'
     model_path = '/scratch/sgutjahr/log/ddp500_BERT_MLM_best_3.pt'
     
-
+    print('',flush=True)
     print(f'training of {model_name} on {device} with a batch_size of {batch_size}', flush=True)
     print(f'More information:\n'
           f'lr = {lr} | hidden_size = {hidden_size} | max_length = {max_length}\n', flush=True)
@@ -130,6 +130,16 @@ def main(model_name, batch_size, val_size, lr, epochs, hidden_size, max_length,s
     # Creat a DataLoader
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
+    
+    print(f'encoder_decoder: {type(encoder_decoder)}')
+    print(f'model_path: {type(model_path)}')
+    print(f'train_loader: {type(train_loader)}')
+    print(f'val_loader: {type(val_loader)}')
+    print(f'epochs: {type(epochs)}')
+    print(f'lr: {type(lr)}')
+    print(f'max_length: {type(max_length)}')
+    print(f'device: {type(device)}')
+    print(f'model_name: {type(model_name)}')
 
     train(encoder_decoder, train_loader, model_path, val_loader, epochs, lr, max_length, device, model_name)
 
