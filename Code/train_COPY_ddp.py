@@ -84,7 +84,7 @@ def train(rank, args):
         train_loss_cum = 0
         num_samples_epoch = 0
 
-        pbar = tqdm(train_loader, desc=f'Training on GPU{rank}')
+        pbar = tqdm(train_loader, desc=f'Training on GPU{rank}', leave=True)
         for input_,change_,target_ in pbar:
             
             # input_,change_,target_  all ready at the device
