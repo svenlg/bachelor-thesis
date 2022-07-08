@@ -5,7 +5,7 @@ import torch
 from torch import optim
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
-from .encoder_decoder import EncoderDecoder
+from encoder_decoder import EncoderDecoder
 
 
 def train(encoder_decoder: EncoderDecoder,
