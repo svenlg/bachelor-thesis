@@ -132,7 +132,15 @@ def main(model_name, batch_size, val_size, lr, epochs, hidden_size, max_length,s
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
 
-    train(encoder_decoder, train_loader, model_path, val_loader, epochs, lr, max_length, device, model_name)
+    train(encoder_decoder,
+          train_loader,
+          model_path,
+          val_loader, 
+          epochs, 
+          lr, 
+          max_length,
+          device,
+          model_name)
 
 
 if __name__ == '__main__':
@@ -145,7 +153,7 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', type=int, default=50,
                         help='the number of epochs to train')
 
-    parser.add_argument('--batch_size', type=int, default=100,
+    parser.add_argument('--batch_size', type=int, default=4,
                         help='number of examples in a batch')
 
     parser.add_argument('--val_size', type=float, default=0.15,
