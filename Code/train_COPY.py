@@ -111,18 +111,18 @@ def main(model_name, batch_size, val_size, lr, epochs, hidden_size, max_length,s
     
     path = '/scratch/sgutjahr/Data_Token_Copy/'
     model_path = '/scratch/sgutjahr/log/ddp500_BERT_MLM_best_3.pt'
-    
-    print('',flush=True)
-    print(f'training of {model_name} on {device} with a batch_size of {batch_size}', flush=True)
-    print(f'More information:\n'
-          f'lr = {lr} | hidden_size = {hidden_size} | max_length = {max_length}\n', flush=True)
-        
-    path = '/scratch/sgutjahr/Data_Token_Copy/'
+
     data = get_laws_for_Copy(path)
     # Creat a DataSet
     data_train, data_val = train_test_split(data, test_size=val_size)
     train_dataset = DatasetForCOPY(data_train,device)
     val_dataset = DatasetForCOPY(data_val,device)
+    
+    print('',flush=True)
+    print(f'training of {model_name} on {device} with a batch_size of {batch_size}', flush=True)
+    print(f'More information:\n'
+          f'lr = {lr} | hidden_size = {hidden_size} | max_length = {max_length}\n'
+          f'train pairs: {len(data_train)} | val pairs: {len(data_val)}', flush=True)
     
     # get model
     encoder_decoder = EncoderDecoder(model_path, device, hidden_size=hidden_size)
