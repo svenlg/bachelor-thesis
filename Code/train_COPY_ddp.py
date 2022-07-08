@@ -108,6 +108,8 @@ def train(rank, args):
             
             pbar.set_postfix({'loss': f'{loss.item():.2f}'})
             loss_train.append(loss.item())
+        
+            break
 
 
         avg_train_loss = train_loss_cum / num_samples_epoch
