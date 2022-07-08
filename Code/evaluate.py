@@ -2,10 +2,7 @@
 import torch
 import numpy as np
 from encoder_decoder import EncoderDecoder
-
-def to_np(x):
-    return x.to('cpu').numpy()
-
+from tqdm import tqdm
 
 # def evaluate(encoder_decoder: EncoderDecoder, data_loader):
 
@@ -37,9 +34,9 @@ def to_np(x):
 # Evaluate Model
 def evaluate(encoder_decoder: EncoderDecoder, val_loader):
     
-    loss_function = torch.nn.NLLLoss(ignore_index=0, reduce=False) 
+    loss_function = torch.nn.NLLLoss(ignore_index=0) 
     # goes through the test dataset and computes the test accuracy
-    #val_loss_cum = 0.0
+    val_loss_cum = 0.0
     #val_acc = 0.0
     #val_f1 = 0.0
     # bring the models into eval mode
@@ -49,7 +46,8 @@ def evaluate(encoder_decoder: EncoderDecoder, val_loader):
     with torch.no_grad():
         
         num_eval_samples = 0
-        for input_,change_,target_  in val_loader:
+        pbar = tqdm(val_loader, desc='Validation')
+        for input_,change_,target_ in pbar:
             
             batch_size = batch_size = input_['input_ids'].shape[0]
             # outputs -> loss, logits 
@@ -59,8 +57,7 @@ def evaluate(encoder_decoder: EncoderDecoder, val_loader):
             # Get the loss and the prediction
             flattened_log_probs = output_log_probs.view(batch_size * encoder_decoder.decoder.max_length, -1)
             
-            batch_losses = loss_function(flattened_log_probs, target_.contiguous().view(-1))
-            losses.extend(list(to_np(batch_losses)))
+            loss = loss_function(flattened_log_probs, target_.contiguous().view(-1))
             
             # pred = torch.argmax(outputs[1],axis=-1).to('cpu')
             
@@ -76,19 +73,13 @@ def evaluate(encoder_decoder: EncoderDecoder, val_loader):
             
 
             num_eval_samples += batch_size
-            # val_loss_cum += loss * num_samples_batch
-            # val_acc += acc * num_samples_batch
-            # val_f1 += f1 * num_samples_batch
-            break
+            val_loss_cum += loss * batch_size
+            # val_acc += acc * batch_size
+            # val_f1 += f1 * batch_size
 
 
-        #avg_val_loss = val_loss_cum / num_eval_samples
+        avg_val_loss = val_loss_cum / num_eval_samples
         #avg_val_acc = val_acc / num_eval_samples
         #avg_val_f1 = val_f1 / num_eval_samples
-        print(len(losses))
-        print(sum(losses))
-        print(batch_losses.shape)
-
-        mean_loss = len(losses) / sum(losses)
         
-        return mean_loss, losses # avg_val_loss.to('cpu').numpy(), avg_val_acc, avg_val_f1
+        return avg_val_loss # avg_val_loss.to('cpu').numpy(), avg_val_acc, avg_val_f1

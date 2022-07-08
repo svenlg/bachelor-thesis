@@ -44,7 +44,7 @@ def train(encoder_decoder: EncoderDecoder,
         train_loss_cum = 0
         num_samples_epoch = 0
 
-        pbar = tqdm(train_data_loader)
+        pbar = tqdm(train_data_loader, desc='Training')
         for input_,change_,target_ in pbar:
             
             # input_,change_,target_  all ready at the device
@@ -69,13 +69,12 @@ def train(encoder_decoder: EncoderDecoder,
             
             pbar.set_postfix({'loss': f'{loss.item():.2f}'})
             loss_train.append(loss.item())
-            break
 
 
         avg_train_loss = train_loss_cum / num_samples_epoch
 
         # val_loss = val_loss, acc, f1
-        val_loss, losses = evaluate(encoder_decoder, val_data_loader)
+        val_loss = evaluate(encoder_decoder, val_data_loader)
         loss_val.append(val_loss)
         epoch_duration = time.time() - t
 
