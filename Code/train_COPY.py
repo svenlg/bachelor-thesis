@@ -1,6 +1,5 @@
 # Imports
 import argparse
-import imp 
 import time
 import numpy as np
 from tqdm import tqdm
@@ -129,13 +128,10 @@ def main(model_name, batch_size, val_size, lr, epochs, hidden_size, max_length,s
     encoder_decoder = EncoderDecoder(model_path, device, hidden_size=hidden_size)
     
     # Creat a DataLoader
-    train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True)
-    val_data_loader = DataLoader(val_dataset, batch_size=batch_size)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
 
-    train(encoder_decoder, train_loader,
-          model_path, val_data_loader,
-          epochs, lr, max_length, 
-          device, model_name)
+    train(encoder_decoder, train_loader, model_path, val_loader, epochs, lr, max_length, device, model_name)
 
 
 if __name__ == '__main__':
