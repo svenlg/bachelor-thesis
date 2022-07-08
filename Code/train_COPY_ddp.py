@@ -36,7 +36,7 @@ def train(rank, args):
     data = get_laws_for_Copy(path)
     data_train, data_val = train_test_split(data, test_size=args.val_size)
     
-    encoder_decoder = EncoderDecoder(model_path, args.device, hidden_size=args.hidden_size).to(rank)
+    encoder_decoder = EncoderDecoder(model_path, rank, hidden_size=args.hidden_size).to(rank)
     
     # Wrap the model
     encoder_decoder = DDP(encoder_decoder, device_ids=[rank])
@@ -45,8 +45,8 @@ def train(rank, args):
     optimizer = optim.Adam(encoder_decoder.parameters(), lr=args.lr)
     loss_function = torch.nn.NLLLoss(ignore_index=0)
     
-    train_dataset = DatasetForCOPY(data_train,args.device)
-    val_dataset = DatasetForCOPY(data_val,args.device)
+    train_dataset = DatasetForCOPY(data_train,rank)
+    val_dataset = DatasetForCOPY(data_val,rank)
 
     train_sampler = DistributedSampler(train_dataset,
                                        num_replicas=args.world_size,
@@ -169,8 +169,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     
-    use_cuda = torch.cuda.is_available()
-    args.device = torch.device('cuda:0' if use_cuda else 'cpu')
     torch.backends.cudnn.benchmark = True
     
     args.world_size = torch.cuda.device_count()
@@ -179,7 +177,7 @@ if __name__ == '__main__':
     
     took = time.time()
     print('',flush=True)
-    print(f'training of {args.model_name} on {args.device} with a batch_size of {args.batch_size}', flush=True)
+    print(f'training of {args.model_name} with a batch_size of {args.batch_size}', flush=True)
     print(f'More information:\n'
           f'lr = {args.lr} | hidden_size = {args.hidden_size} | max_length = {args.max_length}\n', flush=True)
     #Train the ModelS
