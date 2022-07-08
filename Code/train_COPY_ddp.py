@@ -75,9 +75,6 @@ def train(rank, args):
     cur_low_val_eval = INF
 
     for epoch in range(1,args.epochs+1):
-        
-        if rank == 0:
-            print(f'epoch {epoch}', flush=True)
             
         encoder_decoder.train()
             
