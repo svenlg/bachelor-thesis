@@ -97,7 +97,7 @@ def train(rank, args):
             flattened_outputs = output_log_probs.view(batch_size * args.max_length, -1)
             # target_.contiguous().view(-1).shape: (b * max_length)
             loss = loss_function(flattened_outputs, target_.contiguous().view(-1))
-            
+            print(f'HI {rank}')
             loss.backward()
             optimizer.step()
             
