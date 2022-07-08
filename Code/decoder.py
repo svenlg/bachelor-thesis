@@ -42,7 +42,7 @@ class Decoder(nn.Module):
         # input = (embedding + selective read size + context)
         self.gru = nn.GRU(4*self.hidden_size, self.hidden_size, batch_first=True)
         self.out = nn.Linear(self.hidden_size, self.vocab_size)
-        #--> 10029312 parameter
+
 
     def forward(self, old, change, inputs_old, inputs_cha, targets=None, teacher_forcing=1.0):
     
@@ -65,8 +65,8 @@ class Decoder(nn.Module):
         # Set initial selective-read states
         selective_read = torch.zeros(batch_size, 1, self.hidden_size).to(self.device)
         # ohis = (b, seq_length, vocab_size)
-        one_hot_input_seq_old = to_one_hot(inputs_old, self.vocab_size)
-        one_hot_input_seq_cha = to_one_hot(inputs_cha, self.vocab_size)
+        one_hot_input_seq_old = self.to_one_hot(inputs_old, self.vocab_size)
+        one_hot_input_seq_cha = self.to_one_hot(inputs_cha, self.vocab_size)
 
         for step_idx in range(1, self.max_length):
 
@@ -85,6 +85,7 @@ class Decoder(nn.Module):
         sampled_idxs = torch.stack(sampled_idxs, dim=1)
 
         return decoder_outputs, sampled_idxs
+
 
     def step(self, prev_idx, prev_hidden, old, change, prev_selective_read, one_hot_input_seq_old, one_hot_input_seq_cha):
 
@@ -173,7 +174,8 @@ class Decoder(nn.Module):
         selective_read = (selected_scores_norm * encoder_outputs).sum(dim=1).unsqueeze(1)
 
         return sampled_idx, log_probs, hidden, selective_read
-    
+
+
     def to_one_hot(self, y, n_dims=None):
         """ Take integer y (tensor or variable) with n dims and convert it to 1-hot representation with n+1 dims. """
         y_tensor = y.long().contiguous().view(-1, 1)
@@ -181,5 +183,4 @@ class Decoder(nn.Module):
         y_one_hot = torch.zeros(y_tensor.shape[0], n_dims).to(self.device).scatter_(1, y_tensor, 1)
         y_one_hot = y_one_hot.view(*y.shape, -1)
         return y_one_hot
-
 

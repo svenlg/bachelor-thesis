@@ -1,9 +1,9 @@
 # Imports
 from torch import nn
 import torch
-from .decoder import Decoder
-from .encoder import Encoder
-from .lawsCOPY import LawNetMLM
+from decoder import Decoder
+from encoder import Encoder
+from lawsCOPY import LawNetMLM
 from transformers import AutoTokenizer
 
 
