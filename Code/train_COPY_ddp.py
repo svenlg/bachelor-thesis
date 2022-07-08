@@ -79,6 +79,8 @@ def train(rank, args):
         if rank == 0:
             print(f'epoch {epoch}', flush=True)
             
+        encoder_decoder.train()
+            
         # reset statistics trackers
         t = time.time()
         train_loss_cum = 0
