@@ -126,7 +126,7 @@ def train(rank, args):
         #      f'accuracy_score:  {acc:.4f}\n'
         #      f'f1_score:        {f1:.4f}\n', flush=True)
         
-        if cur_low_val_eval > val_loss and epoch > 3:
+        if cur_low_val_eval > val_loss:# and epoch > 3:
             cur_low_val_eval = val_loss
             best_round = epoch
             save_path = f'/scratch/sgutjahr/log/{args.model_name}_COPY_best_{rank}.pt'
