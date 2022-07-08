@@ -28,7 +28,7 @@ print('Prep done --> model laden und traininen')
 
 
 model_path = '/scratch/sgutjahr/log/ddp500_BERT_MLM_best_3.pt'
-model = EncoderDecoder(model_path, device, hidden_size=256)
+model = EncoderDecoder(model_path, device, hidden_size=200)
 
 print('mdodel geladen --> traininen')
 
