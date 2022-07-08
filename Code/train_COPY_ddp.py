@@ -1,11 +1,16 @@
 # Imports
 import argparse
+import os
 import time
 import numpy as np
 from tqdm import tqdm
 
+import torch.multiprocessing as mp
 import torch
 from torch import optim
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.utils.data.distributed import DistributedSampler
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 
@@ -14,19 +19,53 @@ from encoder_decoder import EncoderDecoder
 from evaluate import evaluate
 
 
-def train(encoder_decoder: EncoderDecoder,
-          train_data_loader: DataLoader,
-          model_path,
-          val_data_loader: DataLoader,
-          epochs,
-          lr,
-          max_length,
-          device,
-          name='try'):
-
-    loss_function = torch.nn.NLLLoss(ignore_index=0)
-    optimizer = optim.Adam(encoder_decoder.parameters(), lr=lr)
+def train(rank, args):
     
+    # Settings
+    torch.manual_seed(42)
+    np.random.seed(42)
+
+    dist.init_process_group(backend='nccl',
+                            world_size=args.world_size,
+                            rank=rank)
+
+    # Getting the data train and test and split the trainings data into train and val sets
+    path = '/scratch/sgutjahr/Data_Token_Copy/'
+    model_path = '/scratch/sgutjahr/log/ddp500_BERT_MLM_best_3.pt'
+
+    data = get_laws_for_Copy(path)
+    data_train, data_val = train_test_split(data, test_size=args.val_size)
+    
+    encoder_decoder = EncoderDecoder(model_path, args.device, hidden_size=args.hidden_size).to(rank)
+    
+    # Wrap the model
+    encoder_decoder = DDP(encoder_decoder, device_ids=[rank])
+
+    # define optimizer
+    optimizer = optim.Adam(encoder_decoder.parameters(), lr=args.lr)
+    loss_function = torch.nn.NLLLoss(ignore_index=0)
+    
+    train_dataset = DatasetForCOPY(data_train,args.device)
+    val_dataset = DatasetForCOPY(data_val,args.device)
+
+    train_sampler = DistributedSampler(train_dataset,
+                                       num_replicas=args.world_size,
+                                       rank=rank)
+
+    train_loader = DataLoader(train_dataset, batch_size=args.batch_size,
+                              shuffle=False,
+                              num_workers=0,
+                              sampler=train_sampler)
+
+    val_sampler = DistributedSampler(val_dataset,
+                                     num_replicas=args.world_size,
+                                     rank=rank)
+
+    val_loader = DataLoader(val_dataset, batch_size=args.batch_size,
+                            shuffle=False,
+                            num_workers=0,
+                            sampler=val_sampler)
+
     loss_train = []
     loss_val = []
 
@@ -35,7 +74,7 @@ def train(encoder_decoder: EncoderDecoder,
     INF = 10e9
     cur_low_val_eval = INF
 
-    for epoch in range(1,epochs+1):
+    for epoch in range(1,args.epochs+1):
         
         print(f'epoch {epoch}', flush=True)
         # reset statistics trackers
@@ -43,7 +82,7 @@ def train(encoder_decoder: EncoderDecoder,
         train_loss_cum = 0
         num_samples_epoch = 0
 
-        pbar = tqdm(train_data_loader, desc='Training')
+        pbar = tqdm(train_loader, desc='Training')
         for input_,change_,target_ in pbar:
             
             # input_,change_,target_  all ready at the device
@@ -55,7 +94,7 @@ def train(encoder_decoder: EncoderDecoder,
             output_log_probs, output_seqs = encoder_decoder(input_,change_,target_)     
 
             # flattened_outputs.shape = (b * max_length, voc_size)
-            flattened_outputs = output_log_probs.view(batch_size * max_length, -1)
+            flattened_outputs = output_log_probs.view(batch_size * args.max_length, -1)
             # target_.contiguous().view(-1).shape: (b * max_length)
             loss = loss_function(flattened_outputs, target_.contiguous().view(-1))
             
@@ -73,7 +112,7 @@ def train(encoder_decoder: EncoderDecoder,
         avg_train_loss = train_loss_cum / num_samples_epoch
 
         # val_loss = val_loss, acc, f1
-        val_loss = evaluate(encoder_decoder, val_data_loader)
+        val_loss = evaluate(encoder_decoder, val_loader)
         loss_val.append(val_loss)
         epoch_duration = time.time() - t
 
@@ -102,45 +141,6 @@ def train(encoder_decoder: EncoderDecoder,
     return
 
 
-def main(model_name, batch_size, val_size, lr, epochs, hidden_size, max_length,seed=42):
-
-    use_cuda = torch.cuda.is_available()
-    device = torch.device('cuda:0' if use_cuda else 'cpu')
-    torch.backends.cudnn.benchmark = True
-    
-    path = '/scratch/sgutjahr/Data_Token_Copy/'
-    model_path = '/scratch/sgutjahr/log/ddp500_BERT_MLM_best_3.pt'
-
-    data = get_laws_for_Copy(path)
-    # Creat a DataSet
-    data_train, data_val = train_test_split(data, test_size=val_size)
-    train_dataset = DatasetForCOPY(data_train,device)
-    val_dataset = DatasetForCOPY(data_val,device)
-    
-    print('',flush=True)
-    print(f'training of {model_name} on {device} with a batch_size of {batch_size}', flush=True)
-    print(f'More information:\n'
-          f'lr = {lr} | hidden_size = {hidden_size} | max_length = {max_length}\n'
-          f'train pairs: {len(data_train)} | val pairs: {len(data_val)}', flush=True)
-    
-    # get model
-    encoder_decoder = EncoderDecoder(model_path, device, hidden_size=hidden_size)
-    
-    # Creat a DataLoader
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
-
-    train(encoder_decoder,
-          train_loader,
-          model_path,
-          val_loader, 
-          epochs, 
-          lr, 
-          max_length,
-          device,
-          model_name)
-
-
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description='Parse training parameters')
@@ -148,13 +148,13 @@ if __name__ == '__main__':
                         help='the name of a subdirectory of ./model/ that '
                              'contains encoder and decoder model files')
 
-    parser.add_argument('--epochs', type=int, default=50,
+    parser.add_argument('-e', '--epochs', type=int, default=50,
                         help='the number of epochs to train')
 
-    parser.add_argument('--batch_size', type=int, default=4,
+    parser.add_argument('-bs', '--batch_size', type=int, default=4,
                         help='number of examples in a batch')
 
-    parser.add_argument('--val_size', type=float, default=0.15,
+    parser.add_argument('-v', '--val_size', type=float, default=0.15,
                         help='fraction of data to use for validation')
 
     parser.add_argument('--lr', type=float, default=5e-5,
@@ -165,8 +165,30 @@ if __name__ == '__main__':
 
     parser.add_argument('--max_length', type=int, default=512,
                         help='Sequences will be padded or truncated to this size.')
-
+    
     args = parser.parse_args()
+    
+    
+    use_cuda = torch.cuda.is_available()
+    args.device = torch.device('cuda:0' if use_cuda else 'cpu')
+    torch.backends.cudnn.benchmark = True
+    
+    args.world_size = torch.cuda.device_count()
+    os.environ['MASTER_ADDR'] = 'localhost'
+    os.environ['MASTER_PORT'] = '8888'
+    
+    took = time.time()
+    print('',flush=True)
+    print(f'training of {args.model_name} on {args.device} with a batch_size of {args.batch_size}', flush=True)
+    print(f'More information:\n'
+          f'lr = {args.lr} | hidden_size = {args.hidden_size} | max_length = {args.max_length}\n', flush=True)
+    #Train the ModelS
+    mp.spawn(train, nprocs=args.world_size, args=(args,), join=True)
 
-    main(args.model_name, args.batch_size, args.val_size, args.lr, args.epochs, args.hidden_size, args.max_length)
+    print(f'Done')
+    duration = time.time() - took
+    print(f'Took: {duration/60:.4f} min\n')
+
+
+    #main(args, args.model_name, args.batch_size, args.val_size, args.lr, args.epochs, args.hidden_size, args.max_length)
 
