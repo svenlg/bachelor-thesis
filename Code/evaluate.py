@@ -76,6 +76,7 @@ def evaluate(encoder_decoder: EncoderDecoder, val_loader):
             val_loss_cum += loss * batch_size
             # val_acc += acc * batch_size
             # val_f1 += f1 * batch_size
+            break
 
 
         avg_val_loss = val_loss_cum / num_eval_samples
