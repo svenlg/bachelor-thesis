@@ -119,7 +119,7 @@ def train(rank, args):
         epoch_duration = time.time() - t
 
         # print some infos
-        print(f'Epoch {epoch} | Duration {epoch_duration:.2f} sec\n'
+        print(f'Epoch {epoch} | Rank {rank} | Duration {epoch_duration:.2f} sec\n'
               f'Avgtrain loss: {avg_train_loss:.4f}\n'
               f'Validation loss: {val_loss:.4f}\n', flush=True)
         #      f'accuracy_score:  {acc:.4f}\n'
