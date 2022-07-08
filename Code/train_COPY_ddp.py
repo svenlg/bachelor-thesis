@@ -35,8 +35,8 @@ def train(rank, args):
 
     data = get_laws_for_Copy(path)
     data_train, data_val = train_test_split(data, test_size=args.val_size)
-    
-    encoder_decoder = EncoderDecoder(model_path, rank, hidden_size=args.hidden_size).to(rank)
+    device = torch.device(f'cuda:{rank}')
+    encoder_decoder = EncoderDecoder(model_path, device, hidden_size=args.hidden_size)#.to(rank)
     
     # Wrap the model
     encoder_decoder = DDP(encoder_decoder, device_ids=[rank])
@@ -45,8 +45,8 @@ def train(rank, args):
     optimizer = optim.Adam(encoder_decoder.parameters(), lr=args.lr)
     loss_function = torch.nn.NLLLoss(ignore_index=0)
     
-    train_dataset = DatasetForCOPY(data_train,rank)
-    val_dataset = DatasetForCOPY(data_val,rank)
+    train_dataset = DatasetForCOPY(data_train,device)
+    val_dataset = DatasetForCOPY(data_val,device)
 
     train_sampler = DistributedSampler(train_dataset,
                                        num_replicas=args.world_size,
