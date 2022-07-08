@@ -69,6 +69,9 @@ class Decoder(nn.Module):
         one_hot_input_seq_cha = self.to_one_hot(inputs_cha, self.vocab_size)
 
         for step_idx in range(1, self.max_length):
+            
+            if step_idx%10 == 0:
+                print(f'step: {step_idx}')
 
             if step_idx < targets.shape[1]:
                 # replace some inputs with the targets (i.e. teacher forcing)
