@@ -27,7 +27,7 @@ train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True)
 print('Prep done --> model laden und traininen')
 
 
-model_path = '/scratch/sgutjahr/log/ddp500_3_BERT_MLM_best.pt'
+model_path = '/scratch/sgutjahr/log/ddp500_BERT_MLM_best_3.pt'
 model = EncoderDecoder(model_path, device, hidden_size=256)
 
 print('mdodel geladen --> traininen')
