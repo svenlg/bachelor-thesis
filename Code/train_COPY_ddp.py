@@ -82,7 +82,7 @@ def train(rank, args):
         train_loss_cum = 0
         num_samples_epoch = 0
 
-        pbar = tqdm(train_loader, desc='Training')
+        pbar = tqdm(train_loader, desc=f'Training on GPU{rank}')
         for input_,change_,target_ in pbar:
             
             # input_,change_,target_  all ready at the device
@@ -151,7 +151,7 @@ if __name__ == '__main__':
     parser.add_argument('-e', '--epochs', type=int, default=50,
                         help='the number of epochs to train')
 
-    parser.add_argument('-bs', '--batch_size', type=int, default=4,
+    parser.add_argument('-bs', '--batch_size', type=int, default=3,
                         help='number of examples in a batch')
 
     parser.add_argument('-v', '--val_size', type=float, default=0.15,
