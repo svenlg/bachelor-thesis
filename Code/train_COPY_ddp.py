@@ -123,17 +123,17 @@ def train(rank, args):
         #      f'accuracy_score:  {acc:.4f}\n'
         #      f'f1_score:        {f1:.4f}\n', flush=True)
         
-        if cur_low_val_eval > val_loss:# and epoch > 3:
+        if cur_low_val_eval > val_loss:
             cur_low_val_eval = val_loss
             best_round = epoch
-            save_path = f'/scratch/sgutjahr/log/{args.model_name}_COPY_best_{rank}.pt'
+            save_path = f'/scratch/sgutjahr/log/{args.model_name}_COPY_{rank}.pt'
             torch.save({'epoch': epoch,
                         'model_state_dict': encoder_decoder.module.state_dict(),
                         'loss': cur_low_val_eval}, save_path)
             
         if epoch % 2 == 0:
-            np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_train_epoch_{epoch}_{rank}.npy', np.array(loss_train))
-            np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_val_epoch_{epoch}_{rank}.npy', np.array(loss_val))
+            np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_epoch_train_{rank}.npy', np.array(loss_train))
+            np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_epoch_val_{rank}.npy', np.array(loss_val))
 
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
