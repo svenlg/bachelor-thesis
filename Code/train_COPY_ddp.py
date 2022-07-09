@@ -22,8 +22,8 @@ from evaluate import evaluate
 def train(rank, args):
     
     # Settings
-    torch.manual_seed(42)
-    np.random.seed(42)
+    torch.manual_seed(args.seed)
+    np.random.seed(args.seed)
 
     dist.init_process_group(backend='nccl',
                             world_size=args.world_size,
@@ -146,6 +146,7 @@ def train(rank, args):
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description='Parse training parameters')
+    
     parser.add_argument('model_name', type=str,
                         help='the name of a subdirectory of ./model/ that '
                              'contains encoder and decoder model files')
@@ -167,6 +168,9 @@ if __name__ == '__main__':
 
     parser.add_argument('--max_length', type=int, default=512,
                         help='Sequences will be padded or truncated to this size.')
+    
+    parser.add_argument('--seed', type=int, default=42,
+                        help='Seed for spliting and loader.')
     
     args = parser.parse_args()
     
