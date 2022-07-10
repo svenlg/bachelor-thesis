@@ -191,10 +191,8 @@ if __name__ == '__main__':
     print(f'More information:\n'
           f'lr = {args.lr} | hidden_size = {args.hidden_size} | max_length = {args.max_length}\n', flush=True)
 
-    dist.destroy_process_group()
     #Train the Model
     mp.spawn(train, nprocs=args.world_size, args=(args,), join=True)
-    
 
     print(f'Done')
     duration = time.time() - took
