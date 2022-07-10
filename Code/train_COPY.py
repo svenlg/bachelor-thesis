@@ -108,6 +108,7 @@ def train(rank, args):
 
             pbar.set_postfix({'loss': f'{loss.item():.2f}'})
             loss_train.append(loss.item())
+            break
 
 
         avg_train_loss = train_loss_cum / num_samples_epoch
@@ -123,6 +124,8 @@ def train(rank, args):
               f'Avgtrain loss: {avg_train_loss:.4f}\n'
               f'Validation loss: {val_loss:.4f}\n'
               f'accuracy_score:  {acc:.4f}\n', flush=True)
+        
+        break
 
         if cur_low_val_eval > val_loss:
             cur_low_val_eval = val_loss
@@ -138,10 +141,10 @@ def train(rank, args):
             np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_epoch_acc_{rank}.npy', np.array(stat_acc))
 
 
-    print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
-    np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_train_{rank}.npy', np.array(loss_train))
-    np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_val_{rank}.npy', np.array(loss_val))
-    np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_acc_{rank}.npy', np.array(stat_acc))
+    # print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
+    # np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_train_{rank}.npy', np.array(loss_train))
+    # np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_val_{rank}.npy', np.array(loss_val))
+    # np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_acc_{rank}.npy', np.array(stat_acc))
 
     return
 

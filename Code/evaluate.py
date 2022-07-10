@@ -38,12 +38,11 @@ def evaluate(encoder_decoder: EncoderDecoder, val_loader):
     loss_function = torch.nn.NLLLoss(ignore_index=0) 
     # goes through the test dataset and computes the test accuracy
     val_loss_cum = 0.0
-    #val_acc = 0.0
-
+    val_acc = 0.0
 
     # bring the models into eval mode
     encoder_decoder.eval()
-    losses = []
+    i = 0
     
     with torch.no_grad():
 
@@ -75,6 +74,10 @@ def evaluate(encoder_decoder: EncoderDecoder, val_loader):
             num_eval_samples += batch_size
             val_loss_cum += loss * batch_size
             val_acc += acc * batch_size
+            i += 1
+            
+            if i > 5:
+                break
 
 
         avg_val_loss = val_loss_cum / num_eval_samples
