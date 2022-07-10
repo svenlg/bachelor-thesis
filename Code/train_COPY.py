@@ -125,9 +125,9 @@ def train(rank, args):
               f'Validation loss: {val_loss:.4f}\n'
               f'accuracy_score:  {acc:.4f}\n', flush=True)
         
-        break
+        print(stat_acc)
 
-        if cur_low_val_eval > val_loss:
+        if cur_low_val_eval > val_loss and False:
             cur_low_val_eval = val_loss
             best_round = epoch
             save_path = f'/scratch/sgutjahr/log/{args.model_name}_COPY_{rank}.pt'
@@ -135,7 +135,7 @@ def train(rank, args):
                         'model_state_dict': encoder_decoder.module.state_dict(),
                         'loss': cur_low_val_eval}, save_path)
 
-        if epoch % 2 == 0:
+        if epoch % 2 == 0 and False:
             np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_epoch_train_{rank}.npy', np.array(loss_train))
             np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_epoch_val_{rank}.npy', np.array(loss_val))
             np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_epoch_acc_{rank}.npy', np.array(stat_acc))
