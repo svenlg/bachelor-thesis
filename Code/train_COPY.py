@@ -68,6 +68,7 @@ def train(rank, args):
 
     loss_train = []
     loss_val = []
+    stat_acc = []
 
     print(f'Start finetuning model')
     best_round = 0
@@ -112,16 +113,16 @@ def train(rank, args):
         avg_train_loss = train_loss_cum / num_samples_epoch
 
         # val_loss = val_loss, acc, f1
-        val_loss = evaluate(encoder_decoder, val_loader)
+        val_loss, acc = evaluate(encoder_decoder, val_loader)
         loss_val.append(val_loss)
+        stat_acc.append(acc)
         epoch_duration = time.time() - t
 
         # print some infos
         print(f'Epoch {epoch} | Rank {rank} | Duration {epoch_duration:.2f} sec\n'
               f'Avgtrain loss: {avg_train_loss:.4f}\n'
-              f'Validation loss: {val_loss:.4f}\n', flush=True)
-        #      f'accuracy_score:  {acc:.4f}\n'
-        #      f'f1_score:        {f1:.4f}\n', flush=True)
+              f'Validation loss: {val_loss:.4f}\n'
+              f'accuracy_score:  {acc:.4f}\n', flush=True)
 
         if cur_low_val_eval > val_loss:
             cur_low_val_eval = val_loss
@@ -134,11 +135,13 @@ def train(rank, args):
         if epoch % 2 == 0:
             np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_epoch_train_{rank}.npy', np.array(loss_train))
             np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_epoch_val_{rank}.npy', np.array(loss_val))
+            np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_epoch_acc_{rank}.npy', np.array(stat_acc))
 
 
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
     np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_train_{rank}.npy', np.array(loss_train))
     np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_val_{rank}.npy', np.array(loss_val))
+    np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_acc_{rank}.npy', np.array(stat_acc))
 
     return
 
