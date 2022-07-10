@@ -143,7 +143,8 @@ def train(rank, args):
     # np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_train_{rank}.npy', np.array(loss_train))
     # np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_val_{rank}.npy', np.array(loss_val))
     # np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_acc_{rank}.npy', np.array(stat_acc))
-
+    dist.destroy_process_group()
+    
     return
 
 
