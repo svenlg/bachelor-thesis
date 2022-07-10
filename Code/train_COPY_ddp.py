@@ -20,7 +20,7 @@ from evaluate import evaluate
 
 
 def train(rank, args):
-    
+
     # Settings
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
@@ -37,14 +37,14 @@ def train(rank, args):
     data_train, data_val = train_test_split(data, test_size=args.val_size)
     device = torch.device(f'cuda:{rank}')
     encoder_decoder = EncoderDecoder(model_path, device, hidden_size=args.hidden_size)#.to(rank)
-    
+
     # Wrap the model
     encoder_decoder = DDP(encoder_decoder, device_ids=[rank], find_unused_parameters=True)
 
     # define optimizer
     optimizer = optim.Adam(encoder_decoder.parameters(), lr=args.lr)
     loss_function = torch.nn.NLLLoss(ignore_index=0)
-    
+
     train_dataset = DatasetForCOPY(data_train,device)
     val_dataset = DatasetForCOPY(data_val,device)
 
@@ -75,9 +75,9 @@ def train(rank, args):
     cur_low_val_eval = INF
 
     for epoch in range(1,args.epochs+1):
-            
+
         encoder_decoder.train()
-            
+
         # reset statistics trackers
         t = time.time()
         train_loss_cum = 0
@@ -85,10 +85,10 @@ def train(rank, args):
 
         pbar = tqdm(train_loader, desc=f'Training on GPU{rank} [{epoch}/{args.epochs}]', leave=True)
         for input_,change_,target_ in pbar:
-            
+
             # input_,change_,target_  all ready at the device
             batch_size = input_['input_ids'].shape[0] 
-            
+
             optimizer.zero_grad()
             # output_log_probs.shape = (b, max_length, voc_size)
             # output_seqs.shape: (b, max_length, 1)
@@ -100,11 +100,11 @@ def train(rank, args):
             loss = loss_function(flattened_outputs, target_.contiguous().view(-1))
             loss.backward()
             optimizer.step()
-            
+
             # keep track of train stats
             num_samples_epoch += batch_size
             train_loss_cum += loss * batch_size
-            
+
             pbar.set_postfix({'loss': f'{loss.item():.2f}'})
             loss_train.append(loss.item())
 
@@ -122,7 +122,7 @@ def train(rank, args):
               f'Validation loss: {val_loss:.4f}\n', flush=True)
         #      f'accuracy_score:  {acc:.4f}\n'
         #      f'f1_score:        {f1:.4f}\n', flush=True)
-        
+
         if cur_low_val_eval > val_loss:
             cur_low_val_eval = val_loss
             best_round = epoch
@@ -130,7 +130,7 @@ def train(rank, args):
             torch.save({'epoch': epoch,
                         'model_state_dict': encoder_decoder.module.state_dict(),
                         'loss': cur_low_val_eval}, save_path)
-            
+
         if epoch % 2 == 0:
             np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_epoch_train_{rank}.npy', np.array(loss_train))
             np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_epoch_val_{rank}.npy', np.array(loss_val))
@@ -139,14 +139,14 @@ def train(rank, args):
     print(f'Lowest validation loss: {cur_low_val_eval:.4f} in Round {best_round}')
     np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_train_{rank}.npy', np.array(loss_train))
     np.save(f'/scratch/sgutjahr/log/{args.model_name}_COPY_val_{rank}.npy', np.array(loss_val))
-    
+
     return
 
 
 if __name__ == '__main__':
-    
+
     parser = argparse.ArgumentParser(description='Parse training parameters')
-    
+
     parser.add_argument('model_name', type=str,
                         help='the name of a subdirectory of ./model/ that '
                              'contains encoder and decoder model files')
@@ -168,31 +168,28 @@ if __name__ == '__main__':
 
     parser.add_argument('--max_length', type=int, default=512,
                         help='Sequences will be padded or truncated to this size.')
-    
+
     parser.add_argument('--seed', type=int, default=42,
                         help='Seed for spliting and loader.')
-    
+
     args = parser.parse_args()
-    
-    
+
     torch.backends.cudnn.benchmark = True
-    
+
     args.world_size = torch.cuda.device_count()
     os.environ['MASTER_ADDR'] = 'localhost'
     os.environ['MASTER_PORT'] = '8888'
-    
+
     took = time.time()
     print('',flush=True)
     print(f'training of {args.model_name} with a batch_size of {args.batch_size}', flush=True)
     print(f'More information:\n'
           f'lr = {args.lr} | hidden_size = {args.hidden_size} | max_length = {args.max_length}\n', flush=True)
-    #Train the ModelS
+
+    #Train the Model
     mp.spawn(train, nprocs=args.world_size, args=(args,), join=True)
 
     print(f'Done')
     duration = time.time() - took
     print(f'Took: {duration/60:.4f} min\n')
-
-
-    #main(args, args.model_name, args.batch_size, args.val_size, args.lr, args.epochs, args.hidden_size, args.max_length)
 
