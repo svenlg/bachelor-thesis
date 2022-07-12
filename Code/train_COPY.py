@@ -29,7 +29,7 @@ def train(rank, args):
 
     # Getting the data train and test and split the trainings data into train and val sets
     path = '/scratch/sgutjahr/Data_Token_Copy/'
-    model_path = '/scratch/sgutjahr/log/ddp500_BERT_MLM.pt'
+    model_path = '/scratch/sgutjahr/log/ddp500_BERT_MLM_best.pt'
 
     data_train = get_laws_for_Copy(path, 'train')
     data_val = get_laws_for_Copy(path, 'val')
