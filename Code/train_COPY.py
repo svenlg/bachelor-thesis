@@ -76,7 +76,8 @@ def train(rank, args):
     for epoch in range(1,args.epochs+1):
 
         encoder_decoder.train()
-
+        train_sampler.set_epoch(epoch)
+        val_sampler.set_epoch(epoch)
         # reset statistics trackers
         t = time.time()
         train_loss_cum = 0
