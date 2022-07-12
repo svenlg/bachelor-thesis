@@ -42,6 +42,9 @@ for i, (input_,change_,target_) in enumerate(loader):
     tar_seq = tokenizer.decode(target_[0])
     out_seq = tokenizer.decode(output_seqs.squeeze(-1)[0])
 
+    print(type(tar_seq))
+    print(type(out_seq))
+    
     want_ = ''
     for i, let in enumerate(tar_seq):
         if let == '[' and tar_seq[1][i:i+5] == '[SEP]':
