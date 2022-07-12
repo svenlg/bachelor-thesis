@@ -4,7 +4,7 @@ import Levenshtein
 
 import torch
 from torch.utils.data import DataLoader
-from Code.encoder_decoder import EncoderDecoder
+from encoder_decoder import EncoderDecoder
 from lawsCOPY import get_laws_for_Copy, DatasetForCOPY
 
 from transformers import AutoTokenizer
