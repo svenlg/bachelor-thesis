@@ -10,7 +10,7 @@ from lawsCOPY import get_laws_for_Copy, DatasetForCOPY
 from transformers import AutoTokenizer
 
 pre = '/scratch/sgutjahr'
-pre = '../..'
+#pre = '../..'
 model_path = pre + '/log/ddp500_BERT_MLM_best.pt'
 path = pre + '/Data_Token_Copy/'
 checkpoint_to = 'dbmdz/bert-base-german-cased'
@@ -35,12 +35,12 @@ tokens = []
 print(f'\nLETS GO')
 
 
-for i, (input_,change_,target) in enumerate(loader):
-    print(i)
+for i, (input_,change_,target_) in enumerate(loader):
+    print(f'Round {i}')
+
     output_log_probs, output_seqs = COPY(input_,change_)
-    
-    tar_seq = tokenizer.decode(target)
-    out_seq = tokenizer.decode(output_seqs.squeeze(-1))
+    tar_seq = tokenizer.decode(target_[0])
+    out_seq = tokenizer.decode(output_seqs.squeeze(-1)[0])
 
     want_ = ''
     for i, let in enumerate(tar_seq):
@@ -48,21 +48,21 @@ for i, (input_,change_,target) in enumerate(loader):
             #exclude the [CLS] and the [SEP token]
             want_ = tar_seq[1][6:i-1]
             break
-    
+
     is_ = ''
     for i, let in enumerate(out_seq):
         if let == '[' and out_seq[1][i:i+5] == '[SEP]':
             #exclude the [CLS] and the [SEP token]
             is_ = out_seq[1][6:i-1]
             break
-    
+
     LD = Levenshtein.distance(want_, is_)
     LD_rel = LD / len(want_)
-    
+
     stats.append([i, LD, LD_rel])
-    to = np.vstack((target.numpy(),output_seqs.numpy()))
+    to = np.vstack((target_[0].numpy(),output_seqs[0].numpy()))
     tokens.append(to)
-    
+
 
 save_stats = pre + '/log/levenshtein_stats.npy'
 save_token = pre + '/log/levenshtein_token.npy'
@@ -71,9 +71,5 @@ tokens = np.array(tokens)
 np.save(save_stats, stats)
 np.save(save_token, tokens)
 print('done')
-    
-    
-    
-    
-    
-    
+
+
