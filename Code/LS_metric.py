@@ -41,9 +41,6 @@ for i, (input_,change_,target_) in enumerate(loader):
     output_log_probs, output_seqs = COPY(input_,change_)
     tar_seq = tokenizer.decode(target_[0])
     out_seq = tokenizer.decode(output_seqs.squeeze(-1)[0])
-
-    print(len(tar_seq))
-    print(len(out_seq))
     
     want_ = ''
     for i, let in enumerate(tar_seq):
@@ -58,8 +55,6 @@ for i, (input_,change_,target_) in enumerate(loader):
             #exclude the [CLS] and the [SEP token]
             is_ = out_seq[6:i-1]
             break
-    print(want_)
-    print(is_)
     
     LD = Levenshtein.distance(want_, is_)
     LD_rel = LD / len(want_)
