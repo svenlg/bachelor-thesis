@@ -22,7 +22,7 @@ path = pre + '/Data_Token_Copy/'
 data = get_laws_for_Copy(path)
 
 print('load model')
-checkpoint = torch.load('../log/FT_COPY_best_3.pt', map_location=(device))
+checkpoint = torch.load(pre + '/log/FT_COPY_best_3.pt', map_location=(device))
 COPY = EncoderDecoder(model_path, device, hidden_size=hidden_size)
 COPY.load_state_dict(checkpoint['model_state_dict'])
 
