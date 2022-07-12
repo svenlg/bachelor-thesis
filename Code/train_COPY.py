@@ -185,9 +185,9 @@ if __name__ == '__main__':
 
     took = time.time()
     print('',flush=True)
-    print(f'training of {args.model_name} with a batch_size of {args.batch_size}', flush=True)
+    print(f'training of {args.model_name}', flush=True)
     print(f'More information:\n'
-          f'lr = {args.lr} | hidden_size = {args.hidden_size} | max_length = {args.max_length}\n', flush=True)
+          f'lr = {args.lr} | hidden_size = {args.hidden_size} | max_length = {args.max_length} | batch_size = {args.batch_size}\n', flush=True)
     
     args.schedule = np.arange(1.0, 0.0, -1.0/args.epochs)
     #Train the Model
