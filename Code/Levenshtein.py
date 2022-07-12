@@ -10,7 +10,7 @@ from lawsCOPY import get_laws_for_Copy, DatasetForCOPY
 from transformers import AutoTokenizer
 
 pre = '/scratch/sgutjahr'
-pre = '../..'
+#pre = '../..'
 model_path = pre + '/log/ddp500_BERT_MLM_best.pt'
 path = pre + '/Data_Token_Copy/'
 checkpoint_to = 'dbmdz/bert-base-german-cased'
