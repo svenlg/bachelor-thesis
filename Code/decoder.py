@@ -70,7 +70,7 @@ class Decoder(nn.Module):
 
         for step_idx in range(1, self.max_length):
 
-            if step_idx < targets.shape[1]:
+            if not targets == None and step_idx < targets.shape[1]:
                 # replace some inputs with the targets (i.e. teacher forcing)
                 teacher_forcing_mask = ((torch.rand((batch_size, 1)) < teacher_forcing)).detach().to(self.device)
                 sampled_idx = sampled_idx.masked_scatter(teacher_forcing_mask, targets[:, step_idx-1:step_idx])

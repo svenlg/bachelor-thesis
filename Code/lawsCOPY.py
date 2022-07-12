@@ -56,5 +56,6 @@ def get_laws_for_Copy(path):
         url = path + f'{i}.npy'
         loaded = np.load(url)
         data.append(loaded)
-        
+    
+    data = np.array(data)
     return data
