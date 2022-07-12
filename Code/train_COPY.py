@@ -12,7 +12,6 @@ import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data.distributed import DistributedSampler
 from torch.utils.data import DataLoader
-from sklearn.model_selection import train_test_split
 
 from lawsCOPY import get_laws_for_Copy, DatasetForCOPY
 from encoder_decoder import EncoderDecoder
@@ -23,7 +22,6 @@ def train(rank, args):
 
     # Settings
     torch.manual_seed(args.seed)
-    np.random.seed(args.seed)
 
     dist.init_process_group(backend='nccl',
                             world_size=args.world_size,
@@ -33,8 +31,10 @@ def train(rank, args):
     path = '/scratch/sgutjahr/Data_Token_Copy/'
     model_path = '/scratch/sgutjahr/log/ddp500_BERT_MLM_best_3.pt'
 
-    data = get_laws_for_Copy(path)
-    data_train, data_val = train_test_split(data, test_size=args.val_size)
+    data_train = get_laws_for_Copy(path, 'train')
+    data_val = get_laws_for_Copy(path, 'val')
+    print(data_train.shape)
+    print(data_val.shape)
     device = torch.device(f'cuda:{rank}')
     encoder_decoder = EncoderDecoder(model_path, device, hidden_size=args.hidden_size)#.to(rank)
 

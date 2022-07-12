@@ -48,11 +48,12 @@ class DatasetForCOPY(Dataset):
 
 
 # Get the laws Tokenized and paddet
-def get_laws_for_Copy(path):
+def get_laws_for_Copy(path, kind):
     
+    values = np.loadtxt(path + kind + '.txt', dtype=int)
     path = path + 'copy_pair_'
     data = []
-    for i in range(4657):
+    for i in values:
         url = path + f'{i}.npy'
         loaded = np.load(url)
         data.append(loaded)
