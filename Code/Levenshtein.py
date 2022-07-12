@@ -37,16 +37,19 @@ for i, (input_,change_,target_) in enumerate(loader):
     
     tar_seq = tokenizer.batch_decode(target_)
     out_seq = tokenizer.batch_decode(output_seqs.squeeze(-1))
-    
+    print(type(tar_seq))
+    print(len(tar_seq))
+    print(type(out_seq))
+    print(len(out_seq))
     want_ = ''
-    for i, let in enumerate(tar_seq[1]):
+    for i, let in enumerate(tar_seq):
         if let == '[' and tar_seq[1][i:i+5] == '[SEP]':
             #exclude the [CLS] and the [SEP token]
             want_ = tar_seq[1][6:i-1]
             break
     
     is_ = ''
-    for i, let in enumerate(out_seq[1]):
+    for i, let in enumerate(out_seq):
         if let == '[' and out_seq[1][i:i+5] == '[SEP]':
             #exclude the [CLS] and the [SEP token]
             is_ = out_seq[1][6:i-1]
