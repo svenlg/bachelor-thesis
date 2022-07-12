@@ -84,6 +84,7 @@ def train(rank, args):
         num_samples_epoch = 0
 
         pbar = tqdm(train_loader, desc=f'Training on GPU{rank} [{epoch}/{args.epochs}]', leave=True)
+
         for input_,change_,target_ in pbar:
 
             # input_,change_,target_  all ready at the device
@@ -92,7 +93,7 @@ def train(rank, args):
             optimizer.zero_grad()
             # output_log_probs.shape = (b, max_length, voc_size)
             # output_seqs.shape: (b, max_length, 1)
-            output_log_probs, output_seqs = encoder_decoder(input_,change_,target_)     
+            output_log_probs, output_seqs = encoder_decoder(input_,change_,target_,teacher_forcing=args.schedule[epoch-1])     
 
             # flattened_outputs.shape = (b * max_length, voc_size)  
             flattened_outputs = output_log_probs.view(batch_size * args.max_length, -1)
@@ -187,6 +188,9 @@ if __name__ == '__main__':
     print(f'training of {args.model_name} with a batch_size of {args.batch_size}', flush=True)
     print(f'More information:\n'
           f'lr = {args.lr} | hidden_size = {args.hidden_size} | max_length = {args.max_length}\n', flush=True)
+    
+    args.schedule = np.arange(1.0, 0.0, -1.0/args.epochs)
+    print(args.schedule)
 
     #Train the Model
     mp.spawn(train, nprocs=args.world_size, args=(args,), join=True)
