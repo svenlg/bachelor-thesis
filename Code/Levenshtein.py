@@ -15,7 +15,7 @@ checkpoint_to = 'dbmdz/bert-base-german-cased'
 tokenizer = AutoTokenizer.from_pretrained(checkpoint_to)
 use_cuda = torch.cuda.is_available()
 device = torch.device('cuda:0' if use_cuda else 'cpu')
-model_path = pre + '/log/ddp500_BERT_MLM_Model_best.pt'
+model_path = pre + '/log/ddp500_BERT_MLM_best_3.pt'
 hidden_size = 185
 
 path = pre + '/Data_Token_Copy/'
