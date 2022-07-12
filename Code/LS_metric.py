@@ -47,17 +47,17 @@ for i, (input_,change_,target_) in enumerate(loader):
     out_seq = tokenizer.decode(output_seqs)
 
     want_ = ''
-    for i, let in enumerate(tar_seq):
-        if let == '[' and tar_seq[i:i+5] == '[SEP]':
+    for j, let in enumerate(tar_seq):
+        if let == '[' and tar_seq[j:j+5] == '[SEP]':
             #exclude the [CLS] and the [SEP token]
-            want_ = tar_seq[6:i-1]
+            want_ = tar_seq[6:j-1]
             break
 
     is_ = ''
-    for i, let in enumerate(out_seq):
-        if let == '[' and out_seq[i:i+5] == '[SEP]':
+    for k, let in enumerate(out_seq):
+        if let == '[' and out_seq[k:k+5] == '[SEP]':
             #exclude the [CLS] and the [SEP token]
-            is_ = out_seq[6:i-1]
+            is_ = out_seq[6:k-1]
             break
 
     LD = Levenshtein.distance(want_, is_)
