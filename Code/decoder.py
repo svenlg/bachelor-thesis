@@ -47,10 +47,7 @@ class Decoder(nn.Module):
     def forward(self, old, change, inputs_old, inputs_cha, targets=None, teacher_forcing=1.0):
     
         batch_size = old.shape[0]
-        # assert that the inputs are different
 
-        assert not torch.equal(old, change)
-        assert not torch.equal(inputs_old, inputs_cha)
         # Set initial hidden states
         hidden = torch.zeros(1, batch_size, self.hidden_size).to(self.device)
 
@@ -67,27 +64,35 @@ class Decoder(nn.Module):
         # ohis = (b, seq_length, vocab_size)
         one_hot_input_seq_old = self.to_one_hot(inputs_old, self.vocab_size)
         one_hot_input_seq_cha = self.to_one_hot(inputs_cha, self.vocab_size)
+        
+        pad = torch.tensor([[True]]*batch_size , requires_grad=False)
 
         for step_idx in range(1, self.max_length):
 
             if not targets == None and step_idx < targets.shape[1]:
                 # replace some inputs with the targets (i.e. teacher forcing)
-                teacher_forcing_mask = ((torch.rand((batch_size, 1)) < teacher_forcing)).detach().to(self.device)
-                sampled_idx = sampled_idx.masked_scatter(teacher_forcing_mask, targets[:, step_idx-1:step_idx])
+                for k in range(batch_size):
+                    pad[k:] = not self.pad_to == targets[k, step_idx-1:step_idx]
 
-            sampled_idx, output, hidden, selective_read = self.step(sampled_idx, hidden, old, change, selective_read,
-                                                                    one_hot_input_seq_old, one_hot_input_seq_cha)
+                print(pad)
+                
+                # teacher_forcing_mask = ((torch.rand((batch_size, 1)) < teacher_forcing)).detach().to(self.device)
+                # sampled_idx = sampled_idx.masked_scatter(teacher_forcing_mask, targets[:, step_idx-1:step_idx])
 
-            decoder_outputs.append(output)
-            sampled_idxs.append(sampled_idx)
+            # sampled_idx, output, hidden, selective_read = self.step(sampled_idx, hidden, old, change, selective_read,
+            #                                                         one_hot_input_seq_old, one_hot_input_seq_cha, pad)
+            
 
-        decoder_outputs = torch.stack(decoder_outputs, dim=1)
-        sampled_idxs = torch.stack(sampled_idxs, dim=1)
+            # decoder_outputs.append(output)
+            # sampled_idxs.append(sampled_idx)
+
+        # decoder_outputs = torch.stack(decoder_outputs, dim=1)
+        # sampled_idxs = torch.stack(sampled_idxs, dim=1)
 
         return decoder_outputs, sampled_idxs
 
 
-    def step(self, prev_idx, prev_hidden, old, change, prev_selective_read, one_hot_input_seq_old, one_hot_input_seq_cha):
+    def step(self, prev_idx, prev_hidden, old, change, prev_selective_read, one_hot_input_seq_old, one_hot_input_seq_cha, pad):
 
         # prev_hidden.shape = (b, 1, hidden)
         # self.hidden_size = 768
@@ -134,14 +139,14 @@ class Decoder(nn.Module):
         # copy_scores.shape = (b, vocab_size)
         copy_scores_old = torch.bmm(torch.transpose(copy_score_seq_old, 1, 2), one_hot_input_seq_old).squeeze(1)
         copy_scores_cha = torch.bmm(torch.transpose(copy_score_seq_cha, 1, 2), one_hot_input_seq_cha).squeeze(1)
-        # penalize tokens that are not present in the old or chaged laws (+ MASK and PAD Token)
+        # penalize tokens that are not present in the old or chaged laws (+ MASK, CLS and PAD Token)
         # missing_token_mask.shape = (b, vocab_size)
         missing_token_mask_old = (one_hot_input_seq_old.sum(dim=1) == 0)
         missing_token_mask_old[:, self.mask_to] = True
-        missing_token_mask_old[:, self.pad_to] = True
+        missing_token_mask_old[:, self.pad_to] = pad
         missing_token_mask_cha = (one_hot_input_seq_cha.sum(dim=1) == 0)
         missing_token_mask_cha[:, self.mask_to] = True
-        missing_token_mask_cha[:, self.pad_to] = True
+        missing_token_mask_cha[:, self.pad_to] = pad
         missing_token_mask = torch.logical_and(missing_token_mask_old, missing_token_mask_cha)
         # copy_scores.shape = (b, vocab_size)
         copy_scores_old = copy_scores_old.masked_fill(missing_token_mask, -1000000.0)
