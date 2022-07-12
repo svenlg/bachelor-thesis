@@ -41,9 +41,8 @@ for i, (input_,change_,target_) in enumerate(loader):
     output_log_probs, output_seqs = COPY(input_,change_)
     
     target_ = target_[0]
-    print(target_.shape)
     output_seqs = output_seqs.squeeze(-1)[0]
-    print(output_seqs.shape)
+
     tar_seq = tokenizer.decode(target_)
     out_seq = tokenizer.decode(output_seqs.squeeze(-1)[0])
     
@@ -53,19 +52,19 @@ for i, (input_,change_,target_) in enumerate(loader):
             #exclude the [CLS] and the [SEP token]
             want_ = tar_seq[6:i-1]
             break
-
+    
     is_ = ''
     for i, let in enumerate(out_seq):
         if let == '[' and out_seq[i:i+5] == '[SEP]':
             #exclude the [CLS] and the [SEP token]
             is_ = out_seq[6:i-1]
             break
-    
+    print(want_)
+    print(is_)
     LD = Levenshtein.distance(want_, is_)
     LD_rel = LD / len(want_)
 
     stats.append([i, LD, LD_rel])
-    print(output_seqs[0].shape)
     to = np.vstack((target_.cpu().numpy(),output_seqs.cpu().numpy()))
     tokens.append(to)
     print(f'Round {i+1} | LD={LD} | LD_rel={LD_rel:.4f}')
