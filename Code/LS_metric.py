@@ -36,7 +36,7 @@ print(f'\nLETS GO')
 
 
 for i, (input_,change_,target_) in enumerate(loader):
-    print(f'Round {i}')
+    print(f'Round {i+1}')
 
     output_log_probs, output_seqs = COPY(input_,change_)
     tar_seq = tokenizer.decode(target_[0])
@@ -65,8 +65,9 @@ for i, (input_,change_,target_) in enumerate(loader):
     LD_rel = LD / len(want_)
 
     stats.append([i, LD, LD_rel])
-    to = np.vstack((target_[0].numpy(),output_seqs[0].numpy()))
+    to = np.vstack((target_[0].cpu().numpy(),output_seqs[0].cpu().numpy()))
     tokens.append(to)
+    print(f'Round {i+1} | LD={LD} | LD_rel={LD_rel:.4f}')
 
 
 save_stats = pre + '/log/levenshtein_stats.npy'
