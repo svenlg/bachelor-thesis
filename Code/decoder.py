@@ -65,14 +65,14 @@ class Decoder(nn.Module):
         one_hot_input_seq_old = self.to_one_hot(inputs_old, self.vocab_size)
         one_hot_input_seq_cha = self.to_one_hot(inputs_cha, self.vocab_size)
         
-        pad = torch.tensor([[True]]*batch_size , requires_grad=False).to(self.device)
+        pad = torch.tensor([True]*batch_size , requires_grad=False).to(self.device)
 
         for step_idx in range(1, self.max_length):
 
             if not targets == None and step_idx < targets.shape[1]:
                 # replace some inputs with the targets (i.e. teacher forcing)
                 for k in range(batch_size):
-                    pad[k:] = not self.pad_to == targets[k, step_idx-1:step_idx]
+                    pad[k] = not self.pad_to == targets[k, step_idx-1:step_idx]
                 
                 teacher_forcing_mask = ((torch.rand((batch_size, 1)) < teacher_forcing)).detach().to(self.device)
                 sampled_idx = sampled_idx.masked_scatter(teacher_forcing_mask, targets[:, step_idx-1:step_idx])
@@ -141,8 +141,6 @@ class Decoder(nn.Module):
         # missing_token_mask.shape = (b, vocab_size)
         missing_token_mask_old = (one_hot_input_seq_old.sum(dim=1) == 0)
         missing_token_mask_old[:, self.mask_to] = True
-        print(missing_token_mask_old[:, self.pad_to].shape)
-        print(pad.shape)
         missing_token_mask_old[:, self.pad_to] = pad
         missing_token_mask_cha = (one_hot_input_seq_cha.sum(dim=1) == 0)
         missing_token_mask_cha[:, self.mask_to] = True
