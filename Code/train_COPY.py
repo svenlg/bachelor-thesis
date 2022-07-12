@@ -29,14 +29,12 @@ def train(rank, args):
 
     # Getting the data train and test and split the trainings data into train and val sets
     path = '/scratch/sgutjahr/Data_Token_Copy/'
-    model_path = '/scratch/sgutjahr/log/ddp500_BERT_MLM_best.pt'
+    model_path = '/scratch/sgutjahr/log/ddp500_BERT_MLM.pt'
 
     data_train = get_laws_for_Copy(path, 'train')
     data_val = get_laws_for_Copy(path, 'val')
-    print(data_train.shape)
-    print(data_val.shape)
     device = torch.device(f'cuda:{rank}')
-    encoder_decoder = EncoderDecoder(model_path, device, hidden_size=args.hidden_size)#.to(rank)
+    encoder_decoder = EncoderDecoder(model_path, device, hidden_size=args.hidden_size)
 
     # Wrap the model
     encoder_decoder = DDP(encoder_decoder, device_ids=[rank], find_unused_parameters=True)
