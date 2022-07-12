@@ -65,7 +65,7 @@ class Decoder(nn.Module):
         one_hot_input_seq_old = self.to_one_hot(inputs_old, self.vocab_size)
         one_hot_input_seq_cha = self.to_one_hot(inputs_cha, self.vocab_size)
         
-        pad = torch.tensor([[True]]*batch_size , requires_grad=False)
+        pad = torch.tensor([[True]]*batch_size , requires_grad=False).to(self.device)
 
         for step_idx in range(1, self.max_length):
 
@@ -73,8 +73,6 @@ class Decoder(nn.Module):
                 # replace some inputs with the targets (i.e. teacher forcing)
                 for k in range(batch_size):
                     pad[k:] = not self.pad_to == targets[k, step_idx-1:step_idx]
-
-                print(pad)
                 
                 teacher_forcing_mask = ((torch.rand((batch_size, 1)) < teacher_forcing)).detach().to(self.device)
                 sampled_idx = sampled_idx.masked_scatter(teacher_forcing_mask, targets[:, step_idx-1:step_idx])
