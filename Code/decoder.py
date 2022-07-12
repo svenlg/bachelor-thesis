@@ -141,6 +141,8 @@ class Decoder(nn.Module):
         # missing_token_mask.shape = (b, vocab_size)
         missing_token_mask_old = (one_hot_input_seq_old.sum(dim=1) == 0)
         missing_token_mask_old[:, self.mask_to] = True
+        print(missing_token_mask_old[:, self.pad_to].shape)
+        print(pad.shape)
         missing_token_mask_old[:, self.pad_to] = pad
         missing_token_mask_cha = (one_hot_input_seq_cha.sum(dim=1) == 0)
         missing_token_mask_cha[:, self.mask_to] = True
