@@ -44,7 +44,7 @@ for i, (input_,change_,target_) in enumerate(loader):
     output_seqs = output_seqs.squeeze(-1)[0]
 
     tar_seq = tokenizer.decode(target_)
-    out_seq = tokenizer.decode(output_seqs.squeeze(-1)[0])
+    out_seq = tokenizer.decode(output_seqs)
     
     want_ = ''
     for i, let in enumerate(tar_seq):
