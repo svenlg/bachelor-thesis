@@ -76,18 +76,18 @@ class Decoder(nn.Module):
 
                 print(pad)
                 
-                # teacher_forcing_mask = ((torch.rand((batch_size, 1)) < teacher_forcing)).detach().to(self.device)
-                # sampled_idx = sampled_idx.masked_scatter(teacher_forcing_mask, targets[:, step_idx-1:step_idx])
+                teacher_forcing_mask = ((torch.rand((batch_size, 1)) < teacher_forcing)).detach().to(self.device)
+                sampled_idx = sampled_idx.masked_scatter(teacher_forcing_mask, targets[:, step_idx-1:step_idx])
 
-            # sampled_idx, output, hidden, selective_read = self.step(sampled_idx, hidden, old, change, selective_read,
-            #                                                         one_hot_input_seq_old, one_hot_input_seq_cha, pad)
+            sampled_idx, output, hidden, selective_read = self.step(sampled_idx, hidden, old, change, selective_read,
+                                                                    one_hot_input_seq_old, one_hot_input_seq_cha, pad)
             
 
-            # decoder_outputs.append(output)
-            # sampled_idxs.append(sampled_idx)
+            decoder_outputs.append(output)
+            sampled_idxs.append(sampled_idx)
 
-        # decoder_outputs = torch.stack(decoder_outputs, dim=1)
-        # sampled_idxs = torch.stack(sampled_idxs, dim=1)
+        decoder_outputs = torch.stack(decoder_outputs, dim=1)
+        sampled_idxs = torch.stack(sampled_idxs, dim=1)
 
         return decoder_outputs, sampled_idxs
 
