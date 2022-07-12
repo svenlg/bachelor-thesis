@@ -21,7 +21,6 @@ hidden_size = 185
 path = pre + '/Data_Token_Copy/'
 data = get_laws_for_Copy(path)
 
-print('load model')
 checkpoint = torch.load(pre + '/log/FT_COPY_best_3.pt', map_location=(device))
 COPY = EncoderDecoder(model_path, device, hidden_size=hidden_size)
 COPY.load_state_dict(checkpoint['model_state_dict'])
@@ -30,14 +29,14 @@ dataset = DatasetForCOPY(data, device)
 loader = DataLoader(dataset, batch_size=1, shuffle=False)
 
 stats = []
-print('LETS GO')
+print(f'\nLETS GO')
 
 for i, (input_,change_,target_) in enumerate(loader):
     print(i)
     output_log_probs, output_seqs = COPY(input_,change_)
     
     tar_seq = tokenizer.batch_decode(target_)
-    out_seq = tokenizer.batch_decode(output_seqs).squeeze(-1)
+    out_seq = tokenizer.batch_decode(output_seqs.squeeze(-1))
     
     want_ = ''
     for i, let in enumerate(tar_seq[1]):
