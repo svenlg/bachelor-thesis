@@ -36,13 +36,11 @@ print(f'\nLETS GO')
 
 
 for i, (input_,change_,target_) in enumerate(loader):
-    print(f'Round {i+1}')
 
     output_log_probs, output_seqs = COPY(input_,change_)
 
     target_ = target_[0]
     output_seqs = output_seqs.squeeze(-1)[0]
-
     tar_seq = tokenizer.decode(target_)
     out_seq = tokenizer.decode(output_seqs)
 
