@@ -25,6 +25,7 @@ class EncoderDecoder(nn.Module):
         # Link
         self.ff_old = nn.Linear(self.bert_output_size, self.hidden_size).to(self.device)
         self.ff_cha = nn.Linear(self.bert_output_size, self.hidden_size).to(self.device)
+        print(BERTload['checkpoint'])
 
         # Settings
         tokenizer = AutoTokenizer.from_pretrained(BERTload['checkpoint'])
