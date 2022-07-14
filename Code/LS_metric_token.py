@@ -90,7 +90,6 @@ for i in range(4):
             LD_r = levenshtein_ratio_and_distance(tar[:tar_sep],out[:out_sep],True)
 
             stats.append([LD, LD_r])
-
             to = np.vstack((tar,out))
             tokens.append(to)
         
