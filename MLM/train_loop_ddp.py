@@ -153,7 +153,7 @@ if __name__ == '__main__':
     parser.add_argument('-e','--epoch', type=int, default=300,
                         help='Number of Trainings Epochs.')
 
-    parser.add_argument('-bs','--batch_size', type=int, default=32,
+    parser.add_argument('-bs','--batch_size', type=int, default=8,
                         help='Batch Size')
 
     parser.add_argument('-t','--loader_size_tr', type=int, default=5120,
