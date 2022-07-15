@@ -25,8 +25,8 @@ def main(args,mask,fname):
 
     # Pretrained model
     model = LawNetMLM(args.checkpoint)
-    if torch.cuda.device_count() > 1:
-        model = nn.DataParallel(model)
+    #if torch.cuda.device_count() > 1:
+    #    model = nn.DataParallel(model)
 
     # Getting the data train and test and split the trainings data into train and val sets
     laws = get_laws(fname,mask)
