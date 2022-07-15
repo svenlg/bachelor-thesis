@@ -71,10 +71,10 @@ if __name__ == '__main__':
     parser.add_argument('-e','--epoch', type=int, default=300,
                         help='Number of Trainings Epochs.')
     
-    parser.add_argument('-t','--loader_size_tr', type=int, default=3000,
+    parser.add_argument('-t','--loader_size_tr', type=int, default=5120,
                         help='Number of data used for training per epoch')
     
-    parser.add_argument('-v','--loader_size_val', type=int, default=1080,
+    parser.add_argument('-v','--loader_size_val', type=int, default=1280,
                         help='Number of data used for validation per epoch')
 
     parser.add_argument('-s', '--split_size', type=float, default=0.2,

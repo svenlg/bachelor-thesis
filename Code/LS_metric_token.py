@@ -92,7 +92,6 @@ for i in range(4):
             stats.append([LD, LD_r])
             to = np.vstack((tar,out))
             tokens.append(to)
-            # if j+1 % 25 == 0:
             print(f'Round: {j+1}')
         
         save_stats = f'/scratch/sgutjahr/log/LSD/{i}_stats_{se}.npy'
