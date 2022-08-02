@@ -19,7 +19,7 @@ def levenshtein_ratio_and_distance(s, t, ratio_calc = False):
             distance[i][0] = i
             distance[0][k] = k
 
-    # Iterate over the matrix to compute the cost of deletions,insertions and/or substitutions    
+    # Iterate over the matrix to compute the cost of deletions,insertions and/or substitutions
     for col in range(1, cols):
         for row in range(1, rows):
             if s[row-1] == t[col-1]:
